@@ -39,9 +39,7 @@ public class AuthController {
 
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(
-                            "User registered successfully"
-                    );
+                    .body("User registered successfully");
 
         } catch (RuntimeException e) {
 
@@ -62,15 +60,21 @@ public class AuthController {
 
         try {
 
-            String token = authService.login(
+            User user = authService.login(
                     request.getUsername(),
                     request.getPassword()
             );
 
+            String token =
+                    authService.generateToken(
+                            user.getUsername()
+                    );
+
             return ResponseEntity.ok(
                     new LoginResponse(
                             token,
-                            request.getUsername()
+                            user.getUsername(),
+                            user.getRole()
                     )
             );
 
@@ -78,9 +82,7 @@ public class AuthController {
 
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
-                    .body(
-                            "Invalid username or password"
-                    );
+                    .body("Invalid username or password");
         }
     }
 }

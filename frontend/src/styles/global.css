@@ -1,0 +1,219 @@
+@import './colors.css';
+
+
+/* =================================
+   GLOBAL RESET
+   ================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+
+    box-sizing: border-box;
+}
+
+
+/* =================================
+   HTML
+   ================================= */
+
+html {
+    scroll-behavior: smooth;
+
+    font-size: 16px;
+}
+
+
+/* =================================
+   BODY
+   ================================= */
+
+body {
+    min-width: 320px;
+    min-height: 100vh;
+
+    background: var(--color-background);
+
+    color: var(--color-text-primary);
+
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    font-size: 16px;
+    line-height: 1.5;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* =================================
+   HEADINGS
+   ================================= */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--color-text-primary);
+
+    line-height: 1.25;
+
+    font-weight: 700;
+}
+
+
+/* =================================
+   PARAGRAPHS
+   ================================= */
+
+p {
+    line-height: 1.6;
+}
+
+
+/* =================================
+   FORM ELEMENTS
+   ================================= */
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+
+/* =================================
+   BUTTONS
+   ================================= */
+
+button {
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: not-allowed;
+}
+
+
+/* =================================
+   LINKS
+   ================================= */
+
+a {
+    color: inherit;
+
+    text-decoration: none;
+}
+
+
+/* =================================
+   LISTS
+   ================================= */
+
+ul,
+ol {
+    list-style: none;
+}
+
+
+/* =================================
+   IMAGES
+   ================================= */
+
+img {
+    max-width: 100%;
+
+    display: block;
+}
+
+
+/* =================================
+   TABLES
+   ================================= */
+
+table {
+    border-collapse: collapse;
+
+    width: 100%;
+}
+
+
+/* =================================
+   INPUTS
+   ================================= */
+
+input,
+select,
+textarea {
+    color: var(--color-text-primary);
+
+    font-size: 15px;
+}
+
+
+/* =================================
+   PLACEHOLDER
+   ================================= */
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--color-text-light);
+
+    opacity: 1;
+}
+
+
+/* =================================
+   SCROLLBAR
+   ================================= */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-background-soft);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-pink);
+
+    border-radius: var(--radius-round);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent);
+}
+
+
+/* =================================
+   SELECTION
+   ================================= */
+
+::selection {
+    background: var(--color-lavender);
+
+    color: var(--color-primary);
+}
+
+
+/* =================================
+   RESPONSIVE TYPOGRAPHY
+   ================================= */
+
+@media (max-width: 700px) {
+
+    body {
+        font-size: 15px;
+    }
+
+}

@@ -1,6 +1,5 @@
 package com.gradexa.backend.service;
 
-import com.gradexa.backend.entity.RegistrationStatus;
 import com.gradexa.backend.entity.Role;
 import com.gradexa.backend.entity.User;
 import com.gradexa.backend.repository.UserRepository;
@@ -58,12 +57,8 @@ public class AuthService {
 
         user.setRole(role);
 
-        // New users must wait for admin approval
+        // New registrations require admin approval
         user.setActive(false);
-
-        user.setRegistrationStatus(
-                RegistrationStatus.PENDING
-        );
 
         return userRepository.save(user);
     }
@@ -72,34 +67,10 @@ public class AuthService {
     // LOGIN
     // ===============================
 
-    public String login(
+    public User login(
             String username,
             String password
     ) {
-
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Invalid username or password"
-                        )
-                );
-
-        // User must be approved by an admin
-        if (user.getRegistrationStatus()
-                != RegistrationStatus.APPROVED) {
-
-            throw new RuntimeException(
-                    "Your registration is not approved"
-            );
-        }
-
-        // User must be active
-        if (!user.isActive()) {
-
-            throw new RuntimeException(
-                    "Your account is inactive"
-            );
-        }
 
         Authentication authentication =
                 authenticationManager.authenticate(
@@ -110,11 +81,25 @@ public class AuthService {
                 );
 
         if (!authentication.isAuthenticated()) {
-
             throw new RuntimeException(
                     "Invalid username or password"
             );
         }
+
+        return userRepository
+                .findByUsername(username)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "User not found"
+                        )
+                );
+    }
+
+    // ===============================
+    // GENERATE TOKEN
+    // ===============================
+
+    public String generateToken(String username) {
 
         return jwtService.generateToken(username);
     }

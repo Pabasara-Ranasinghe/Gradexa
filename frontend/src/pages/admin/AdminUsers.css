@@ -1,0 +1,49 @@
+.admin-users-page {
+    width: 100%;
+}
+
+.admin-users-header {
+    margin-bottom: 25px;
+}
+
+.admin-users-header h1 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.admin-users-header p {
+    margin: 5px 0 0;
+    color: var(--color-text-secondary);
+    font-size: 11px;
+}
+
+.admin-users-error {
+    margin-bottom: 20px;
+    padding: 12px 15px;
+    border-radius: var(--radius-medium);
+    background: rgba(214, 51, 108, 0.08);
+    color: var(--color-error);
+    font-size: 12px;
+}
+
+.admin-users-loading {
+    padding: 50px;
+    text-align: center;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+}
+
+.admin-users-card {
+    padding: 25px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-large);
+    background: var(--color-surface);
+}
+
+.admin-users-card p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+}

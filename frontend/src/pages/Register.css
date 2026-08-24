@@ -1,0 +1,481 @@
+.register-page {
+    min-height: 100vh;
+    display: flex;
+    background: var(--color-background);
+}
+
+/* =================================
+   BRAND SECTION
+   ================================= */
+
+.register-brand {
+    width: 42%;
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            145deg,
+            var(--color-primary),
+            #1E3A5F
+        );
+
+    position: relative;
+    overflow: hidden;
+}
+
+.register-brand::before {
+    content: "";
+
+    position: absolute;
+
+    width: 430px;
+    height: 430px;
+
+    border-radius: 50%;
+
+    background: rgba(20, 184, 166, 0.12);
+
+    top: -170px;
+    right: -150px;
+}
+
+.register-brand::after {
+    content: "";
+
+    position: absolute;
+
+    width: 310px;
+    height: 310px;
+
+    border-radius: 50%;
+
+    background: rgba(37, 99, 235, 0.16);
+
+    bottom: -130px;
+    left: -100px;
+}
+
+.register-brand-content {
+    position: relative;
+    z-index: 1;
+
+    text-align: center;
+
+    color: var(--color-text-white);
+
+    padding: 40px;
+}
+
+.register-logo {
+    width: 70px;
+    height: 70px;
+
+    margin: 0 auto 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 18px;
+
+    background: var(--color-accent);
+
+    color: var(--color-text-white);
+
+    font-size: 34px;
+    font-weight: 800;
+
+    box-shadow:
+        0 12px 30px rgba(20, 184, 166, 0.25);
+}
+
+.register-brand-content h1 {
+    font-size: 46px;
+    font-weight: 800;
+
+    margin-bottom: 10px;
+}
+
+.register-brand-content p {
+    font-size: 16px;
+
+    color: rgba(255, 255, 255, 0.75);
+
+    margin-bottom: 25px;
+}
+
+.register-brand-line {
+    width: 50px;
+    height: 3px;
+
+    margin: 0 auto 18px;
+
+    border-radius: var(--radius-round);
+
+    background: var(--color-accent);
+}
+
+.register-brand-content span {
+    font-size: 14px;
+
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* =================================
+   REGISTRATION SECTION
+   ================================= */
+
+.register-section {
+    width: 58%;
+
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 40px;
+}
+
+.register-card {
+    width: 100%;
+    max-width: 500px;
+}
+
+/* =================================
+   HEADER
+   ================================= */
+
+.register-header {
+    margin-bottom: 22px;
+}
+
+.register-header h2 {
+    font-size: 30px;
+    font-weight: 700;
+
+    color: var(--color-text-primary);
+
+    margin-bottom: 7px;
+}
+
+.register-header p {
+    font-size: 15px;
+
+    color: var(--color-text-secondary);
+}
+
+/* =================================
+   APPROVAL NOTICE
+   ================================= */
+
+.approval-notice {
+    display: flex;
+    gap: 12px;
+
+    padding: 14px;
+
+    margin-bottom: 20px;
+
+    border-radius: var(--radius-medium);
+
+    background: rgba(245, 158, 11, 0.09);
+
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.approval-icon {
+    flex-shrink: 0;
+
+    width: 26px;
+    height: 26px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: var(--color-warning);
+
+    color: var(--color-text-white);
+
+    font-weight: 700;
+}
+
+.approval-notice strong {
+    display: block;
+
+    margin-bottom: 4px;
+
+    font-size: 13px;
+
+    color: var(--color-text-primary);
+}
+
+.approval-notice p {
+    font-size: 12px;
+    line-height: 1.5;
+
+    color: var(--color-text-secondary);
+}
+
+/* =================================
+   MESSAGES
+   ================================= */
+
+.register-error,
+.register-success {
+    padding: 13px 15px;
+
+    margin-bottom: 20px;
+
+    border-radius: var(--radius-medium);
+
+    font-size: 14px;
+}
+
+.register-error {
+    color: var(--color-error);
+
+    background: rgba(249, 115, 115, 0.1);
+
+    border: 1px solid rgba(249, 115, 115, 0.2);
+}
+
+.register-success {
+    color: var(--color-success);
+
+    background: rgba(16, 185, 129, 0.08);
+
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.register-success strong {
+    display: block;
+
+    margin-bottom: 5px;
+}
+
+.register-success p {
+    margin-bottom: 8px;
+
+    line-height: 1.5;
+}
+
+.register-success a {
+    font-weight: 600;
+
+    color: var(--color-secondary);
+}
+
+/* =================================
+   FORM
+   ================================= */
+
+.register-form {
+    display: flex;
+    flex-direction: column;
+
+    gap: 17px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+
+    color: var(--color-text-primary);
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+
+    padding: 12px 13px;
+
+    border: 1px solid var(--color-border);
+
+    border-radius: var(--radius-medium);
+
+    background: var(--color-surface);
+
+    color: var(--color-text-primary);
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.form-group input::placeholder {
+    color: var(--color-text-light);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--color-border-focus);
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-group input:disabled,
+.form-group select:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+}
+
+/* =================================
+   PASSWORD
+   ================================= */
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 70px;
+}
+
+.password-toggle {
+    position: absolute;
+
+    right: 12px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    border: none;
+
+    background: transparent;
+
+    color: var(--color-secondary);
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.password-toggle:hover {
+    color: var(--color-primary);
+}
+
+/* =================================
+   REGISTER BUTTON
+   ================================= */
+
+.register-button {
+    width: 100%;
+
+    margin-top: 3px;
+
+    padding: 13px;
+
+    border: none;
+
+    border-radius: var(--radius-medium);
+
+    background: var(--color-secondary);
+
+    color: var(--color-text-white);
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.register-button:hover:not(:disabled) {
+    background: var(--color-primary);
+
+    transform: translateY(-1px);
+
+    box-shadow: var(--shadow-medium);
+}
+
+.register-button:disabled {
+    opacity: 0.65;
+
+    cursor: not-allowed;
+}
+
+/* =================================
+   LOGIN LINK
+   ================================= */
+
+.login-link {
+    display: flex;
+
+    justify-content: center;
+
+    gap: 6px;
+
+    margin-top: 22px;
+
+    font-size: 13px;
+
+    color: var(--color-text-secondary);
+}
+
+.login-link a {
+    color: var(--color-secondary);
+
+    font-weight: 600;
+}
+
+.login-link a:hover {
+    color: var(--color-primary);
+}
+
+/* =================================
+   RESPONSIVE
+   ================================= */
+
+@media (max-width: 850px) {
+
+    .register-page {
+        display: block;
+    }
+
+    .register-brand {
+        width: 100%;
+        min-height: 260px;
+    }
+
+    .register-section {
+        width: 100%;
+        min-height: auto;
+
+        padding: 40px 25px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .register-brand {
+        min-height: 220px;
+    }
+
+    .register-section {
+        padding: 30px 20px;
+    }
+
+    .register-header h2 {
+        font-size: 26px;
+    }
+}
