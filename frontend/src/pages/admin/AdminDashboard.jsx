@@ -26,6 +26,9 @@ function AdminDashboard() {
     const [loading, setLoading] =
         useState(true);
 
+    const [refreshing, setRefreshing] =
+        useState(false);
+
     const [error, setError] =
         useState('');
 
@@ -37,11 +40,18 @@ function AdminDashboard() {
     // LOAD DASHBOARD DATA
     // ===============================
 
-    const loadDashboardData = async () => {
+    const loadDashboardData = async (
+        isRefresh = false
+    ) => {
 
         try {
 
-            setLoading(true);
+            if (isRefresh) {
+                setRefreshing(true);
+            } else {
+                setLoading(true);
+            }
+
             setError('');
 
             const pendingData =
@@ -51,7 +61,7 @@ function AdminDashboard() {
                 await getAdminReport();
 
             setPendingUsers(
-                pendingData
+                pendingData || []
             );
 
             setReport(
@@ -70,6 +80,7 @@ function AdminDashboard() {
         } finally {
 
             setLoading(false);
+            setRefreshing(false);
 
         }
     };
@@ -99,7 +110,6 @@ function AdminDashboard() {
 
             await approveRegistration(id);
 
-            // Remove approved user
             setPendingUsers(
                 currentUsers =>
                     currentUsers.filter(
@@ -108,7 +118,6 @@ function AdminDashboard() {
                     )
             );
 
-            // Refresh statistics
             const updatedReport =
                 await getAdminReport();
 
@@ -134,21 +143,176 @@ function AdminDashboard() {
 
 
     // ===============================
+    // REPORT VALUES
+    // ===============================
+
+    const totalUsers =
+        report?.totalUsers ?? 0;
+
+    const students =
+        report?.students ?? 0;
+
+    const teachers =
+        report?.teachers ?? 0;
+
+    const admins =
+        report?.admins ?? 0;
+
+    const sectionHeads =
+        report?.sectionHeads ?? 0;
+
+    const vicePrincipals =
+        report?.vicePrincipals ?? 0;
+
+    const principals =
+        report?.principals ?? 0;
+
+    const activeUsers =
+        report?.activeUsers ?? 0;
+
+    const inactiveUsers =
+        report?.inactiveUsers ?? 0;
+
+    const approvedUsers =
+        report?.approvedUsers ?? 0;
+
+
+    // ===============================
+    // PERCENTAGE HELPER
+    // ===============================
+
+    const getPercentage = (
+        value,
+        total = totalUsers
+    ) => {
+
+        if (!total || total === 0) {
+            return 0;
+        }
+
+        return Math.round(
+            (value / total) * 100
+        );
+    };
+
+
+    const activePercentage =
+        getPercentage(activeUsers);
+
+    const inactivePercentage =
+        getPercentage(inactiveUsers);
+
+
+    // ===============================
+    // USER DISTRIBUTION
+    // ===============================
+
+    const roleData = [
+
+        {
+            name: 'Students',
+            value: students,
+            className: 'students'
+        },
+
+        {
+            name: 'Teachers',
+            value: teachers,
+            className: 'teachers'
+        },
+
+        {
+            name: 'Administrators',
+            value: admins,
+            className: 'admins'
+        },
+
+        {
+            name: 'Section Heads',
+            value: sectionHeads,
+            className: 'section-heads'
+        },
+
+        {
+            name: 'Vice Principals',
+            value: vicePrincipals,
+            className: 'vice-principals'
+        },
+
+        {
+            name: 'Principals',
+            value: principals,
+            className: 'principals'
+        }
+
+    ];
+
+
+    // ===============================
+    // DASHBOARD INSIGHT
+    // ===============================
+
+    let insightTitle =
+        'System Overview';
+
+    let insightMessage =
+        'Gradexa is ready for academic management.';
+
+
+    if (pendingUsers.length > 0) {
+
+        insightTitle =
+            'Registration Requests';
+
+        insightMessage =
+            `There ${pendingUsers.length === 1 ? 'is' : 'are'} `
+            + `${pendingUsers.length} pending registration`
+            + `${pendingUsers.length === 1 ? '' : 's'} `
+            + `waiting for administrator review.`;
+
+    } else if (totalUsers > 0) {
+
+        insightTitle =
+            'User Activity';
+
+        insightMessage =
+            `${activePercentage}% of registered users `
+            + `are currently active. There are `
+            + `${inactiveUsers} inactive account`
+            + `${inactiveUsers === 1 ? '' : 's'}.`;
+
+    }
+
+
+    // ===============================
     // RENDER
     // ===============================
 
     return (
+
         <div className="dashboard-page">
 
 
             {/* =================================
                 ERROR
-                ================================= */}
+            ================================= */}
 
             {error && (
 
                 <div className="dashboard-error">
-                    {error}
+
+                    <span>
+                        {error}
+                    </span>
+
+                    <button
+                        onClick={() =>
+                            loadDashboardData(true)
+                        }
+                    >
+                        Try Again
+                    </button>
+
                 </div>
 
             )}
@@ -156,11 +320,15 @@ function AdminDashboard() {
 
             {/* =================================
                 PAGE TITLE
-                ================================= */}
+            ================================= */}
 
             <div className="dashboard-page-title">
 
                 <div>
+
+                    <span className="dashboard-eyebrow">
+                        ADMINISTRATION
+                    </span>
 
                     <h1>
                         Dashboard
@@ -173,19 +341,34 @@ function AdminDashboard() {
 
                 </div>
 
+
+                <button
+                    className="dashboard-refresh-button"
+                    onClick={() =>
+                        loadDashboardData(true)
+                    }
+                    disabled={refreshing}
+                >
+                    <span>
+                        ↻
+                    </span>
+
+                    {refreshing
+                        ? 'Refreshing...'
+                        : 'Refresh'}
+                </button>
+
             </div>
 
 
             {/* =================================
                 STATISTICS
-                ================================= */}
+            ================================= */}
 
             <section className="dashboard-stats">
 
 
-                {/* =================================
-                    TOTAL USERS
-                    ================================= */}
+                {/* TOTAL USERS */}
 
                 <div className="stat-card">
 
@@ -193,24 +376,26 @@ function AdminDashboard() {
                         U
                     </div>
 
-                    <div>
+                    <div className="stat-content">
 
                         <span>
                             Total Users
                         </span>
 
                         <strong>
-                            {report?.totalUsers ?? 0}
+                            {totalUsers}
                         </strong>
+
+                        <small>
+                            Registered accounts
+                        </small>
 
                     </div>
 
                 </div>
 
 
-                {/* =================================
-                    PENDING REQUESTS
-                    ================================= */}
+                {/* PENDING */}
 
                 <div className="stat-card">
 
@@ -218,7 +403,7 @@ function AdminDashboard() {
                         !
                     </div>
 
-                    <div>
+                    <div className="stat-content">
 
                         <span>
                             Pending Requests
@@ -228,14 +413,16 @@ function AdminDashboard() {
                             {pendingUsers.length}
                         </strong>
 
+                        <small>
+                            Awaiting approval
+                        </small>
+
                     </div>
 
                 </div>
 
 
-                {/* =================================
-                    TEACHERS
-                    ================================= */}
+                {/* TEACHERS */}
 
                 <div className="stat-card">
 
@@ -243,24 +430,26 @@ function AdminDashboard() {
                         T
                     </div>
 
-                    <div>
+                    <div className="stat-content">
 
                         <span>
                             Teachers
                         </span>
 
                         <strong>
-                            {report?.teachers ?? 0}
+                            {teachers}
                         </strong>
+
+                        <small>
+                            {getPercentage(teachers)}% of users
+                        </small>
 
                     </div>
 
                 </div>
 
 
-                {/* =================================
-                    STUDENTS
-                    ================================= */}
+                {/* STUDENTS */}
 
                 <div className="stat-card">
 
@@ -268,15 +457,195 @@ function AdminDashboard() {
                         S
                     </div>
 
-                    <div>
+                    <div className="stat-content">
 
                         <span>
                             Students
                         </span>
 
                         <strong>
-                            {report?.students ?? 0}
+                            {students}
                         </strong>
+
+                        <small>
+                            {getPercentage(students)}% of users
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            {/* =================================
+                ACTIVITY OVERVIEW
+            ================================= */}
+
+            <section className="dashboard-overview-grid">
+
+
+                {/* USER ACTIVITY */}
+
+                <div className="dashboard-overview-card">
+
+                    <div className="overview-card-header">
+
+                        <div>
+
+                            <h2>
+                                User Activity
+                            </h2>
+
+                            <p>
+                                Current account activity
+                            </p>
+
+                        </div>
+
+                        <span className="overview-total">
+                            {activePercentage}%
+                        </span>
+
+                    </div>
+
+
+                    <div className="activity-overview">
+
+                        <div className="activity-summary">
+
+                            <div className="activity-item">
+
+                                <span className="activity-dot active">
+                                </span>
+
+                                <div>
+
+                                    <strong>
+                                        {activeUsers}
+                                    </strong>
+
+                                    <span>
+                                        Active Users
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div className="activity-item">
+
+                                <span className="activity-dot inactive">
+                                </span>
+
+                                <div>
+
+                                    <strong>
+                                        {inactiveUsers}
+                                    </strong>
+
+                                    <span>
+                                        Inactive Users
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div className="activity-progress">
+
+                            <div
+                                className="activity-progress-active"
+                                style={{
+                                    width:
+                                        `${activePercentage}%`
+                                }}
+                            ></div>
+
+                        </div>
+
+
+                        <div className="activity-progress-label">
+
+                            <span>
+                                Active
+                            </span>
+
+                            <span>
+                                {activePercentage}%
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                {/* ROLE OVERVIEW */}
+
+                <div className="dashboard-overview-card">
+
+                    <div className="overview-card-header">
+
+                        <div>
+
+                            <h2>
+                                User Distribution
+                            </h2>
+
+                            <p>
+                                Users by role
+                            </p>
+
+                        </div>
+
+                        <button
+                            className="overview-link"
+                            onClick={() =>
+                                navigate('/admin/reports')
+                            }
+                        >
+                            View Report
+                        </button>
+
+                    </div>
+
+
+                    <div className="mini-role-list">
+
+                        {roleData.slice(0, 4).map(
+                            role => (
+
+                                <div
+                                    className="mini-role-row"
+                                    key={role.name}
+                                >
+
+                                    <div>
+
+                                        <span
+                                            className={`mini-role-dot ${role.className}`}
+                                        ></span>
+
+                                        <span>
+                                            {role.name}
+                                        </span>
+
+                                    </div>
+
+                                    <strong>
+                                        {role.value}
+                                    </strong>
+
+                                </div>
+
+                            )
+                        )}
 
                     </div>
 
@@ -287,14 +656,14 @@ function AdminDashboard() {
 
             {/* =================================
                 CONTENT GRID
-                ================================= */}
+            ================================= */}
 
             <section className="dashboard-grid">
 
 
                 {/* =================================
                     PENDING REGISTRATIONS
-                    ================================= */}
+                ================================= */}
 
                 <div className="dashboard-card">
 
@@ -327,9 +696,7 @@ function AdminDashboard() {
                     </div>
 
 
-                    {/* =================================
-                        LOADING
-                        ================================= */}
+                    {/* LOADING */}
 
                     {loading && (
 
@@ -347,9 +714,7 @@ function AdminDashboard() {
                     )}
 
 
-                    {/* =================================
-                        EMPTY STATE
-                        ================================= */}
+                    {/* EMPTY */}
 
                     {!loading &&
                         pendingUsers.length === 0 && (
@@ -361,23 +726,31 @@ function AdminDashboard() {
                                 </div>
 
                                 <h3>
-                                    No pending requests
+                                    All caught up!
                                 </h3>
 
                                 <p>
-                                    New registration
-                                    requests will appear
-                                    here.
+                                    There are no pending
+                                    registration requests.
                                 </p>
+
+                                <button
+                                    className="empty-action-button"
+                                    onClick={() =>
+                                        navigate(
+                                            '/admin/registrations'
+                                        )
+                                    }
+                                >
+                                    View Registrations
+                                </button>
 
                             </div>
 
                         )}
 
 
-                    {/* =================================
-                        REGISTRATION LIST
-                        ================================= */}
+                    {/* REGISTRATION LIST */}
 
                     {!loading &&
                         pendingUsers.length > 0 && (
@@ -394,20 +767,15 @@ function AdminDashboard() {
                                             }
                                         >
 
-
-                                            {/* AVATAR */}
-
                                             <div className="registration-avatar">
 
                                                 {pendingUser
                                                     .username
                                                     ?.charAt(0)
-                                                    .toUpperCase()}
+                                                    .toUpperCase() || 'U'}
 
                                             </div>
 
-
-                                            {/* USER INFO */}
 
                                             <div className="registration-info">
 
@@ -425,8 +793,6 @@ function AdminDashboard() {
 
                                             </div>
 
-
-                                            {/* APPROVE */}
 
                                             <button
                                                 className="approve-button"
@@ -462,7 +828,7 @@ function AdminDashboard() {
 
                 {/* =================================
                     QUICK ACTIONS
-                    ================================= */}
+                ================================= */}
 
                 <div className="dashboard-card">
 
@@ -487,9 +853,7 @@ function AdminDashboard() {
                     <div className="quick-actions">
 
 
-                        {/* =================================
-                            MANAGE USERS
-                            ================================= */}
+                        {/* MANAGE USERS */}
 
                         <button
                             className="quick-action"
@@ -517,12 +881,14 @@ function AdminDashboard() {
 
                             </div>
 
+                            <span className="quick-arrow">
+                                →
+                            </span>
+
                         </button>
 
 
-                        {/* =================================
-                            REGISTRATION REQUESTS
-                            ================================= */}
+                        {/* REGISTRATION REQUESTS */}
 
                         <button
                             className="quick-action"
@@ -549,6 +915,44 @@ function AdminDashboard() {
 
                             </div>
 
+                            <span className="quick-arrow">
+                                →
+                            </span>
+
+                        </button>
+
+
+                        {/* REPORTS */}
+
+                        <button
+                            className="quick-action"
+                            onClick={() =>
+                                navigate(
+                                    '/admin/reports'
+                                )
+                            }
+                        >
+
+                            <span className="quick-icon teal">
+                                ▤
+                            </span>
+
+                            <div>
+
+                                <strong>
+                                    View Reports
+                                </strong>
+
+                                <span>
+                                    Review system statistics
+                                </span>
+
+                            </div>
+
+                            <span className="quick-arrow">
+                                →
+                            </span>
+
                         </button>
 
                     </div>
@@ -556,6 +960,31 @@ function AdminDashboard() {
                 </div>
 
             </section>
+
+
+            {/* =================================
+                INSIGHT
+            ================================= */}
+
+            <div className="dashboard-insight">
+
+                <div className="dashboard-insight-icon">
+                    i
+                </div>
+
+                <div>
+
+                    <strong>
+                        {insightTitle}
+                    </strong>
+
+                    <p>
+                        {insightMessage}
+                    </p>
+
+                </div>
+
+            </div>
 
         </div>
     );
