@@ -13,6 +13,8 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import Users from './pages/admin/Users';
 import RegistrationRequests from './pages/admin/RegistrationRequests';
 import Reports from './pages/admin/Reports';
+import Settings from './pages/admin/Settings';
+
 
 function App() {
 
@@ -53,7 +55,7 @@ function App() {
                 element={<AdminLayout />}
             >
 
-                {/* /admin */}
+                {/* /admin → /admin/dashboard */}
                 <Route
                     index
                     element={
@@ -111,11 +113,7 @@ function App() {
 
                 <Route
                     path="settings"
-                    element={
-                        <div>
-                            Settings
-                        </div>
-                    }
+                    element={<Settings />}
                 />
 
             </Route>
@@ -123,5 +121,6 @@ function App() {
         </Routes>
     );
 }
+
 
 export default App;
