@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import {
     getPendingRegistrations,
@@ -9,33 +9,37 @@ import './RegistrationRequests.css';
 
 function RegistrationRequests() {
 
-    const [requests, setRequests] =
-        useState([]);
+    const [requests, setRequests] = useState([]);
 
-    const [loading, setLoading] =
-        useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [roleFilter, setRoleFilter] = useState('ALL');
 
-    const [error, setError] =
-        useState('');
+    const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+    const [error, setError] = useState('');
 
-    const [approvingId, setApprovingId] =
-        useState(null);
+    const [approvingId, setApprovingId] = useState(null);
+    const [selectedRequest, setSelectedRequest] = useState(null);
 
-    // ===============================
+    // =================================
     // LOAD REQUESTS
-    // ===============================
+    // =================================
 
-    const loadRequests = async () => {
+    const loadRequests = async (isRefresh = false) => {
 
         try {
 
-            setLoading(true);
+            if (isRefresh) {
+                setRefreshing(true);
+            } else {
+                setLoading(true);
+            }
+
             setError('');
 
-            const data =
-                await getPendingRegistrations();
+            const data = await getPendingRegistrations();
 
-            setRequests(data);
+            setRequests(data || []);
 
         } catch (error) {
 
@@ -49,19 +53,175 @@ function RegistrationRequests() {
         } finally {
 
             setLoading(false);
+            setRefreshing(false);
 
         }
     };
 
     useEffect(() => {
-
         loadRequests();
-
     }, []);
 
-    // ===============================
-    // APPROVE
-    // ===============================
+    // =================================
+    // ROLE LABEL
+    // =================================
+
+    const getRoleLabel = (role) => {
+
+        switch (role) {
+
+            case 'ADMIN':
+                return 'Admin';
+
+            case 'TEACHER':
+                return 'Teacher';
+
+            case 'STUDENT':
+                return 'Student';
+
+            case 'SECTION_HEAD':
+                return 'Section Head';
+
+            case 'VICE_PRINCIPAL':
+                return 'Vice Principal';
+
+            case 'PRINCIPAL':
+                return 'Principal';
+
+            default:
+                return role || 'Unknown';
+        }
+    };
+
+    // =================================
+    // ROLE CLASS
+    // =================================
+
+    const getRoleClass = (role) => {
+
+        switch (role) {
+
+            case 'ADMIN':
+                return 'admin';
+
+            case 'TEACHER':
+                return 'teacher';
+
+            case 'STUDENT':
+                return 'student';
+
+            case 'SECTION_HEAD':
+                return 'section-head';
+
+            case 'VICE_PRINCIPAL':
+                return 'vice-principal';
+
+            case 'PRINCIPAL':
+                return 'principal';
+
+            default:
+                return 'default';
+        }
+    };
+
+    // =================================
+    // FORMAT DATE
+    // =================================
+
+    const formatDate = (date) => {
+
+        if (!date) {
+            return '—';
+        }
+
+        const parsedDate = new Date(date);
+
+        if (Number.isNaN(parsedDate.getTime())) {
+            return '—';
+        }
+
+        return parsedDate.toLocaleDateString(
+            'en-GB',
+            {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            }
+        );
+    };
+
+    // =================================
+    // FILTER REQUESTS
+    // =================================
+
+    const filteredRequests = useMemo(() => {
+
+        const search =
+            searchTerm.trim().toLowerCase();
+
+        return requests.filter(user => {
+
+            const matchesSearch =
+                !search ||
+                user.username
+                    ?.toLowerCase()
+                    .includes(search) ||
+                user.role
+                    ?.toLowerCase()
+                    .includes(search) ||
+                String(user.id)
+                    .includes(search);
+
+            const matchesRole =
+                roleFilter === 'ALL' ||
+                user.role === roleFilter;
+
+            return matchesSearch && matchesRole;
+
+        });
+
+    }, [requests, searchTerm, roleFilter]);
+
+    // =================================
+    // CLEAR FILTERS
+    // =================================
+
+    const hasFilters =
+        searchTerm.trim() !== '' ||
+        roleFilter !== 'ALL';
+
+    const clearFilters = () => {
+
+        setSearchTerm('');
+        setRoleFilter('ALL');
+
+    };
+
+    // =================================
+    // OPEN APPROVAL CONFIRMATION
+    // =================================
+
+    const openApprovalConfirmation = (user) => {
+        setSelectedRequest(user);
+    };
+
+    // =================================
+    // CLOSE APPROVAL CONFIRMATION
+    // =================================
+
+    const closeApprovalConfirmation = () => {
+
+        if (approvingId !== null) {
+            return;
+        }
+
+        setSelectedRequest(null);
+
+    };
+
+    // =================================
+    // APPROVE REQUEST
+    // =================================
 
     const handleApprove = async (id) => {
 
@@ -72,11 +232,13 @@ function RegistrationRequests() {
 
             await approveRegistration(id);
 
-            setRequests(current =>
-                current.filter(
+            setRequests(currentRequests =>
+                currentRequests.filter(
                     user => user.id !== id
                 )
             );
+
+            setSelectedRequest(null);
 
         } catch (error) {
 
@@ -94,94 +256,314 @@ function RegistrationRequests() {
         }
     };
 
-    // ===============================
-    // DATE
-    // ===============================
+    // =================================
+    // SUMMARY
+    // =================================
 
-    const formatDate = (date) => {
+    const pendingCount = requests.length;
 
-        if (!date) {
-            return '—';
-        }
+    const studentCount =
+        requests.filter(
+            user => user.role === 'STUDENT'
+        ).length;
 
-        return new Date(date).toLocaleDateString(
-            'en-GB',
-            {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric'
-            }
-        );
-    };
+    const teacherCount =
+        requests.filter(
+            user => user.role === 'TEACHER'
+        ).length;
+
+    const staffCount =
+        requests.filter(user =>
+            [
+                'ADMIN',
+                'PRINCIPAL',
+                'VICE_PRINCIPAL',
+                'SECTION_HEAD'
+            ].includes(user.role)
+        ).length;
 
     return (
         <div className="registration-page">
 
-            {/* HEADER */}
+            {/* =================================
+                HEADER
+                ================================= */}
 
             <div className="registration-page-header">
 
                 <div>
+
+                    <span className="registration-eyebrow">
+                        ADMINISTRATION
+                    </span>
 
                     <h1>
                         Registration Requests
                     </h1>
 
                     <p>
-                        Review and approve new
-                        account registrations.
+                        Review and approve new account
+                        registration requests.
                     </p>
 
                 </div>
 
                 <button
                     className="refresh-registration-button"
-                    onClick={loadRequests}
+                    onClick={() => loadRequests(true)}
+                    disabled={refreshing}
                 >
-                    Refresh
+                    <span className="refresh-icon">
+                        ↻
+                    </span>
+
+                    {refreshing
+                        ? 'Refreshing...'
+                        : 'Refresh'}
                 </button>
 
             </div>
 
-            {/* ERROR */}
+            {/* =================================
+                ERROR
+                ================================= */}
 
             {error && (
 
                 <div className="registration-error">
-                    {error}
+
+                    <span className="error-icon">
+                        !
+                    </span>
+
+                    <div>
+                        <strong>
+                            Something went wrong
+                        </strong>
+
+                        <p>
+                            {error}
+                        </p>
+                    </div>
+
+                    <button
+                        onClick={() => loadRequests()}
+                    >
+                        Try Again
+                    </button>
+
                 </div>
 
             )}
 
-            {/* CARD */}
+            {/* =================================
+                SUMMARY CARDS
+                ================================= */}
+
+            {!loading && (
+
+                <div className="registration-summary">
+
+                    <div className="registration-stat-card">
+
+                        <div className="registration-stat-icon pending-icon">
+                            !
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Pending Requests
+                            </span>
+
+                            <strong>
+                                {pendingCount}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div className="registration-stat-card">
+
+                        <div className="registration-stat-icon student-icon">
+                            S
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Students
+                            </span>
+
+                            <strong>
+                                {studentCount}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div className="registration-stat-card">
+
+                        <div className="registration-stat-icon teacher-icon">
+                            T
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Teachers
+                            </span>
+
+                            <strong>
+                                {teacherCount}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div className="registration-stat-card">
+
+                        <div className="registration-stat-icon staff-icon">
+                            A
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Other Staff
+                            </span>
+
+                            <strong>
+                                {staffCount}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            )}
+
+            {/* =================================
+                MAIN CARD
+                ================================= */}
 
             <div className="registration-card">
+
+                {/* CARD HEADER */}
 
                 <div className="registration-card-header">
 
                     <div>
 
                         <h2>
-                            Pending Requests
+                            Pending Registrations
                         </h2>
 
                         <p>
-                            {requests.length} pending
-                            request
-                            {requests.length !== 1
-                                ? 's'
-                                : ''}
+                            Review each request before
+                            granting system access.
                         </p>
 
                     </div>
 
                     <div className="pending-count">
-                        {requests.length}
+
+                        {pendingCount}
+
                     </div>
 
                 </div>
 
-                {/* LOADING */}
+                {/* =================================
+                    FILTER BAR
+                    ================================= */}
+
+                {!loading && requests.length > 0 && (
+
+                    <div className="registration-filter-bar">
+
+                        <div className="registration-search">
+
+                            <span className="search-icon">
+                                ⌕
+                            </span>
+
+                            <input
+                                type="text"
+                                placeholder="Search by username, role or ID..."
+                                value={searchTerm}
+                                onChange={(event) =>
+                                    setSearchTerm(
+                                        event.target.value
+                                    )
+                                }
+                            />
+
+                        </div>
+
+                        <select
+                            value={roleFilter}
+                            onChange={(event) =>
+                                setRoleFilter(
+                                    event.target.value
+                                )
+                            }
+                            className="registration-role-filter"
+                        >
+
+                            <option value="ALL">
+                                All Roles
+                            </option>
+
+                            <option value="STUDENT">
+                                Students
+                            </option>
+
+                            <option value="TEACHER">
+                                Teachers
+                            </option>
+
+                            <option value="SECTION_HEAD">
+                                Section Heads
+                            </option>
+
+                            <option value="VICE_PRINCIPAL">
+                                Vice Principals
+                            </option>
+
+                            <option value="PRINCIPAL">
+                                Principals
+                            </option>
+
+                            <option value="ADMIN">
+                                Admins
+                            </option>
+
+                        </select>
+
+                        {hasFilters && (
+
+                            <button
+                                className="clear-registration-filters"
+                                onClick={clearFilters}
+                            >
+                                Clear
+                            </button>
+
+                        )}
+
+                    </div>
+
+                )}
+
+                {/* =================================
+                    LOADING
+                    ================================= */}
 
                 {loading && (
 
@@ -191,14 +573,16 @@ function RegistrationRequests() {
                         </div>
 
                         <p>
-                            Loading requests...
+                            Loading registration requests...
                         </p>
 
                     </div>
 
                 )}
 
-                {/* EMPTY */}
+                {/* =================================
+                    EMPTY
+                    ================================= */}
 
                 {!loading &&
                     requests.length === 0 && (
@@ -214,22 +598,68 @@ function RegistrationRequests() {
                             </h3>
 
                             <p>
-                                There are no pending
-                                registration requests.
+                                There are no pending registration
+                                requests at the moment.
                             </p>
+
+                            <button
+                                onClick={() =>
+                                    loadRequests(true)
+                                }
+                                disabled={refreshing}
+                            >
+                                {refreshing
+                                    ? 'Checking...'
+                                    : 'Check Again'}
+                            </button>
 
                         </div>
 
                     )}
 
-                {/* REQUEST LIST */}
+                {/* =================================
+                    NO FILTER RESULTS
+                    ================================= */}
 
                 {!loading &&
-                    requests.length > 0 && (
+                    requests.length > 0 &&
+                    filteredRequests.length === 0 && (
+
+                        <div className="registration-empty">
+
+                            <div className="registration-empty-icon">
+                                ⌕
+                            </div>
+
+                            <h3>
+                                No matching requests
+                            </h3>
+
+                            <p>
+                                Try changing your search or
+                                role filter.
+                            </p>
+
+                            <button
+                                onClick={clearFilters}
+                            >
+                                Clear Filters
+                            </button>
+
+                        </div>
+
+                    )}
+
+                {/* =================================
+                    REQUEST LIST
+                    ================================= */}
+
+                {!loading &&
+                    filteredRequests.length > 0 && (
 
                         <div className="registration-request-list">
 
-                            {requests.map(user => (
+                            {filteredRequests.map(user => (
 
                                 <div
                                     className="registration-request"
@@ -240,28 +670,46 @@ function RegistrationRequests() {
 
                                         {user.username
                                             ?.charAt(0)
-                                            .toUpperCase()}
+                                            .toUpperCase() || 'U'}
 
                                     </div>
 
                                     <div className="request-details">
 
-                                        <strong>
-                                            {user.username}
-                                        </strong>
+                                        <div className="request-name-row">
+
+                                            <strong>
+                                                {user.username}
+                                            </strong>
+
+                                            <span className="pending-badge">
+                                                PENDING
+                                            </span>
+
+                                        </div>
 
                                         <div className="request-meta">
 
                                             <span>
-                                                User ID: {user.id}
+                                                <b>User ID</b>
+                                                {user.id}
                                             </span>
 
                                             <span>
-                                                Role: {user.role}
+                                                <b>Role</b>
+
+                                                <span
+                                                    className={`request-role-badge ${getRoleClass(user.role)}`}
+                                                >
+                                                    {getRoleLabel(
+                                                        user.role
+                                                    )}
+                                                </span>
+
                                             </span>
 
                                             <span>
-                                                Registered:{' '}
+                                                <b>Registered</b>
                                                 {formatDate(
                                                     user.createdAt
                                                 )}
@@ -271,19 +719,11 @@ function RegistrationRequests() {
 
                                     </div>
 
-                                    <div className="request-status">
-
-                                        <span className="pending-badge">
-                                            PENDING
-                                        </span>
-
-                                    </div>
-
                                     <button
                                         className="accept-registration-button"
                                         onClick={() =>
-                                            handleApprove(
-                                                user.id
+                                            openApprovalConfirmation(
+                                                user
                                             )
                                         }
                                         disabled={
@@ -292,10 +732,7 @@ function RegistrationRequests() {
                                         }
                                     >
 
-                                        {approvingId ===
-                                        user.id
-                                            ? 'Accepting...'
-                                            : 'Accept'}
+                                        Approve
 
                                     </button>
 
@@ -308,6 +745,121 @@ function RegistrationRequests() {
                     )}
 
             </div>
+
+            {/* =================================
+                APPROVAL MODAL
+                ================================= */}
+
+            {selectedRequest && (
+
+                <div
+                    className="registration-modal-overlay"
+                    onClick={closeApprovalConfirmation}
+                >
+
+                    <div
+                        className="registration-modal"
+                        onClick={(event) =>
+                            event.stopPropagation()
+                        }
+                    >
+
+                        <div className="registration-modal-icon">
+                            ✓
+                        </div>
+
+                        <h2>
+                            Approve Registration?
+                        </h2>
+
+                        <p>
+                            Are you sure you want to approve
+                            <strong>
+                                {' '}
+                                {selectedRequest.username}
+                            </strong>
+                            ?
+                        </p>
+
+                        <div className="approval-user-summary">
+
+                            <div className="approval-avatar">
+
+                                {selectedRequest.username
+                                    ?.charAt(0)
+                                    .toUpperCase() || 'U'}
+
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    {selectedRequest.username}
+                                </strong>
+
+                                <span>
+                                    {getRoleLabel(
+                                        selectedRequest.role
+                                    )}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div className="approval-warning">
+
+                            <span>
+                                !
+                            </span>
+
+                            <p>
+                                Approving this request will
+                                grant the user access to Gradexa
+                                with the selected role.
+                            </p>
+
+                        </div>
+
+                        <div className="registration-modal-actions">
+
+                            <button
+                                className="modal-cancel-button"
+                                onClick={
+                                    closeApprovalConfirmation
+                                }
+                                disabled={
+                                    approvingId !== null
+                                }
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                className="modal-approve-button"
+                                onClick={() =>
+                                    handleApprove(
+                                        selectedRequest.id
+                                    )
+                                }
+                                disabled={
+                                    approvingId ===
+                                    selectedRequest.id
+                                }
+                            >
+                                {approvingId ===
+                                selectedRequest.id
+                                    ? 'Approving...'
+                                    : 'Approve Registration'}
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            )}
 
         </div>
     );
