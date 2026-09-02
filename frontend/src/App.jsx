@@ -12,6 +12,7 @@ import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import Users from './pages/admin/Users';
 import RegistrationRequests from './pages/admin/RegistrationRequests';
+import Reports from './pages/admin/Reports';
 
 function App() {
 
@@ -100,11 +101,7 @@ function App() {
 
                 <Route
                     path="reports"
-                    element={
-                        <div>
-                            Reports
-                        </div>
-                    }
+                    element={<Reports />}
                 />
 
 

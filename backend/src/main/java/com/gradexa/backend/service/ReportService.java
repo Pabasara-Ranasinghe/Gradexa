@@ -1,11 +1,11 @@
 package com.gradexa.backend.service;
 
+import org.springframework.stereotype.Service;
+
 import com.gradexa.backend.dto.ReportResponse;
 import com.gradexa.backend.entity.RegistrationStatus;
 import com.gradexa.backend.entity.Role;
 import com.gradexa.backend.repository.UserRepository;
-
-import org.springframework.stereotype.Service;
 
 @Service
 public class ReportService {

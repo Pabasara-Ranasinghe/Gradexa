@@ -6,6 +6,7 @@
     width: 100%;
 }
 
+
 /* =================================
    PAGE HEADER
    ================================= */
@@ -15,18 +16,20 @@
     align-items: flex-start;
     justify-content: space-between;
 
-    gap: 20px;
+    gap: 24px;
 
-    margin-bottom: 24px;
+    margin-bottom: 30px;
 }
 
 .users-page-header h1 {
-    margin: 0 0 5px;
+    margin: 0 0 7px;
 
     color: var(--color-text-primary);
 
-    font-size: 24px;
+    font-size: 30px;
     font-weight: 700;
+
+    letter-spacing: -0.4px;
 }
 
 .users-page-header p {
@@ -34,16 +37,23 @@
 
     color: var(--color-text-secondary);
 
-    font-size: 12px;
+    font-size: 15px;
+
     line-height: 1.5;
 }
+
+
+/* =================================
+   REFRESH BUTTON
+   ================================= */
 
 .refresh-users-button {
     flex-shrink: 0;
 
-    padding: 9px 16px;
+    padding: 11px 20px;
 
     border: none;
+
     border-radius: var(--radius-medium);
 
     background: var(--color-secondary);
@@ -51,41 +61,51 @@
     color: var(--color-text-white);
 
     font-family: inherit;
-    font-size: 11px;
+
+    font-size: 14px;
     font-weight: 600;
 
     cursor: pointer;
 
+    box-shadow:
+        0 5px 14px rgba(152, 37, 152, 0.18);
+
     transition:
         background 0.2s ease,
-        transform 0.2s ease;
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .refresh-users-button:hover {
     background: var(--color-primary);
 
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 18px rgba(152, 37, 152, 0.25);
 }
+
 
 /* =================================
    ERROR
    ================================= */
 
 .users-error {
-    margin-bottom: 20px;
+    margin-bottom: 22px;
 
-    padding: 12px 15px;
+    padding: 14px 17px;
 
-    border: 1px solid rgba(214, 51, 108, 0.18);
+    border: 1px solid rgba(211, 34, 215, 0.22);
 
     border-radius: var(--radius-medium);
 
-    background: rgba(214, 51, 108, 0.08);
+    background: rgba(211, 34, 215, 0.07);
 
     color: var(--color-error);
 
-    font-size: 12px;
+    font-size: 14px;
 }
+
 
 /* =================================
    USERS CARD
@@ -105,6 +125,7 @@
     overflow: hidden;
 }
 
+
 /* =================================
    CARD HEADER
    ================================= */
@@ -114,19 +135,19 @@
     align-items: center;
     justify-content: space-between;
 
-    gap: 20px;
+    gap: 22px;
 
-    padding: 20px 22px;
+    padding: 24px 26px;
 
     border-bottom: 1px solid var(--color-border);
 }
 
 .users-card-header h2 {
-    margin: 0 0 4px;
+    margin: 0 0 5px;
 
     color: var(--color-text-primary);
 
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 700;
 }
 
@@ -135,15 +156,16 @@
 
     color: var(--color-text-secondary);
 
-    font-size: 10px;
+    font-size: 13px;
 }
+
 
 /* =================================
    SEARCH
    ================================= */
 
 .users-search {
-    width: 240px;
+    width: 270px;
 
     flex-shrink: 0;
 }
@@ -153,7 +175,7 @@
 
     box-sizing: border-box;
 
-    padding: 9px 12px;
+    padding: 11px 14px;
 
     border: 1px solid var(--color-border);
 
@@ -161,16 +183,18 @@
 
     outline: none;
 
-    background: var(--color-background);
+    background: var(--color-background-soft);
 
     color: var(--color-text-primary);
 
     font-family: inherit;
-    font-size: 11px;
+
+    font-size: 14px;
 
     transition:
         border-color 0.2s ease,
-        box-shadow 0.2s ease;
+        box-shadow 0.2s ease,
+        background 0.2s ease;
 }
 
 .users-search input::placeholder {
@@ -178,18 +202,21 @@
 }
 
 .users-search input:focus {
-    border-color: var(--color-border-focus);
+    border-color: var(--color-secondary);
+
+    background: var(--color-surface);
 
     box-shadow:
-        0 0 0 3px rgba(255, 64, 129, 0.08);
+        0 0 0 4px rgba(152, 37, 152, 0.10);
 }
+
 
 /* =================================
    LOADING
    ================================= */
 
 .users-loading {
-    min-height: 280px;
+    min-height: 300px;
 
     display: flex;
     flex-direction: column;
@@ -197,7 +224,7 @@
     align-items: center;
     justify-content: center;
 
-    gap: 12px;
+    gap: 14px;
 }
 
 .users-loading p {
@@ -205,12 +232,12 @@
 
     color: var(--color-text-secondary);
 
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .users-spinner {
-    width: 30px;
-    height: 30px;
+    width: 34px;
+    height: 34px;
 
     border: 3px solid var(--color-background-soft);
 
@@ -229,6 +256,7 @@
 
 }
 
+
 /* =================================
    TABLE WRAPPER
    ================================= */
@@ -239,6 +267,7 @@
     overflow-x: auto;
 }
 
+
 /* =================================
    TABLE
    ================================= */
@@ -246,12 +275,13 @@
 .users-table {
     width: 100%;
 
-    min-width: 850px;
+    min-width: 900px;
 
     border-collapse: collapse;
 
     table-layout: fixed;
 }
+
 
 /* =================================
    COLUMN WIDTHS
@@ -262,7 +292,7 @@
 }
 
 .users-table th:nth-child(2) {
-    width: 13%;
+    width: 14%;
 }
 
 .users-table th:nth-child(3) {
@@ -278,8 +308,9 @@
 }
 
 .users-table th:nth-child(6) {
-    width: 17%;
+    width: 16%;
 }
+
 
 /* =================================
    TABLE HEADER
@@ -290,19 +321,20 @@
 }
 
 .users-table th {
-    padding: 13px 16px;
+    padding: 16px 18px;
 
     border-bottom: 1px solid var(--color-border);
 
     color: var(--color-text-secondary);
 
-    font-size: 10px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: 700;
 
     text-align: left;
 
     white-space: nowrap;
 }
+
 
 /* =================================
    TABLE BODY
@@ -311,7 +343,8 @@
 .users-table tbody tr {
     border-bottom: 1px solid var(--color-border);
 
-    transition: background 0.15s ease;
+    transition:
+        background 0.18s ease;
 }
 
 .users-table tbody tr:last-child {
@@ -319,18 +352,19 @@
 }
 
 .users-table tbody tr:hover {
-    background: var(--color-background-soft);
+    background: rgba(238, 161, 235, 0.18);
 }
 
 .users-table td {
-    padding: 14px 16px;
+    padding: 17px 18px;
 
     color: var(--color-text-primary);
 
-    font-size: 11px;
+    font-size: 14px;
 
     vertical-align: middle;
 }
+
 
 /* =================================
    USER CELL
@@ -340,14 +374,14 @@
     display: flex;
     align-items: center;
 
-    gap: 10px;
+    gap: 12px;
 
     min-width: 0;
 }
 
 .user-avatar {
-    width: 34px;
-    height: 34px;
+    width: 42px;
+    height: 42px;
 
     flex-shrink: 0;
 
@@ -355,13 +389,13 @@
     align-items: center;
     justify-content: center;
 
-    border-radius: 10px;
+    border-radius: 12px;
 
-    background: var(--color-highlight);
+    background: rgba(228, 145, 201, 0.28);
 
     color: var(--color-primary);
 
-    font-size: 12px;
+    font-size: 15px;
     font-weight: 700;
 }
 
@@ -376,25 +410,27 @@
 
     color: var(--color-text-primary);
 
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 700;
 
     text-overflow: ellipsis;
+
     white-space: nowrap;
 }
 
 .user-cell span {
     display: block;
 
-    margin-top: 3px;
+    margin-top: 4px;
 
     color: var(--color-text-light);
 
-    font-size: 9px;
+    font-size: 11px;
 }
 
+
 /* =================================
-   ROLE BADGES
+   BADGES
    ================================= */
 
 .role-badge,
@@ -405,34 +441,39 @@
     align-items: center;
     justify-content: center;
 
-    min-width: 65px;
+    min-width: 76px;
 
-    padding: 5px 9px;
+    padding: 6px 11px;
 
     border-radius: 20px;
 
-    font-size: 9px;
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 700;
 
     white-space: nowrap;
 }
 
-.role-badge.admin {
-    background: rgba(214, 51, 108, 0.1);
 
-    color: var(--color-primary);
+/* =================================
+   ROLE BADGES
+   ================================= */
+
+.role-badge.admin {
+    background: rgba(152, 37, 152, 0.12);
+
+    color: #891180;
 }
 
 .role-badge.teacher {
-    background: rgba(255, 64, 129, 0.1);
+    background: rgba(203, 34, 215, 0.10);
 
-    color: var(--color-secondary);
+    color: #982598;
 }
 
 .role-badge.student {
-    background: rgba(255, 182, 193, 0.22);
+    background: rgba(228, 145, 201, 0.25);
 
-    color: #c34c72;
+    color: #891180;
 }
 
 .role-badge.default {
@@ -441,62 +482,66 @@
     color: var(--color-text-secondary);
 }
 
+
 /* =================================
    ACTIVE STATUS
    ================================= */
 
 .status-badge.active {
-    background: rgba(34, 197, 94, 0.1);
+    background: rgba(46, 157, 112, 0.12);
 
-    color: #16a34a;
+    color: var(--color-success);
 }
 
 .status-badge.inactive {
-    background: rgba(239, 68, 68, 0.1);
+    background: rgba(214, 69, 69, 0.12);
 
-    color: #dc2626;
+    color: var(--color-error);
 }
+
 
 /* =================================
    REGISTRATION STATUS
    ================================= */
 
 .registration-badge.approved {
-    background: rgba(34, 197, 94, 0.1);
+    background: rgba(46, 157, 112, 0.12);
 
-    color: #16a34a;
+    color: var(--color-success);
 }
 
 .registration-badge.pending {
-    background: rgba(245, 158, 11, 0.1);
+    background: rgba(217, 144, 36, 0.14);
 
-    color: #d97706;
+    color: var(--color-warning);
 }
 
 .registration-badge.rejected {
-    background: rgba(239, 68, 68, 0.1);
+    background: rgba(214, 69, 69, 0.12);
 
-    color: #dc2626;
+    color: var(--color-error);
 }
+
 
 /* =================================
    EDIT BUTTON
    ================================= */
 
 .edit-button {
-    padding: 7px 11px;
+    padding: 8px 13px;
 
-    border: 1px solid var(--color-border);
+    border: 1px solid rgba(152, 37, 152, 0.25);
 
     border-radius: var(--radius-medium);
 
-    background: var(--color-surface);
+    background: rgba(152, 37, 152, 0.07);
 
-    color: var(--color-primary);
+    color: var(--color-secondary);
 
     font-family: inherit;
-    font-size: 9px;
-    font-weight: 600;
+
+    font-size: 12px;
+    font-weight: 700;
 
     cursor: pointer;
 
@@ -505,33 +550,38 @@
     transition:
         background 0.2s ease,
         border-color 0.2s ease,
-        color 0.2s ease;
+        color 0.2s ease,
+        transform 0.2s ease;
 }
 
 .edit-button:hover {
     border-color: var(--color-secondary);
 
-    background: var(--color-highlight);
+    background: var(--color-secondary);
 
-    color: var(--color-primary);
+    color: var(--color-text-white);
+
+    transform: translateY(-1px);
 }
+
 
 /* =================================
    NO USERS
    ================================= */
 
 .no-users {
-    padding: 55px 20px !important;
+    padding: 60px 20px !important;
 
     color: var(--color-text-light) !important;
 
     text-align: center;
 
-    font-size: 12px;
+    font-size: 14px;
 }
 
+
 /* =================================
-   MODAL
+   MODAL OVERLAY
    ================================= */
 
 .modal-overlay {
@@ -548,15 +598,20 @@
 
     padding: 20px;
 
-    background: rgba(43, 27, 36, 0.45);
+    background: rgba(21, 23, 61, 0.58);
 
-    backdrop-filter: blur(3px);
+    backdrop-filter: blur(4px);
 }
+
+
+/* =================================
+   ROLE MODAL
+   ================================= */
 
 .role-modal {
     width: 100%;
 
-    max-width: 420px;
+    max-width: 450px;
 
     background: var(--color-surface);
 
@@ -565,7 +620,32 @@
     box-shadow: var(--shadow-large);
 
     overflow: hidden;
+
+    animation: modal-open 0.2s ease;
 }
+
+@keyframes modal-open {
+
+    from {
+        opacity: 0;
+
+        transform: translateY(10px)
+            scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+
+        transform: translateY(0)
+            scale(1);
+    }
+
+}
+
+
+/* =================================
+   MODAL HEADER
+   ================================= */
 
 .role-modal-header {
     display: flex;
@@ -573,17 +653,18 @@
     align-items: flex-start;
     justify-content: space-between;
 
-    padding: 22px;
+    padding: 26px;
 
     border-bottom: 1px solid var(--color-border);
 }
 
 .role-modal-header h2 {
-    margin: 0 0 4px;
+    margin: 0 0 5px;
 
     color: var(--color-text-primary);
 
-    font-size: 17px;
+    font-size: 21px;
+    font-weight: 700;
 }
 
 .role-modal-header p {
@@ -591,12 +672,12 @@
 
     color: var(--color-text-secondary);
 
-    font-size: 11px;
+    font-size: 14px;
 }
 
 .modal-close {
-    width: 30px;
-    height: 30px;
+    width: 34px;
+    height: 34px;
 
     display: flex;
 
@@ -611,35 +692,42 @@
 
     color: var(--color-primary);
 
-    font-size: 20px;
+    font-size: 23px;
 
     line-height: 1;
 
     cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
 }
 
 .modal-close:hover {
-    background: var(--color-highlight);
+    background: rgba(228, 145, 201, 0.35);
+
+    transform: rotate(90deg);
 }
+
 
 /* =================================
    MODAL BODY
    ================================= */
 
 .role-modal-body {
-    padding: 22px;
+    padding: 26px;
 }
 
 .role-modal-body label {
     display: block;
 
-    margin-bottom: 8px;
+    margin-bottom: 9px;
 
     color: var(--color-text-primary);
 
-    font-size: 12px;
+    font-size: 14px;
 
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .role-modal-body select {
@@ -647,7 +735,7 @@
 
     box-sizing: border-box;
 
-    padding: 10px 12px;
+    padding: 12px 14px;
 
     border: 1px solid var(--color-border);
 
@@ -655,23 +743,28 @@
 
     outline: none;
 
-    background: var(--color-background);
+    background: var(--color-background-soft);
 
     color: var(--color-text-primary);
 
     font-family: inherit;
 
-    font-size: 12px;
+    font-size: 14px;
 
     cursor: pointer;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .role-modal-body select:focus {
-    border-color: var(--color-border-focus);
+    border-color: var(--color-secondary);
 
     box-shadow:
-        0 0 0 3px rgba(255, 64, 129, 0.08);
+        0 0 0 4px rgba(152, 37, 152, 0.10);
 }
+
 
 /* =================================
    MODAL FOOTER
@@ -682,9 +775,9 @@
 
     justify-content: flex-end;
 
-    gap: 10px;
+    gap: 12px;
 
-    padding: 15px 22px;
+    padding: 18px 26px;
 
     border-top: 1px solid var(--color-border);
 
@@ -693,17 +786,21 @@
 
 .cancel-button,
 .save-role-button {
-    padding: 9px 15px;
+    padding: 10px 18px;
 
     border-radius: var(--radius-medium);
 
     font-family: inherit;
 
-    font-size: 11px;
+    font-size: 13px;
 
-    font-weight: 600;
+    font-weight: 700;
 
     cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
 }
 
 .cancel-button {
@@ -714,8 +811,10 @@
     color: var(--color-text-secondary);
 }
 
-.cancel-button:hover {
-    background: var(--color-background-soft);
+.cancel-button:hover:not(:disabled) {
+    background: rgba(238, 161, 235, 0.18);
+
+    transform: translateY(-1px);
 }
 
 .save-role-button {
@@ -724,10 +823,15 @@
     background: var(--color-secondary);
 
     color: var(--color-text-white);
+
+    box-shadow:
+        0 5px 14px rgba(152, 37, 152, 0.18);
 }
 
 .save-role-button:hover:not(:disabled) {
     background: var(--color-primary);
+
+    transform: translateY(-1px);
 }
 
 .cancel-button:disabled,
@@ -736,6 +840,7 @@
 
     opacity: 0.6;
 }
+
 
 /* =================================
    RESPONSIVE
@@ -755,6 +860,7 @@
 
 }
 
+
 @media (max-width: 600px) {
 
     .users-page-header {
@@ -763,12 +869,27 @@
         flex-direction: column;
     }
 
+    .users-page-header h1 {
+        font-size: 26px;
+    }
+
     .refresh-users-button {
         width: 100%;
     }
 
+    .users-card-header {
+        padding: 20px;
+    }
+
+    .role-modal-header,
+    .role-modal-body {
+        padding: 22px;
+    }
+
     .role-modal-footer {
         flex-direction: column;
+
+        padding: 18px 22px;
     }
 
     .cancel-button,
