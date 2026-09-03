@@ -2,8 +2,10 @@ package com.gradexa.backend.config;
 
 import com.gradexa.backend.security.CustomUserDetailsService;
 import com.gradexa.backend.security.JwtAuthenticationFilter;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -14,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -36,7 +39,7 @@ public class SecurityConfig {
     }
 
     // ===============================
-    // Password Encoder
+    // PASSWORD ENCODER
     // ===============================
 
     @Bean
@@ -45,7 +48,7 @@ public class SecurityConfig {
     }
 
     // ===============================
-    // Authentication Provider
+    // AUTHENTICATION PROVIDER
     // ===============================
 
     @Bean
@@ -60,7 +63,7 @@ public class SecurityConfig {
     }
 
     // ===============================
-    // Authentication Manager
+    // AUTHENTICATION MANAGER
     // ===============================
 
     @Bean
@@ -72,7 +75,7 @@ public class SecurityConfig {
     }
 
     // ===============================
-    // CORS Configuration
+    // CORS CONFIGURATION
     // ===============================
 
     @Bean
@@ -125,7 +128,7 @@ public class SecurityConfig {
     }
 
     // ===============================
-    // Security Filter Chain
+    // SECURITY FILTER CHAIN
     // ===============================
 
     @Bean
@@ -134,47 +137,50 @@ public class SecurityConfig {
     ) throws Exception {
 
         http
-
-                // Disable CSRF because we are using JWT
                 .csrf(csrf -> csrf.disable())
 
-                // Enable CORS
-                .cors(cors -> cors.configurationSource(
-                        corsConfigurationSource()
-                ))
+                .cors(cors ->
+                        cors.configurationSource(
+                                corsConfigurationSource()
+                        )
+                )
 
-                // Stateless authentication
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(
                                 SessionCreationPolicy.STATELESS
                         )
                 )
 
-                // Authorization rules
                 .authorizeHttpRequests(auth -> auth
 
-                        // Root endpoint
-                        .requestMatchers("/").permitAll()
+                        // Public root endpoint
+                        .requestMatchers("/")
+                        .permitAll()
 
-                        // Authentication endpoints
-                        .requestMatchers("/api/auth/**").permitAll()
+                        // Login and registration
+                        .requestMatchers("/api/auth/**")
+                        .permitAll()
 
-                        // Allow browser OPTIONS requests
+                        // Test endpoints
+                        .requestMatchers("/api/test/**")
+                        .permitAll()
+
+                        // CORS preflight requests
                         .requestMatchers(
                                 org.springframework.http.HttpMethod.OPTIONS,
                                 "/**"
-                        ).permitAll()
+                        )
+                        .permitAll()
 
-                        // Everything else requires JWT
-                        .anyRequest().authenticated()
+                        // All other endpoints require JWT
+                        .anyRequest()
+                        .authenticated()
                 )
 
-                // Authentication provider
                 .authenticationProvider(
                         authenticationProvider()
                 )
 
-                // JWT filter
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
