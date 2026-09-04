@@ -3,6 +3,8 @@ package com.gradexa.backend.service;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -134,7 +136,8 @@ public class StudentService {
             Long classId
     ) {
 
-        Student student = getStudentById(studentId);
+        Student student =
+                getStudentById(studentId);
 
         AcademicClass academicClass =
                 academicClassService.getClassById(
@@ -179,17 +182,73 @@ public class StudentService {
     }
 
     // ===============================
-    // GET STUDENT
+    // GET STUDENT BY ID
     // ===============================
 
-    public Student getStudentById(
-            Long id
-    ) {
+    public Student getStudentById(Long id) {
 
         return studentRepository.findById(id)
                 .orElseThrow(() ->
                         new RuntimeException(
                                 "Student not found"
+                        )
+                );
+    }
+
+    // ===============================
+    // GET CURRENT LOGGED-IN STUDENT
+    // ===============================
+
+    public Student getCurrentStudent() {
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        if (authentication == null ||
+                !authentication.isAuthenticated()) {
+
+            throw new RuntimeException(
+                    "User is not authenticated"
+            );
+        }
+
+        String username =
+                authentication.getName();
+
+        User user =
+                userRepository
+                        .findByUsername(username)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Logged-in user not found"
+                                )
+                        );
+
+        return studentRepository
+                .findByUser(user)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Student profile not found"
+                        )
+                );
+    }
+
+    // ===============================
+    // GET CURRENT STUDENT ENROLLMENT
+    // ===============================
+
+    public StudentEnrollment getCurrentStudentEnrollment() {
+
+        Student student =
+                getCurrentStudent();
+
+        return enrollmentRepository
+                .findByStudentAndActiveTrue(student)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Current student enrollment not found"
                         )
                 );
     }

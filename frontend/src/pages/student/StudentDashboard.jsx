@@ -1,17 +1,148 @@
+import { useEffect, useState } from 'react';
 import './StudentDashboard.css';
 
 function StudentDashboard() {
 
+    const [student, setStudent] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+
+        const loadStudent = async () => {
+
+            try {
+
+                const token =
+                    localStorage.getItem('gradexa_token');
+
+                if (!token) {
+                    setError(
+                        'You are not logged in.'
+                    );
+                    setLoading(false);
+                    return;
+                }
+
+                const response = await fetch(
+                    'http://localhost:8082/api/students/me',
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+
+                const data =
+                    await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        data?.message ||
+                        data ||
+                        'Failed to load student information.'
+                    );
+                }
+
+                setStudent(data);
+
+            } catch (err) {
+
+                console.error(
+                    'Failed to load student:',
+                    err
+                );
+
+                setError(
+                    err.message ||
+                    'Failed to load student information.'
+                );
+
+            } finally {
+
+                setLoading(false);
+            }
+        };
+
+        loadStudent();
+
+    }, []);
+
+    // ===============================
+    // LOADING STATE
+    // ===============================
+
+    if (loading) {
+
+        return (
+            <div className="student-dashboard">
+
+                <div className="student-loading">
+
+                    <div className="loading-spinner"></div>
+
+                    <p>
+                        Loading your dashboard...
+                    </p>
+
+                </div>
+
+            </div>
+        );
+    }
+
+    // ===============================
+    // ERROR STATE
+    // ===============================
+
+    if (error) {
+
+        return (
+            <div className="student-dashboard">
+
+                <div className="student-error">
+
+                    <div className="error-icon">
+                        ⚠️
+                    </div>
+
+                    <h2>
+                        Unable to load dashboard
+                    </h2>
+
+                    <p>
+                        {error}
+                    </p>
+
+                </div>
+
+            </div>
+        );
+    }
+
+    // ===============================
+    // STUDENT DATA
+    // ===============================
+
+    const fullName =
+        `${student.firstName} ${student.lastName}`;
+
+    const initials =
+        `${student.firstName?.charAt(0) || ''}${student.lastName?.charAt(0) || ''}`;
+
     return (
         <div className="student-dashboard">
 
-            {/* ===============================
+            {/* =================================
                 HEADER
-            =============================== */}
+            ================================= */}
 
             <div className="student-header">
 
                 <div>
+
                     <p className="student-welcome">
                         Welcome back 👋
                     </p>
@@ -24,33 +155,36 @@ function StudentDashboard() {
                         View your academic information,
                         marks and results.
                     </p>
+
                 </div>
 
             </div>
 
 
-            {/* ===============================
+            {/* =================================
                 STUDENT INFORMATION
-            =============================== */}
+            ================================= */}
 
             <div className="student-info-card">
 
                 <div className="student-avatar">
-                    NS
+                    {initials}
                 </div>
 
                 <div className="student-info">
 
                     <h2>
-                        New Student
+                        {fullName}
                     </h2>
 
                     <p>
-                        Student ID: SIDTEST002
+                        Student ID: {student.studentNumber}
                     </p>
 
                     <p>
-                        Grade 10 • Upper Section
+                        {student.active
+                            ? 'Active Student'
+                            : 'Inactive Student'}
                     </p>
 
                 </div>
@@ -70,9 +204,9 @@ function StudentDashboard() {
             </div>
 
 
-            {/* ===============================
+            {/* =================================
                 SUMMARY CARDS
-            =============================== */}
+            ================================= */}
 
             <div className="student-summary">
 
@@ -83,6 +217,7 @@ function StudentDashboard() {
                     </span>
 
                     <div>
+
                         <p>
                             Average
                         </p>
@@ -90,6 +225,7 @@ function StudentDashboard() {
                         <h3>
                             --
                         </h3>
+
                     </div>
 
                 </div>
@@ -102,6 +238,7 @@ function StudentDashboard() {
                     </span>
 
                     <div>
+
                         <p>
                             Class Rank
                         </p>
@@ -109,6 +246,7 @@ function StudentDashboard() {
                         <h3>
                             --
                         </h3>
+
                     </div>
 
                 </div>
@@ -121,6 +259,7 @@ function StudentDashboard() {
                     </span>
 
                     <div>
+
                         <p>
                             Subjects
                         </p>
@@ -128,6 +267,7 @@ function StudentDashboard() {
                         <h3>
                             --
                         </h3>
+
                     </div>
 
                 </div>
@@ -140,6 +280,7 @@ function StudentDashboard() {
                     </span>
 
                     <div>
+
                         <p>
                             Terms
                         </p>
@@ -147,6 +288,7 @@ function StudentDashboard() {
                         <h3>
                             3
                         </h3>
+
                     </div>
 
                 </div>
@@ -154,9 +296,9 @@ function StudentDashboard() {
             </div>
 
 
-            {/* ===============================
+            {/* =================================
                 QUICK ACCESS
-            =============================== */}
+            ================================= */}
 
             <div className="student-section">
 
@@ -182,6 +324,7 @@ function StudentDashboard() {
                         </div>
 
                         <div>
+
                             <h3>
                                 My Profile
                             </h3>
@@ -189,6 +332,7 @@ function StudentDashboard() {
                             <p>
                                 View your personal information.
                             </p>
+
                         </div>
 
                     </div>
@@ -201,6 +345,7 @@ function StudentDashboard() {
                         </div>
 
                         <div>
+
                             <h3>
                                 My Classes
                             </h3>
@@ -208,6 +353,7 @@ function StudentDashboard() {
                             <p>
                                 View your current class and enrollment.
                             </p>
+
                         </div>
 
                     </div>
@@ -220,6 +366,7 @@ function StudentDashboard() {
                         </div>
 
                         <div>
+
                             <h3>
                                 My Marks
                             </h3>
@@ -227,6 +374,7 @@ function StudentDashboard() {
                             <p>
                                 View marks for each subject and term.
                             </p>
+
                         </div>
 
                     </div>
@@ -239,6 +387,7 @@ function StudentDashboard() {
                         </div>
 
                         <div>
+
                             <h3>
                                 Marksheet
                             </h3>
@@ -246,6 +395,7 @@ function StudentDashboard() {
                             <p>
                                 View and download your marksheet.
                             </p>
+
                         </div>
 
                     </div>
@@ -255,9 +405,9 @@ function StudentDashboard() {
             </div>
 
 
-            {/* ===============================
+            {/* =================================
                 RECENT RESULTS
-            =============================== */}
+            ================================= */}
 
             <div className="student-section">
 

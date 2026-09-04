@@ -30,6 +30,10 @@ public class StudentController {
         this.studentService = studentService;
     }
 
+    // ===============================
+    // CREATE STUDENT
+    // ===============================
+
     @PreAuthorize("hasAnyRole('ADMIN', 'PRINCIPAL')")
     @PostMapping
     public ResponseEntity<StudentResponse> createStudent(
@@ -54,6 +58,10 @@ public class StudentController {
         );
     }
 
+    // ===============================
+    // ENROLL STUDENT
+    // ===============================
+
     @PreAuthorize("hasAnyRole('ADMIN', 'PRINCIPAL', 'TEACHER')")
     @PostMapping("/{studentId}/enroll")
     public ResponseEntity<StudentEnrollmentResponse> enrollStudent(
@@ -72,6 +80,44 @@ public class StudentController {
         );
     }
 
+    // ===============================
+    // GET CURRENT LOGGED-IN STUDENT
+    // ===============================
+
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("/me")
+    public ResponseEntity<StudentResponse> getCurrentStudent() {
+
+        Student student =
+                studentService.getCurrentStudent();
+
+        return ResponseEntity.ok(
+                toStudentResponse(student)
+        );
+    }
+
+    // ===============================
+    // GET CURRENT STUDENT ENROLLMENT
+    // ===============================
+
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("/me/enrollment")
+    public ResponseEntity<StudentEnrollmentResponse>
+    getCurrentStudentEnrollment() {
+
+        StudentEnrollment enrollment =
+                studentService
+                        .getCurrentStudentEnrollment();
+
+        return ResponseEntity.ok(
+                toEnrollmentResponse(enrollment)
+        );
+    }
+
+    // ===============================
+    // GET STUDENT BY ID
+    // ===============================
+
     @PreAuthorize("hasAnyRole('ADMIN', 'PRINCIPAL', 'TEACHER')")
     @GetMapping("/{id}")
     public ResponseEntity<StudentResponse> getStudent(
@@ -86,9 +132,14 @@ public class StudentController {
         );
     }
 
+    // ===============================
+    // GET STUDENT ENROLLMENTS
+    // ===============================
+
     @PreAuthorize("hasAnyRole('ADMIN', 'PRINCIPAL', 'TEACHER')")
     @GetMapping("/{studentId}/enrollments")
-    public ResponseEntity<List<StudentEnrollmentResponse>> getStudentEnrollments(
+    public ResponseEntity<List<StudentEnrollmentResponse>>
+    getStudentEnrollments(
             @PathVariable Long studentId
     ) {
 
@@ -102,9 +153,14 @@ public class StudentController {
         return ResponseEntity.ok(enrollments);
     }
 
+    // ===============================
+    // GET STUDENTS BY CLASS
+    // ===============================
+
     @PreAuthorize("hasAnyRole('ADMIN', 'PRINCIPAL', 'TEACHER')")
     @GetMapping("/class/{classId}")
-    public ResponseEntity<List<StudentEnrollmentResponse>> getStudentsByClass(
+    public ResponseEntity<List<StudentEnrollmentResponse>>
+    getStudentsByClass(
             @PathVariable Long classId
     ) {
 
@@ -117,6 +173,10 @@ public class StudentController {
 
         return ResponseEntity.ok(students);
     }
+
+    // ===============================
+    // STUDENT RESPONSE
+    // ===============================
 
     private StudentResponse toStudentResponse(
             Student student
@@ -131,6 +191,10 @@ public class StudentController {
                 student.isActive()
         );
     }
+
+    // ===============================
+    // ENROLLMENT RESPONSE
+    // ===============================
 
     private StudentEnrollmentResponse toEnrollmentResponse(
             StudentEnrollment enrollment

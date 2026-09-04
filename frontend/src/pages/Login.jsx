@@ -69,6 +69,12 @@ function Login() {
                 formData.password
             );
 
+            // Check exactly what the backend returned
+            console.log(
+                'LOGIN RESPONSE:',
+                data
+            );
+
             // Redirect according to role
             switch (data.role) {
 
@@ -128,7 +134,9 @@ function Login() {
                         G
                     </div>
 
-                    <h1>Gradexa</h1>
+                    <h1>
+                        Gradexa
+                    </h1>
 
                     <p>
                         Academic Management System
@@ -144,6 +152,7 @@ function Login() {
 
             </div>
 
+
             {/* =================================
                 RIGHT LOGIN SECTION
                 ================================= */}
@@ -154,13 +163,16 @@ function Login() {
 
                     <div className="login-header">
 
-                        <h2>Welcome back</h2>
+                        <h2>
+                            Welcome back
+                        </h2>
 
                         <p>
                             Sign in to continue to Gradexa
                         </p>
 
                     </div>
+
 
                     {/* ERROR */}
 
@@ -169,6 +181,7 @@ function Login() {
                             {error}
                         </div>
                     )}
+
 
                     <form
                         onSubmit={handleSubmit}
@@ -195,6 +208,7 @@ function Login() {
                             />
 
                         </div>
+
 
                         {/* PASSWORD */}
 
@@ -245,6 +259,7 @@ function Login() {
 
                         </div>
 
+
                         {/* LOGIN BUTTON */}
 
                         <button
@@ -258,6 +273,7 @@ function Login() {
                         </button>
 
                     </form>
+
 
                     {/* REGISTER */}
 
