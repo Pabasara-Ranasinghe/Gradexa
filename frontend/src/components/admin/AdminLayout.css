@@ -4,9 +4,10 @@
 
 .admin-layout {
     min-height: 100vh;
+
     display: flex;
 
-    background: #FAF7FC;
+    background: var(--color-background);
 }
 
 
@@ -23,15 +24,14 @@
 
     padding: 26px 16px;
 
-    /* FINAL DARK PURPLE */
-    background: #15173D;
+    background: var(--color-sidebar);
 
     border-right: none;
 
     flex-shrink: 0;
 
     box-shadow:
-        4px 0 18px rgba(21, 23, 61, 0.18);
+        4px 0 18px rgba(12, 44, 85, 0.12);
 }
 
 
@@ -65,11 +65,12 @@
 
     border-radius: 12px;
 
-    background: #CB22D7;
+    background: var(--color-primary);
 
-    color: #FFFFFF;
+    color: var(--color-text-white);
 
     font-size: 19px;
+
     font-weight: 800;
 }
 
@@ -85,9 +86,10 @@
 .admin-brand-text h2 {
     margin: 0;
 
-    color: #FFFFFF;
+    color: var(--color-text-white);
 
     font-size: 20px;
+
     font-weight: 700;
 
     letter-spacing: -0.3px;
@@ -98,7 +100,7 @@
 
     margin-top: 3px;
 
-    color: #E491C9;
+    color: var(--color-secondary);
 
     font-size: 11px;
 }
@@ -110,6 +112,7 @@
 
 .admin-navigation {
     display: flex;
+
     flex-direction: column;
 
     gap: 7px;
@@ -131,6 +134,7 @@
     padding: 13px 14px;
 
     border: none;
+
     border-radius: 10px;
 
     background: transparent;
@@ -138,7 +142,9 @@
     color: rgba(255, 255, 255, 0.78);
 
     font-family: inherit;
+
     font-size: 15px;
+
     font-weight: 500;
 
     text-decoration: none;
@@ -159,9 +165,9 @@
    ================================= */
 
 .admin-nav-item:hover {
-    background: rgba(203, 34, 215, 0.16);
+    background: rgba(110, 243, 214, 0.12);
 
-    color: #EEA1EB;
+    color: var(--color-secondary);
 
     transform: translateX(2px);
 }
@@ -172,9 +178,9 @@
    ================================= */
 
 .admin-nav-item.active {
-    background: #EEA1EB;
+    background: var(--color-secondary);
 
-    color: #15173D;
+    color: var(--color-sidebar);
 
     font-weight: 700;
 
@@ -206,6 +212,7 @@
 
 .admin-sidebar-bottom {
     display: flex;
+
     flex-direction: column;
 
     gap: 7px;
@@ -229,6 +236,7 @@
     padding: 13px 14px;
 
     border: none;
+
     border-radius: 10px;
 
     background: transparent;
@@ -236,7 +244,9 @@
     color: rgba(255, 255, 255, 0.78);
 
     font-family: inherit;
+
     font-size: 15px;
+
     font-weight: 500;
 
     text-align: left;
@@ -251,10 +261,14 @@
 }
 
 
-.admin-logout-button:hover {
-    background: rgba(228, 145, 201, 0.15);
+/* =================================
+   LOGOUT HOVER
+   ================================= */
 
-    color: #E491C9;
+.admin-logout-button:hover {
+    background: rgba(110, 243, 214, 0.12);
+
+    color: var(--color-secondary);
 }
 
 
@@ -266,9 +280,10 @@
     flex: 1;
 
     min-width: 0;
+
     min-height: 100vh;
 
-    background: #FAF7FC;
+    background: var(--color-background);
 }
 
 
@@ -287,9 +302,10 @@
 
     padding: 18px 34px;
 
-    background: #FFFFFF;
+    background: var(--color-surface);
 
-    border-bottom: 1px solid #E8DCEB;
+    border-bottom:
+        1px solid var(--color-border);
 
     box-sizing: border-box;
 }
@@ -302,9 +318,10 @@
 .admin-header h1 {
     margin: 0;
 
-    color: #21152A;
+    color: var(--color-text-primary);
 
     font-size: 22px;
+
     font-weight: 700;
 
     letter-spacing: -0.3px;
@@ -314,7 +331,7 @@
 .admin-header p {
     margin: 5px 0 0;
 
-    color: #66566B;
+    color: var(--color-text-secondary);
 
     font-size: 13px;
 }
@@ -348,11 +365,12 @@
 
     border-radius: 50%;
 
-    background: #982598;
+    background: var(--color-primary);
 
-    color: #FFFFFF;
+    color: var(--color-sidebar);
 
     font-size: 14px;
+
     font-weight: 800;
 }
 
@@ -363,6 +381,7 @@
 
 .admin-profile-info {
     display: flex;
+
     flex-direction: column;
 
     gap: 3px;
@@ -370,15 +389,16 @@
 
 
 .admin-profile-info strong {
-    color: #21152A;
+    color: var(--color-text-primary);
 
     font-size: 14px;
+
     font-weight: 600;
 }
 
 
 .admin-profile-info span {
-    color: #66566B;
+    color: var(--color-text-secondary);
 
     font-size: 12px;
 }
@@ -390,6 +410,7 @@
 
 .admin-content {
     width: 100%;
+
     max-width: 1400px;
 
     margin: 0 auto;
@@ -410,9 +431,11 @@
         width: 220px;
     }
 
+
     .admin-header {
         padding: 16px 24px;
     }
+
 
     .admin-content {
         padding: 28px 24px;
