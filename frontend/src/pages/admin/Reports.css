@@ -21,12 +21,29 @@
     margin-bottom: 28px;
 }
 
+.reports-page-header > div {
+    min-width: 0;
+}
+
+.reports-eyebrow {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--color-primary);
+
+    font-size: 11px;
+    font-weight: 700;
+
+    letter-spacing: 1.2px;
+}
+
 .reports-page-header h1 {
-    margin: 0 0 6px;
+    margin: 0 0 7px;
 
     color: var(--color-text-primary);
 
-    font-size: 28px;
+    font-size: 30px;
     font-weight: 700;
 
     letter-spacing: -0.4px;
@@ -37,7 +54,7 @@
 
     color: var(--color-text-secondary);
 
-    font-size: 14px;
+    font-size: 15px;
 
     line-height: 1.5;
 }
@@ -48,18 +65,25 @@
    ================================= */
 
 .refresh-reports-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
     flex-shrink: 0;
 
-    padding: 10px 18px;
+    min-width: 105px;
+
+    padding: 10px 17px;
 
     border: none;
     border-radius: var(--radius-medium);
 
-    background: var(--color-secondary);
+    background: var(--color-sidebar);
 
     color: var(--color-text-white);
 
     font-family: inherit;
+
     font-size: 13px;
     font-weight: 600;
 
@@ -68,13 +92,17 @@
     transition:
         background 0.2s ease,
         transform 0.2s ease,
+        box-shadow 0.2s ease,
         opacity 0.2s ease;
 }
 
-.refresh-reports-button:hover {
+.refresh-reports-button:hover:not(:disabled) {
     background: var(--color-primary);
 
     transform: translateY(-1px);
+
+    box-shadow:
+        0 4px 12px rgba(13, 206, 218, 0.20);
 }
 
 .refresh-reports-button:disabled {
@@ -91,17 +119,20 @@
    ================================= */
 
 .reports-error {
-    padding: 14px 16px;
+    padding: 14px 17px;
 
-    border: 1px solid rgba(203, 34, 215, 0.20);
+    border:
+        1px solid rgba(214, 69, 69, 0.22);
 
     border-radius: var(--radius-medium);
 
-    background: rgba(238, 161, 235, 0.18);
+    background: rgba(214, 69, 69, 0.08);
 
     color: var(--color-error);
 
     font-size: 13px;
+
+    line-height: 1.5;
 }
 
 
@@ -133,13 +164,16 @@
     width: 34px;
     height: 34px;
 
-    border: 3px solid var(--color-background-soft);
+    border:
+        3px solid var(--color-border);
 
-    border-top-color: var(--color-secondary);
+    border-top-color:
+        var(--color-primary);
 
     border-radius: 50%;
 
-    animation: reports-spin 0.8s linear infinite;
+    animation:
+        reports-spin 0.8s linear infinite;
 }
 
 @keyframes reports-spin {
@@ -161,7 +195,7 @@
     grid-template-columns:
         repeat(4, minmax(0, 1fr));
 
-    gap: 18px;
+    gap: 20px;
 
     margin-bottom: 24px;
 }
@@ -172,11 +206,14 @@
 
     gap: 15px;
 
-    padding: 20px;
+    min-height: 104px;
+
+    padding: 19px 20px;
 
     background: var(--color-surface);
 
-    border: 1px solid var(--color-border);
+    border:
+        1px solid var(--color-border);
 
     border-radius: var(--radius-large);
 
@@ -193,15 +230,20 @@
     box-shadow: var(--shadow-medium);
 }
 
-.report-stat-icon {
-    width: 46px;
-    height: 46px;
 
-    flex-shrink: 0;
+/* =================================
+   STAT ICON
+   ================================= */
+
+.report-stat-icon {
+    width: 48px;
+    height: 48px;
 
     display: flex;
     align-items: center;
     justify-content: center;
+
+    flex-shrink: 0;
 
     border-radius: 13px;
 
@@ -213,47 +255,56 @@
 /* TOTAL USERS */
 
 .report-stat-icon.users-icon {
-    background: rgba(137, 17, 128, 0.12);
+    background: rgba(12, 44, 85, 0.09);
 
-    color: var(--color-primary);
+    color: var(--color-sidebar);
 }
 
 
 /* STUDENTS */
 
 .report-stat-icon.student-icon {
-    background: rgba(228, 145, 201, 0.28);
+    background: rgba(13, 206, 218, 0.12);
 
-    color: #982598;
+    color: var(--color-primary);
 }
 
 
 /* TEACHERS */
 
 .report-stat-icon.teacher-icon {
-    background: rgba(203, 34, 215, 0.12);
+    background: rgba(110, 243, 214, 0.22);
 
-    color: #CB22D7;
+    color: #159B82;
 }
 
 
 /* ACTIVE USERS */
 
 .report-stat-icon.active-icon {
-    background: rgba(46, 157, 112, 0.12);
+    background: rgba(34, 160, 107, 0.12);
 
     color: var(--color-success);
 }
 
 
+/* =================================
+   STAT TEXT
+   ================================= */
+
+.report-stat-card > div:last-child {
+    min-width: 0;
+}
+
 .report-stat-card span {
     display: block;
 
-    margin-bottom: 5px;
+    margin-bottom: 4px;
 
     color: var(--color-text-secondary);
 
-    font-size: 13px;
+    font-size: 12px;
+    font-weight: 500;
 }
 
 .report-stat-card strong {
@@ -263,16 +314,18 @@
 
     font-size: 26px;
     font-weight: 700;
+
+    line-height: 1.15;
 }
 
 .report-stat-card small {
     display: block;
 
-    margin-top: 4px;
+    margin-top: 5px;
 
     color: var(--color-text-light);
 
-    font-size: 11px;
+    font-size: 10px;
 }
 
 
@@ -297,15 +350,25 @@
    ================================= */
 
 .reports-card {
+    min-width: 0;
+
+    overflow: hidden;
+
     background: var(--color-surface);
 
-    border: 1px solid var(--color-border);
+    border:
+        1px solid var(--color-border);
 
     border-radius: var(--radius-large);
 
     box-shadow: var(--shadow-small);
 
-    overflow: hidden;
+    transition:
+        box-shadow 0.2s ease;
+}
+
+.reports-card:hover {
+    box-shadow: var(--shadow-medium);
 }
 
 .chart-card {
@@ -319,7 +382,6 @@
 
 .reports-card-header {
     display: flex;
-
     align-items: center;
     justify-content: space-between;
 
@@ -327,7 +389,12 @@
 
     padding: 21px 22px;
 
-    border-bottom: 1px solid var(--color-border);
+    border-bottom:
+        1px solid var(--color-border);
+}
+
+.reports-card-header > div:first-child {
+    min-width: 0;
 }
 
 .reports-card-header h2 {
@@ -344,7 +411,9 @@
 
     color: var(--color-text-secondary);
 
-    font-size: 13px;
+    font-size: 12px;
+
+    line-height: 1.5;
 }
 
 
@@ -354,7 +423,6 @@
 
 .chart-total {
     display: flex;
-
     flex-direction: column;
 
     align-items: flex-end;
@@ -367,14 +435,16 @@
 
     font-size: 22px;
     font-weight: 700;
+
+    line-height: 1.1;
 }
 
 .chart-total span {
-    margin-top: 2px;
+    margin-top: 3px;
 
     color: var(--color-text-light);
 
-    font-size: 11px;
+    font-size: 10px;
 }
 
 
@@ -383,7 +453,7 @@
    ================================= */
 
 .role-chart {
-    padding: 20px 22px 22px;
+    padding: 21px 22px 23px;
 }
 
 .role-chart-row {
@@ -391,9 +461,9 @@
 
     grid-template-columns: 1fr auto;
 
-    gap: 12px;
+    gap: 11px;
 
-    margin-bottom: 20px;
+    margin-bottom: 19px;
 }
 
 .role-chart-row:last-child {
@@ -402,96 +472,116 @@
 
 .role-chart-label {
     display: flex;
-
     align-items: center;
 
     gap: 11px;
+
+    min-width: 0;
 }
 
 .role-chart-icon {
-    width: 34px;
-    height: 34px;
-
-    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
+    flex-shrink: 0;
+
     border-radius: 10px;
 
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
 }
 
 
-/* ROLE ICON COLORS */
+/* =================================
+   ROLE ICON COLORS
+   ================================= */
 
 .role-chart-icon.students {
-    background: rgba(228, 145, 201, 0.25);
-
-    color: #982598;
-}
-
-.role-chart-icon.teachers {
-    background: rgba(203, 34, 215, 0.12);
-
-    color: #CB22D7;
-}
-
-.role-chart-icon.admins {
-    background: rgba(137, 17, 128, 0.12);
+    background: rgba(13, 206, 218, 0.12);
 
     color: var(--color-primary);
 }
 
-.role-chart-icon.section-heads {
-    background: rgba(203, 34, 215, 0.15);
+.role-chart-icon.teachers {
+    background: rgba(110, 243, 214, 0.22);
 
-    color: #CB22D7;
+    color: #159B82;
+}
+
+.role-chart-icon.admins {
+    background: rgba(12, 44, 85, 0.09);
+
+    color: var(--color-sidebar);
+}
+
+.role-chart-icon.section-heads {
+    background: rgba(198, 252, 229, 0.65);
+
+    color: var(--color-sidebar);
 }
 
 .role-chart-icon.vice-principals {
-    background: rgba(228, 145, 201, 0.28);
+    background: rgba(217, 139, 36, 0.12);
 
-    color: #982598;
+    color: var(--color-warning);
 }
 
 .role-chart-icon.principals {
-    background: rgba(137, 17, 128, 0.15);
+    background: rgba(214, 69, 69, 0.10);
 
-    color: #891180;
+    color: var(--color-error);
 }
 
 
-.role-chart-label div:last-child {
-    display: flex;
+/* =================================
+   ROLE LABEL
+   ================================= */
 
+.role-chart-label > div:last-child {
+    display: flex;
     flex-direction: column;
 
     gap: 2px;
+
+    min-width: 0;
 }
 
 .role-chart-label strong {
+    overflow: hidden;
+
     color: var(--color-text-primary);
 
-    font-size: 13px;
+    font-size: 12px;
+    font-weight: 650;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .role-chart-label span {
     color: var(--color-text-light);
 
-    font-size: 11px;
+    font-size: 10px;
 }
+
+
+/* =================================
+   ROLE PERCENTAGE
+   ================================= */
 
 .role-chart-value {
     align-self: center;
 }
 
 .role-chart-value strong {
-    color: var(--color-primary);
+    color: var(--color-text-primary);
 
-    font-size: 13px;
+    font-size: 12px;
+    font-weight: 700;
 }
 
 
@@ -524,30 +614,32 @@
 }
 
 
-/* ROLE BAR COLORS */
+/* =================================
+   ROLE BAR COLORS
+   ================================= */
 
 .chart-bar.students {
-    background: var(--color-secondary);
-}
-
-.chart-bar.teachers {
-    background: var(--color-accent);
-}
-
-.chart-bar.admins {
     background: var(--color-primary);
 }
 
+.chart-bar.teachers {
+    background: var(--color-secondary);
+}
+
+.chart-bar.admins {
+    background: var(--color-sidebar);
+}
+
 .chart-bar.section-heads {
-    background: #CB22D7;
+    background: #55D9B9;
 }
 
 .chart-bar.vice-principals {
-    background: #E491C9;
+    background: var(--color-warning);
 }
 
 .chart-bar.principals {
-    background: #891180;
+    background: var(--color-error);
 }
 
 
@@ -556,11 +648,11 @@
    ================================= */
 
 .status-chart {
-    padding: 20px 22px 22px;
+    padding: 21px 22px 23px;
 }
 
 .status-chart-item {
-    margin-bottom: 24px;
+    margin-bottom: 23px;
 }
 
 .status-chart-item:last-child {
@@ -569,7 +661,6 @@
 
 .status-chart-top {
     display: flex;
-
     align-items: center;
     justify-content: space-between;
 
@@ -580,22 +671,30 @@
 
 .status-chart-label {
     display: flex;
-
     align-items: center;
 
-    gap: 10px;
+    gap: 9px;
+
+    min-width: 0;
 }
 
 .status-chart-label > span:last-child {
+    overflow: hidden;
+
     color: var(--color-text-secondary);
 
-    font-size: 13px;
+    font-size: 12px;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .status-chart-top > strong {
+    flex-shrink: 0;
+
     color: var(--color-text-primary);
 
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .status-chart-item small {
@@ -605,11 +704,13 @@
 
     color: var(--color-text-light);
 
-    font-size: 11px;
+    font-size: 10px;
 }
 
 
-/* STATUS BAR COLORS */
+/* =================================
+   STATUS BAR COLORS
+   ================================= */
 
 .chart-bar.active {
     background: var(--color-success);
@@ -633,8 +734,8 @@
    ================================= */
 
 .status-dot {
-    width: 10px;
-    height: 10px;
+    width: 9px;
+    height: 9px;
 
     flex-shrink: 0;
 
@@ -654,7 +755,7 @@
 }
 
 .status-dot.approved {
-    background: var(--color-secondary);
+    background: #55D9B9;
 }
 
 
@@ -685,14 +786,13 @@
 
 .role-row {
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
 
     padding: 15px 0;
 
-    border-bottom: 1px solid var(--color-border);
+    border-bottom:
+        1px solid var(--color-border);
 }
 
 .role-row:last-child {
@@ -705,9 +805,7 @@
 
 .role-row-top {
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
 
     gap: 15px;
@@ -718,7 +816,7 @@
 .role-row-top > span {
     color: var(--color-text-secondary);
 
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .role-row-top strong {
@@ -726,7 +824,7 @@
 
     color: var(--color-text-primary);
 
-    font-size: 14px;
+    font-size: 13px;
 
     text-align: right;
 }
@@ -750,40 +848,47 @@
 .progress-bar {
     height: 100%;
 
+    min-width: 0;
+
     border-radius: inherit;
 
-    transition: width 0.5s ease;
+    transition:
+        width 0.5s ease;
 }
 
 
-/* ROLE PROGRESS COLORS */
+/* =================================
+   ROLE PROGRESS COLORS
+   ================================= */
 
 .progress-bar.students {
-    background: var(--color-secondary);
-}
-
-.progress-bar.teachers {
-    background: var(--color-accent);
-}
-
-.progress-bar.admins {
     background: var(--color-primary);
 }
 
+.progress-bar.teachers {
+    background: var(--color-secondary);
+}
+
+.progress-bar.admins {
+    background: var(--color-sidebar);
+}
+
 .progress-bar.section-heads {
-    background: #CB22D7;
+    background: #55D9B9;
 }
 
 .progress-bar.vice-principals {
-    background: #E491C9;
+    background: var(--color-warning);
 }
 
 .progress-bar.principals {
-    background: #891180;
+    background: var(--color-error);
 }
 
 
-/* STATUS PROGRESS COLORS */
+/* =================================
+   STATUS PROGRESS COLORS
+   ================================= */
 
 .progress-bar.active {
     background: var(--color-success);
@@ -814,7 +919,7 @@
 
     color: var(--color-text-light);
 
-    font-size: 11px;
+    font-size: 10px;
 }
 
 
@@ -831,14 +936,13 @@
 
 .status-row {
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
 
     padding: 15px 0;
 
-    border-bottom: 1px solid var(--color-border);
+    border-bottom:
+        1px solid var(--color-border);
 }
 
 .status-row:last-child {
@@ -851,9 +955,7 @@
 
 .status-row-top {
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
 
     gap: 15px;
@@ -863,22 +965,21 @@
 
 .status-label {
     display: flex;
-
     align-items: center;
 
-    gap: 10px;
+    gap: 9px;
 }
 
 .status-label > span:last-child {
     color: var(--color-text-secondary);
 
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .status-row-top > strong {
     color: var(--color-text-primary);
 
-    font-size: 14px;
+    font-size: 13px;
 
     text-align: right;
 }
@@ -890,7 +991,6 @@
 
 .reports-insight {
     display: flex;
-
     align-items: flex-start;
 
     gap: 14px;
@@ -899,7 +999,8 @@
 
     padding: 18px 20px;
 
-    border: 1px solid var(--color-border);
+    border:
+        1px solid var(--color-border);
 
     border-radius: var(--radius-large);
 
@@ -910,12 +1011,11 @@
     width: 36px;
     height: 36px;
 
-    flex-shrink: 0;
-
     display: flex;
-
     align-items: center;
     justify-content: center;
+
+    flex-shrink: 0;
 
     border-radius: 50%;
 
@@ -923,7 +1023,7 @@
 
     color: var(--color-text-white);
 
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
 }
 
@@ -942,7 +1042,7 @@
 
     color: var(--color-text-secondary);
 
-    font-size: 13px;
+    font-size: 12px;
 
     line-height: 1.6;
 }
@@ -1002,11 +1102,22 @@
     }
 
     .report-stat-card {
-        padding: 18px;
+        min-height: 94px;
+
+        padding: 17px 18px;
+    }
+
+    .report-stat-icon {
+        width: 44px;
+        height: 44px;
     }
 
     .reports-card-header {
         padding: 18px;
+    }
+
+    .reports-card-header h2 {
+        font-size: 16px;
     }
 
     .role-list,
@@ -1017,16 +1128,12 @@
         padding-right: 18px;
     }
 
-    .reports-insight {
-        align-items: flex-start;
-    }
-
-    .reports-card-header h2 {
-        font-size: 16px;
-    }
-
     .chart-total strong {
         font-size: 19px;
+    }
+
+    .reports-insight {
+        padding: 17px 18px;
     }
 
 }
