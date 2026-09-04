@@ -52,6 +52,15 @@ body {
 
 
 /* =================================
+   ROOT
+   ================================= */
+
+#root {
+    min-height: 100vh;
+}
+
+
+/* =================================
    HEADINGS
    ================================= */
 
@@ -100,6 +109,8 @@ button {
 
 button:disabled {
     cursor: not-allowed;
+
+    opacity: 0.6;
 }
 
 
@@ -156,6 +167,26 @@ textarea {
     color: var(--color-text-primary);
 
     font-size: 15px;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+
+    outline: none;
+}
+
+
+/* =================================
+   INPUT FOCUS
+   ================================= */
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--color-border-focus);
+
+    box-shadow:
+        0 0 0 3px rgba(13, 206, 218, 0.12);
 }
 
 
@@ -185,24 +216,24 @@ textarea::placeholder {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--color-pink);
+    background: var(--color-primary);
 
     border-radius: var(--radius-round);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-accent);
+    background: var(--color-sidebar);
 }
 
 
 /* =================================
-   SELECTION
+   TEXT SELECTION
    ================================= */
 
 ::selection {
-    background: var(--color-lavender);
+    background: var(--color-secondary);
 
-    color: var(--color-primary);
+    color: var(--color-sidebar);
 }
 
 

@@ -4,33 +4,32 @@
        GRADEXA BRAND COLORS
        ================================= */
 
-    --color-primary: #15173D;
-    --color-secondary: #891180;
-    --color-accent: #982598;
+    --color-primary: #0DCEDA;
+    --color-secondary: #6EF3D6;
+    --color-accent: #C6FCE5;
 
-    --color-purple-bright: #CB22D7;
-    --color-pink: #E491C9;
-    --color-lavender: #EEA1EB;
+    --color-sidebar: #0C2C55;
+    --color-sidebar-dark: #08213F;
 
 
     /* =================================
        BACKGROUNDS
        ================================= */
 
-    --color-background: #FAF7FC;
+    --color-background: #FFFFFF;
     --color-surface: #FFFFFF;
 
-    --color-background-soft: #F7EFF8;
-    --color-highlight: #EEA1EB;
+    --color-background-soft: #EBFFFA;
+    --color-highlight: #C6FCE5;
 
 
     /* =================================
        TEXT
        ================================= */
 
-    --color-text-primary: #21152A;
-    --color-text-secondary: #66566B;
-    --color-text-light: #9B8DA0;
+    --color-text-primary: #0C2C55;
+    --color-text-secondary: #4F6478;
+    --color-text-light: #8293A3;
     --color-text-white: #FFFFFF;
 
 
@@ -38,8 +37,8 @@
        BORDERS
        ================================= */
 
-    --color-border: #E8DCEB;
-    --color-border-focus: #CB22D7;
+    --color-border: #D8F3EC;
+    --color-border-focus: #0DCEDA;
 
 
     /* =================================
@@ -49,7 +48,7 @@
     --color-success: #22A06B;
     --color-warning: #D98B24;
     --color-error: #D64545;
-    --color-info: #5967D9;
+    --color-info: #0DCEDA;
 
 
     /* =================================
@@ -57,13 +56,13 @@
        ================================= */
 
     --shadow-small:
-        0 2px 8px rgba(21, 23, 61, 0.06);
+        0 2px 8px rgba(12, 44, 85, 0.06);
 
     --shadow-medium:
-        0 8px 24px rgba(21, 23, 61, 0.10);
+        0 8px 24px rgba(12, 44, 85, 0.10);
 
     --shadow-large:
-        0 16px 40px rgba(21, 23, 61, 0.14);
+        0 16px 40px rgba(12, 44, 85, 0.14);
 
 
     /* =================================

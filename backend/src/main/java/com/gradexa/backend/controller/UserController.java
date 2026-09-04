@@ -1,15 +1,22 @@
 package com.gradexa.backend.controller;
 
-import com.gradexa.backend.dto.RoleUpdateRequest;
-import com.gradexa.backend.dto.UserResponse;
-import com.gradexa.backend.entity.User;
-import com.gradexa.backend.repository.UserRepository;
+import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.gradexa.backend.dto.RoleUpdateRequest;
+import com.gradexa.backend.dto.UserResponse;
+import com.gradexa.backend.entity.RegistrationStatus;
+import com.gradexa.backend.entity.User;
+import com.gradexa.backend.exception.ResourceNotFoundException;
+import com.gradexa.backend.repository.UserRepository;
 
 @RestController
 @RequestMapping("/api/users")
@@ -50,13 +57,17 @@ public class UserController {
             @PathVariable Long id
     ) {
 
-        return userRepository.findById(id)
-                .map(user -> ResponseEntity.ok(
-                        toResponse(user)
-                ))
-                .orElseGet(() ->
-                        ResponseEntity.notFound().build()
-                );
+        User user =
+                userRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "User not found"
+                                )
+                        );
+
+        return ResponseEntity.ok(
+                toResponse(user)
+        );
     }
 
     // ===============================
@@ -71,29 +82,67 @@ public class UserController {
             @RequestBody RoleUpdateRequest request
     ) {
 
-        return userRepository.findById(id)
-                .map(user -> {
+        User user =
+                userRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "User not found"
+                                )
+                        );
 
-                    if (request.getRole() == null) {
+        if (request.getRole() == null) {
+            return ResponseEntity
+                    .badRequest()
+                    .body("Role is required");
+        }
 
-                        return ResponseEntity
-                                .badRequest()
-                                .body("Role is required");
-                    }
+        user.setRole(request.getRole());
 
-                    user.setRole(request.getRole());
+        userRepository.save(user);
 
-                    userRepository.save(user);
+        return ResponseEntity.ok(
+                "User role updated successfully"
+        );
+    }
 
-                    return ResponseEntity.ok(
-                            "User role updated successfully"
-                    );
-                })
-                .orElseGet(() ->
-                        ResponseEntity
-                                .notFound()
-                                .build()
-                );
+    // ===============================
+    // APPROVE USER
+    // ADMIN ONLY
+    // ===============================
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}/approve")
+    public ResponseEntity<?> approveUser(
+            @PathVariable Long id
+    ) {
+
+        User user =
+                userRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "User not found"
+                                )
+                        );
+
+        if (user.getRegistrationStatus()
+                == RegistrationStatus.APPROVED) {
+
+            return ResponseEntity
+                    .badRequest()
+                    .body("User is already approved");
+        }
+
+        user.setRegistrationStatus(
+                RegistrationStatus.APPROVED
+        );
+
+        user.setActive(true);
+
+        userRepository.save(user);
+
+        return ResponseEntity.ok(
+                "User approved successfully"
+        );
     }
 
     // ===============================
