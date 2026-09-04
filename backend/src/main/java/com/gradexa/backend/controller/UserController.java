@@ -11,12 +11,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.gradexa.backend.dto.RegistrationRequestResponse;
 import com.gradexa.backend.dto.RoleUpdateRequest;
 import com.gradexa.backend.dto.UserResponse;
 import com.gradexa.backend.entity.RegistrationStatus;
 import com.gradexa.backend.entity.User;
 import com.gradexa.backend.exception.ResourceNotFoundException;
 import com.gradexa.backend.repository.UserRepository;
+import com.gradexa.backend.service.RegistrationRequestService;
 
 @RestController
 @RequestMapping("/api/users")
@@ -24,8 +26,16 @@ public class UserController {
 
     private final UserRepository userRepository;
 
-    public UserController(UserRepository userRepository) {
+    private final RegistrationRequestService
+            registrationRequestService;
+
+    public UserController(
+            UserRepository userRepository,
+            RegistrationRequestService registrationRequestService
+    ) {
         this.userRepository = userRepository;
+        this.registrationRequestService =
+                registrationRequestService;
     }
 
     // ===============================
@@ -68,6 +78,24 @@ public class UserController {
         return ResponseEntity.ok(
                 toResponse(user)
         );
+    }
+
+    // ===============================
+    // GET PENDING REGISTRATIONS
+    // ADMIN ONLY
+    // ===============================
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/registrations/pending")
+    public ResponseEntity<
+            List<RegistrationRequestResponse>
+            > getPendingRegistrations() {
+
+        List<RegistrationRequestResponse> requests =
+                registrationRequestService
+                        .getPendingRegistrations();
+
+        return ResponseEntity.ok(requests);
     }
 
     // ===============================

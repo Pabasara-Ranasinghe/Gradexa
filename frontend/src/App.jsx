@@ -14,7 +14,9 @@ import Users from './pages/admin/Users';
 import RegistrationRequests from './pages/admin/RegistrationRequests';
 import Reports from './pages/admin/Reports';
 import Settings from './pages/admin/Settings';
+
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
+import StudentDashboard from './pages/student/StudentDashboard';
 
 
 function App() {
@@ -57,6 +59,7 @@ function App() {
             >
 
                 {/* /admin → /admin/dashboard */}
+
                 <Route
                     index
                     element={
@@ -117,17 +120,28 @@ function App() {
                     element={<Settings />}
                 />
 
-                </Route>
+            </Route>
 
-                {/* ===============================
-                    TEACHER ROUTES
+
+            {/* ===============================
+                TEACHER ROUTES
                 =============================== */}
 
-                <Route
-                    path="/teacher/dashboard"
-                    element={<TeacherDashboard />}
-                />      
-            
+            <Route
+                path="/teacher/dashboard"
+                element={<TeacherDashboard />}
+            />
+
+
+            {/* ===============================
+                STUDENT ROUTES
+                =============================== */}
+
+            <Route
+                path="/student/dashboard"
+                element={<StudentDashboard />}
+            />
+
         </Routes>
     );
 }

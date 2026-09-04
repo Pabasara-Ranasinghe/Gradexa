@@ -16,7 +16,9 @@ public class AuthController {
 
     private final AuthService authService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(
+            AuthService authService
+    ) {
         this.authService = authService;
     }
 
@@ -31,15 +33,26 @@ public class AuthController {
 
         try {
 
-            User user = authService.register(
+            authService.register(
                     request.getUsername(),
                     request.getPassword(),
-                    request.getRole()
+                    request.getRole(),
+                    request.getFirstName(),
+                    request.getLastName(),
+                    request.getStudentId(),
+                    request.getTeacherId(),
+                    request.getDateOfBirth(),
+                    request.getSection(),
+                    request.getGrade(),
+                    request.getSubject()
             );
 
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body("User registered successfully");
+                    .body(
+                            "Registration submitted successfully. " +
+                            "Please wait for administrator approval."
+                    );
 
         } catch (RuntimeException e) {
 
@@ -82,7 +95,9 @@ public class AuthController {
 
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid username or password");
+                    .body(
+                            "Invalid username or password"
+                    );
         }
     }
 }

@@ -1,7 +1,5 @@
 package com.gradexa.backend.entity;
 
-import java.time.LocalDate;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,12 +16,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "students")
+@Table(name = "teachers")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Student {
+public class Teacher {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,12 +36,12 @@ public class Student {
     private User user;
 
     @Column(
-            name = "student_number",
+            name = "teacher_number",
             nullable = false,
             unique = true,
             length = 30
     )
-    private String studentNumber;
+    private String teacherNumber;
 
     @Column(
             name = "first_name",
@@ -59,24 +57,19 @@ public class Student {
     )
     private String lastName;
 
-    @Column(
-            name = "date_of_birth"
-    )
-    private LocalDate dateOfBirth;
-
-    // Requested school section during registration
     @Enumerated(EnumType.STRING)
     @Column(
-            name = "requested_section",
+            name = "school_section",
+            nullable = false,
             length = 20
     )
-    private SchoolSection requestedSection;
+    private SchoolSection schoolSection;
 
-    // Requested grade during registration
     @Column(
-            name = "requested_grade"
+            nullable = false,
+            length = 100
     )
-    private Integer requestedGrade;
+    private String subject;
 
     @Column(nullable = false)
     private boolean active = true;

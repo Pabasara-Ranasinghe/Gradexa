@@ -8,9 +8,20 @@ import './Register.css';
 function Register() {
 
     const [formData, setFormData] = useState({
+        firstName: '',
+        lastName: '',
+
+        studentId: '',
+        teacherId: '',
+        dateOfBirth: '',
+        section: '',
+        grade: '',
+        subject: '',
+
         username: '',
         password: '',
         confirmPassword: '',
+
         role: 'STUDENT'
     });
 
@@ -47,10 +58,94 @@ function Register() {
 
 
     // ===============================
+    // HANDLE ROLE CHANGE
+    // ===============================
+
+    const handleRoleChange = (event) => {
+
+        const newRole = event.target.value;
+
+        setFormData({
+            ...formData,
+
+            role: newRole,
+
+            studentId: '',
+            teacherId: '',
+            dateOfBirth: '',
+            section: '',
+            grade: '',
+            subject: ''
+        });
+
+        setError('');
+        setSuccess('');
+    };
+
+
+    // ===============================
     // VALIDATE FORM
     // ===============================
 
     const validateForm = () => {
+
+        // --------------------------------
+        // Common details
+        // --------------------------------
+
+        if (!formData.firstName.trim()) {
+            return 'Please enter your first name.';
+        }
+
+        if (!formData.lastName.trim()) {
+            return 'Please enter your last name.';
+        }
+
+        // --------------------------------
+        // Student validation
+        // --------------------------------
+
+        if (formData.role === 'STUDENT') {
+
+            if (!formData.studentId.trim()) {
+                return 'Please enter your Student ID.';
+            }
+
+            if (!formData.dateOfBirth) {
+                return 'Please select your date of birth.';
+            }
+
+            if (!formData.section) {
+                return 'Please select your school section.';
+            }
+
+            if (!formData.grade) {
+                return 'Please select your grade.';
+            }
+        }
+
+        // --------------------------------
+        // Teacher validation
+        // --------------------------------
+
+        if (formData.role === 'TEACHER') {
+
+            if (!formData.teacherId.trim()) {
+                return 'Please enter your Teacher ID.';
+            }
+
+            if (!formData.section) {
+                return 'Please select your school section.';
+            }
+
+            if (!formData.subject.trim()) {
+                return 'Please enter your subject.';
+            }
+        }
+
+        // --------------------------------
+        // Username validation
+        // --------------------------------
 
         if (!formData.username.trim()) {
             return 'Please enter a username.';
@@ -59,6 +154,10 @@ function Register() {
         if (formData.username.trim().length < 4) {
             return 'Username must contain at least 4 characters.';
         }
+
+        // --------------------------------
+        // Password validation
+        // --------------------------------
 
         if (!formData.password) {
             return 'Please enter a password.';
@@ -73,10 +172,6 @@ function Register() {
             formData.confirmPassword
         ) {
             return 'Passwords do not match.';
-        }
-
-        if (!formData.role) {
-            return 'Please select a role.';
         }
 
         return '';
@@ -106,9 +201,7 @@ function Register() {
             setSuccess('');
 
             await registerUser(
-                formData.username.trim(),
-                formData.password,
-                formData.role
+                formData
             );
 
             setSuccess(
@@ -116,9 +209,20 @@ function Register() {
             );
 
             setFormData({
+                firstName: '',
+                lastName: '',
+
+                studentId: '',
+                teacherId: '',
+                dateOfBirth: '',
+                section: '',
+                grade: '',
+                subject: '',
+
                 username: '',
                 password: '',
                 confirmPassword: '',
+
                 role: 'STUDENT'
             });
 
@@ -138,7 +242,6 @@ function Register() {
 
     return (
         <div className="register-page">
-
 
             {/* =================================
                 LEFT BRANDING
@@ -178,7 +281,6 @@ function Register() {
             <div className="register-section">
 
                 <div className="register-card">
-
 
                     {/* =================================
                         HEADER
@@ -267,6 +369,290 @@ function Register() {
                         className="register-form"
                     >
 
+                        {/* =================================
+                            ACCOUNT TYPE
+                            ================================= */}
+
+                        <div className="form-group">
+
+                            <label htmlFor="role">
+                                Account Type
+                            </label>
+
+                            <select
+                                id="role"
+                                name="role"
+                                value={formData.role}
+                                onChange={handleRoleChange}
+                                disabled={loading}
+                            >
+
+                                <option value="STUDENT">
+                                    Student
+                                </option>
+
+                                <option value="TEACHER">
+                                    Teacher
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        {/* =================================
+                            FIRST NAME
+                            ================================= */}
+
+                        <div className="form-group">
+
+                            <label htmlFor="first-name">
+                                First Name
+                            </label>
+
+                            <input
+                                id="first-name"
+                                type="text"
+                                name="firstName"
+                                value={formData.firstName}
+                                onChange={handleChange}
+                                placeholder="Enter your first name"
+                                autoComplete="given-name"
+                                disabled={loading}
+                            />
+
+                        </div>
+
+
+                        {/* =================================
+                            LAST NAME
+                            ================================= */}
+
+                        <div className="form-group">
+
+                            <label htmlFor="last-name">
+                                Last Name
+                            </label>
+
+                            <input
+                                id="last-name"
+                                type="text"
+                                name="lastName"
+                                value={formData.lastName}
+                                onChange={handleChange}
+                                placeholder="Enter your last name"
+                                autoComplete="family-name"
+                                disabled={loading}
+                            />
+
+                        </div>
+
+
+                        {/* =================================
+                            STUDENT FIELDS
+                            ================================= */}
+
+                        {formData.role === 'STUDENT' && (
+                            <>
+
+                                {/* Student ID */}
+
+                                <div className="form-group">
+
+                                    <label htmlFor="student-id">
+                                        Student ID
+                                    </label>
+
+                                    <input
+                                        id="student-id"
+                                        type="text"
+                                        name="studentId"
+                                        value={formData.studentId}
+                                        onChange={handleChange}
+                                        placeholder="Enter your Student ID"
+                                        disabled={loading}
+                                    />
+
+                                </div>
+
+
+                                {/* Date of Birth */}
+
+                                <div className="form-group">
+
+                                    <label htmlFor="date-of-birth">
+                                        Date of Birth
+                                    </label>
+
+                                    <input
+                                        id="date-of-birth"
+                                        type="date"
+                                        name="dateOfBirth"
+                                        value={formData.dateOfBirth}
+                                        onChange={handleChange}
+                                        disabled={loading}
+                                    />
+
+                                </div>
+
+
+                                {/* School Section */}
+
+                                <div className="form-group">
+
+                                    <label htmlFor="section">
+                                        School Section
+                                    </label>
+
+                                    <select
+                                        id="section"
+                                        name="section"
+                                        value={formData.section}
+                                        onChange={handleChange}
+                                        disabled={loading}
+                                    >
+
+                                        <option value="">
+                                            Select school section
+                                        </option>
+
+                                        <option value="PRIMARY">
+                                            Primary
+                                        </option>
+
+                                        <option value="UPPER">
+                                            Upper
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+
+                                {/* Grade */}
+
+                                <div className="form-group">
+
+                                    <label htmlFor="grade">
+                                        Grade
+                                    </label>
+
+                                    <select
+                                        id="grade"
+                                        name="grade"
+                                        value={formData.grade}
+                                        onChange={handleChange}
+                                        disabled={loading}
+                                    >
+
+                                        <option value="">
+                                            Select grade
+                                        </option>
+
+                                        {Array.from(
+                                            { length: 13 },
+                                            (_, index) => (
+                                                <option
+                                                    key={index + 1}
+                                                    value={index + 1}
+                                                >
+                                                    Grade {index + 1}
+                                                </option>
+                                            )
+                                        )}
+
+                                    </select>
+
+                                </div>
+
+                            </>
+                        )}
+
+
+                        {/* =================================
+                            TEACHER FIELDS
+                            ================================= */}
+
+                        {formData.role === 'TEACHER' && (
+                            <>
+
+                                {/* Teacher ID */}
+
+                                <div className="form-group">
+
+                                    <label htmlFor="teacher-id">
+                                        Teacher ID
+                                    </label>
+
+                                    <input
+                                        id="teacher-id"
+                                        type="text"
+                                        name="teacherId"
+                                        value={formData.teacherId}
+                                        onChange={handleChange}
+                                        placeholder="Enter your Teacher ID"
+                                        disabled={loading}
+                                    />
+
+                                </div>
+
+
+                                {/* School Section */}
+
+                                <div className="form-group">
+
+                                    <label htmlFor="teacher-section">
+                                        School Section
+                                    </label>
+
+                                    <select
+                                        id="teacher-section"
+                                        name="section"
+                                        value={formData.section}
+                                        onChange={handleChange}
+                                        disabled={loading}
+                                    >
+
+                                        <option value="">
+                                            Select school section
+                                        </option>
+
+                                        <option value="PRIMARY">
+                                            Primary
+                                        </option>
+
+                                        <option value="UPPER">
+                                            Upper
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+
+                                {/* Subject */}
+
+                                <div className="form-group">
+
+                                    <label htmlFor="subject">
+                                        Subject
+                                    </label>
+
+                                    <input
+                                        id="subject"
+                                        type="text"
+                                        name="subject"
+                                        value={formData.subject}
+                                        onChange={handleChange}
+                                        placeholder="Enter the subject you teach"
+                                        disabled={loading}
+                                    />
+
+                                </div>
+
+                            </>
+                        )}
+
 
                         {/* =================================
                             USERNAME
@@ -288,37 +674,6 @@ function Register() {
                                 autoComplete="username"
                                 disabled={loading}
                             />
-
-                        </div>
-
-
-                        {/* =================================
-                            ROLE
-                            ================================= */}
-
-                        <div className="form-group">
-
-                            <label htmlFor="role">
-                                Request Role
-                            </label>
-
-                            <select
-                                id="role"
-                                name="role"
-                                value={formData.role}
-                                onChange={handleChange}
-                                disabled={loading}
-                            >
-
-                                <option value="STUDENT">
-                                    Student
-                                </option>
-
-                                <option value="TEACHER">
-                                    Teacher
-                                </option>
-
-                            </select>
 
                         </div>
 

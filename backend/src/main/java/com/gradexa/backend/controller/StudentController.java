@@ -1,16 +1,22 @@
 package com.gradexa.backend.controller;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.gradexa.backend.dto.StudentEnrollmentResponse;
 import com.gradexa.backend.dto.StudentResponse;
 import com.gradexa.backend.entity.Student;
 import com.gradexa.backend.entity.StudentEnrollment;
 import com.gradexa.backend.service.StudentService;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/students")
@@ -30,7 +36,8 @@ public class StudentController {
             @RequestParam Long userId,
             @RequestParam String studentNumber,
             @RequestParam String firstName,
-            @RequestParam String lastName
+            @RequestParam String lastName,
+            @RequestParam(required = false) LocalDate dateOfBirth
     ) {
 
         Student student =
@@ -38,7 +45,8 @@ public class StudentController {
                         userId,
                         studentNumber,
                         firstName,
-                        lastName
+                        lastName,
+                        dateOfBirth
                 );
 
         return ResponseEntity.ok(

@@ -21,14 +21,8 @@ function RegistrationRequests() {
     const [approvingId, setApprovingId] = useState(null);
     const [selectedRequest, setSelectedRequest] = useState(null);
 
-    // =================================
-    // LOAD REQUESTS
-    // =================================
-
     const loadRequests = async (isRefresh = false) => {
-
         try {
-
             if (isRefresh) {
                 setRefreshing(true);
             } else {
@@ -39,10 +33,11 @@ function RegistrationRequests() {
 
             const data = await getPendingRegistrations();
 
+            console.log('Registration data:', data);
+
             setRequests(data || []);
 
         } catch (error) {
-
             console.error(error);
 
             setError(
@@ -51,10 +46,8 @@ function RegistrationRequests() {
             );
 
         } finally {
-
             setLoading(false);
             setRefreshing(false);
-
         }
     };
 
@@ -62,14 +55,8 @@ function RegistrationRequests() {
         loadRequests();
     }, []);
 
-    // =================================
-    // ROLE LABEL
-    // =================================
-
     const getRoleLabel = (role) => {
-
         switch (role) {
-
             case 'ADMIN':
                 return 'Admin';
 
@@ -93,14 +80,8 @@ function RegistrationRequests() {
         }
     };
 
-    // =================================
-    // ROLE CLASS
-    // =================================
-
     const getRoleClass = (role) => {
-
         switch (role) {
-
             case 'ADMIN':
                 return 'admin';
 
@@ -124,12 +105,7 @@ function RegistrationRequests() {
         }
     };
 
-    // =================================
-    // FORMAT DATE
-    // =================================
-
     const formatDate = (date) => {
-
         if (!date) {
             return '—';
         }
@@ -150,9 +126,53 @@ function RegistrationRequests() {
         );
     };
 
-    // =================================
-    // FILTER REQUESTS
-    // =================================
+    const formatDateOfBirth = (date) => {
+        if (!date) {
+            return '—';
+        }
+
+        const parsedDate = new Date(date);
+
+        if (Number.isNaN(parsedDate.getTime())) {
+            return '—';
+        }
+
+        return parsedDate.toLocaleDateString(
+            'en-GB',
+            {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            }
+        );
+    };
+
+    const formatSection = (section) => {
+        if (!section) {
+            return '—';
+        }
+
+        switch (section) {
+            case 'PRIMARY':
+                return 'Primary';
+
+            case 'UPPER':
+                return 'Upper';
+
+            default:
+                return section;
+        }
+    };
+
+    const getFullName = (user) => {
+        const firstName = user.firstName || '';
+        const lastName = user.lastName || '';
+
+        const fullName =
+            `${firstName} ${lastName}`.trim();
+
+        return fullName || 'Name not provided';
+    };
 
     const filteredRequests = useMemo(() => {
 
@@ -161,87 +181,83 @@ function RegistrationRequests() {
 
         return requests.filter(user => {
 
+            const fullName =
+                getFullName(user).toLowerCase();
+
+            const username =
+                user.username?.toLowerCase() || '';
+
+            const role =
+                user.role?.toLowerCase() || '';
+
+            const userId =
+                String(user.id || '').toLowerCase();
+
+            const studentId =
+                user.studentId?.toLowerCase() || '';
+
+            const teacherId =
+                user.teacherId?.toLowerCase() || '';
+
+            const subject =
+                user.subject?.toLowerCase() || '';
+
             const matchesSearch =
                 !search ||
-                user.username
-                    ?.toLowerCase()
-                    .includes(search) ||
-                user.role
-                    ?.toLowerCase()
-                    .includes(search) ||
-                String(user.id)
-                    .includes(search);
+                username.includes(search) ||
+                fullName.includes(search) ||
+                role.includes(search) ||
+                userId.includes(search) ||
+                studentId.includes(search) ||
+                teacherId.includes(search) ||
+                subject.includes(search);
 
             const matchesRole =
                 roleFilter === 'ALL' ||
                 user.role === roleFilter;
 
             return matchesSearch && matchesRole;
-
         });
 
     }, [requests, searchTerm, roleFilter]);
-
-    // =================================
-    // CLEAR FILTERS
-    // =================================
 
     const hasFilters =
         searchTerm.trim() !== '' ||
         roleFilter !== 'ALL';
 
     const clearFilters = () => {
-
         setSearchTerm('');
         setRoleFilter('ALL');
-
     };
-
-    // =================================
-    // OPEN APPROVAL CONFIRMATION
-    // =================================
 
     const openApprovalConfirmation = (user) => {
         setSelectedRequest(user);
     };
 
-    // =================================
-    // CLOSE APPROVAL CONFIRMATION
-    // =================================
-
     const closeApprovalConfirmation = () => {
-
         if (approvingId !== null) {
             return;
         }
 
         setSelectedRequest(null);
-
     };
 
-    // =================================
-    // APPROVE REQUEST
-    // =================================
-
-    const handleApprove = async (id) => {
-
+    const handleApprove = async (userId) => {
         try {
-
-            setApprovingId(id);
+            setApprovingId(userId);
             setError('');
 
-            await approveRegistration(id);
+            await approveRegistration(userId);
 
             setRequests(currentRequests =>
                 currentRequests.filter(
-                    user => user.id !== id
+                    user => user.id !== userId
                 )
             );
 
             setSelectedRequest(null);
 
         } catch (error) {
-
             console.error(error);
 
             setError(
@@ -250,15 +266,9 @@ function RegistrationRequests() {
             );
 
         } finally {
-
             setApprovingId(null);
-
         }
     };
-
-    // =================================
-    // SUMMARY
-    // =================================
 
     const pendingCount = requests.length;
 
@@ -285,14 +295,10 @@ function RegistrationRequests() {
     return (
         <div className="registration-page">
 
-            {/* =================================
-                HEADER
-                ================================= */}
-
+            {/* Page Header */}
             <div className="registration-page-header">
 
                 <div>
-
                     <span className="registration-eyebrow">
                         ADMINISTRATION
                     </span>
@@ -305,7 +311,6 @@ function RegistrationRequests() {
                         Review and approve new account
                         registration requests.
                     </p>
-
                 </div>
 
                 <button
@@ -324,12 +329,8 @@ function RegistrationRequests() {
 
             </div>
 
-            {/* =================================
-                ERROR
-                ================================= */}
-
+            {/* Error Message */}
             {error && (
-
                 <div className="registration-error">
 
                     <span className="error-icon">
@@ -353,15 +354,10 @@ function RegistrationRequests() {
                     </button>
 
                 </div>
-
             )}
 
-            {/* =================================
-                SUMMARY CARDS
-                ================================= */}
-
+            {/* Summary Cards */}
             {!loading && (
-
                 <div className="registration-summary">
 
                     <div className="registration-stat-card">
@@ -371,7 +367,6 @@ function RegistrationRequests() {
                         </div>
 
                         <div>
-
                             <span>
                                 Pending Requests
                             </span>
@@ -379,7 +374,6 @@ function RegistrationRequests() {
                             <strong>
                                 {pendingCount}
                             </strong>
-
                         </div>
 
                     </div>
@@ -391,7 +385,6 @@ function RegistrationRequests() {
                         </div>
 
                         <div>
-
                             <span>
                                 Students
                             </span>
@@ -399,7 +392,6 @@ function RegistrationRequests() {
                             <strong>
                                 {studentCount}
                             </strong>
-
                         </div>
 
                     </div>
@@ -411,7 +403,6 @@ function RegistrationRequests() {
                         </div>
 
                         <div>
-
                             <span>
                                 Teachers
                             </span>
@@ -419,7 +410,6 @@ function RegistrationRequests() {
                             <strong>
                                 {teacherCount}
                             </strong>
-
                         </div>
 
                     </div>
@@ -431,7 +421,6 @@ function RegistrationRequests() {
                         </div>
 
                         <div>
-
                             <span>
                                 Other Staff
                             </span>
@@ -439,27 +428,19 @@ function RegistrationRequests() {
                             <strong>
                                 {staffCount}
                             </strong>
-
                         </div>
 
                     </div>
 
                 </div>
-
             )}
 
-            {/* =================================
-                MAIN CARD
-                ================================= */}
-
+            {/* Main Registration Card */}
             <div className="registration-card">
-
-                {/* CARD HEADER */}
 
                 <div className="registration-card-header">
 
                     <div>
-
                         <h2>
                             Pending Registrations
                         </h2>
@@ -468,23 +449,16 @@ function RegistrationRequests() {
                             Review each request before
                             granting system access.
                         </p>
-
                     </div>
 
                     <div className="pending-count">
-
                         {pendingCount}
-
                     </div>
 
                 </div>
 
-                {/* =================================
-                    FILTER BAR
-                    ================================= */}
-
+                {/* Filters */}
                 {!loading && requests.length > 0 && (
-
                     <div className="registration-filter-bar">
 
                         <div className="registration-search">
@@ -495,7 +469,7 @@ function RegistrationRequests() {
 
                             <input
                                 type="text"
-                                placeholder="Search by username, role or ID..."
+                                placeholder="Search by name, username, ID, role or subject..."
                                 value={searchTerm}
                                 onChange={(event) =>
                                     setSearchTerm(
@@ -547,26 +521,19 @@ function RegistrationRequests() {
                         </select>
 
                         {hasFilters && (
-
                             <button
                                 className="clear-registration-filters"
                                 onClick={clearFilters}
                             >
                                 Clear
                             </button>
-
                         )}
 
                     </div>
-
                 )}
 
-                {/* =================================
-                    LOADING
-                    ================================= */}
-
+                {/* Loading */}
                 {loading && (
-
                     <div className="registration-loading">
 
                         <div className="registration-spinner">
@@ -577,16 +544,11 @@ function RegistrationRequests() {
                         </p>
 
                     </div>
-
                 )}
 
-                {/* =================================
-                    EMPTY
-                    ================================= */}
-
+                {/* Empty */}
                 {!loading &&
                     requests.length === 0 && (
-
                         <div className="registration-empty">
 
                             <div className="registration-empty-icon">
@@ -614,17 +576,12 @@ function RegistrationRequests() {
                             </button>
 
                         </div>
-
                     )}
 
-                {/* =================================
-                    NO FILTER RESULTS
-                    ================================= */}
-
+                {/* No Search Results */}
                 {!loading &&
                     requests.length > 0 &&
                     filteredRequests.length === 0 && (
-
                         <div className="registration-empty">
 
                             <div className="registration-empty-icon">
@@ -647,16 +604,11 @@ function RegistrationRequests() {
                             </button>
 
                         </div>
-
                     )}
 
-                {/* =================================
-                    REQUEST LIST
-                    ================================= */}
-
+                {/* Registration Requests */}
                 {!loading &&
                     filteredRequests.length > 0 && (
-
                         <div className="registration-request-list">
 
                             {filteredRequests.map(user => (
@@ -666,21 +618,29 @@ function RegistrationRequests() {
                                     key={user.id}
                                 >
 
+                                    {/* Avatar */}
                                     <div className="request-avatar">
-
                                         {user.username
                                             ?.charAt(0)
                                             .toUpperCase() || 'U'}
-
                                     </div>
 
+                                    {/* Main Details */}
                                     <div className="request-details">
 
                                         <div className="request-name-row">
 
-                                            <strong>
-                                                {user.username}
-                                            </strong>
+                                            <div className="request-title">
+
+                                                <strong>
+                                                    {getFullName(user)}
+                                                </strong>
+
+                                                <span className="request-username">
+                                                    @{user.username}
+                                                </span>
+
+                                            </div>
 
                                             <span className="pending-badge">
                                                 PENDING
@@ -688,6 +648,7 @@ function RegistrationRequests() {
 
                                         </div>
 
+                                        {/* Basic Information */}
                                         <div className="request-meta">
 
                                             <span>
@@ -705,7 +666,6 @@ function RegistrationRequests() {
                                                         user.role
                                                     )}
                                                 </span>
-
                                             </span>
 
                                             <span>
@@ -717,8 +677,118 @@ function RegistrationRequests() {
 
                                         </div>
 
+                                        {/* Student Details */}
+                                        {user.role === 'STUDENT' && (
+                                            <div className="registration-detail-section">
+
+                                                <div className="registration-detail-item">
+
+                                                    <span className="detail-label">
+                                                        Student ID
+                                                    </span>
+
+                                                    <strong>
+                                                        {user.studentId ||
+                                                            '—'}
+                                                    </strong>
+
+                                                </div>
+
+                                                <div className="registration-detail-item">
+
+                                                    <span className="detail-label">
+                                                        Date of Birth
+                                                    </span>
+
+                                                    <strong>
+                                                        {formatDateOfBirth(
+                                                            user.dateOfBirth
+                                                        )}
+                                                    </strong>
+
+                                                </div>
+
+                                                <div className="registration-detail-item">
+
+                                                    <span className="detail-label">
+                                                        School Section
+                                                    </span>
+
+                                                    <strong>
+                                                        {formatSection(
+                                                            user.requestedSection
+                                                        )}
+                                                    </strong>
+
+                                                </div>
+
+                                                <div className="registration-detail-item">
+
+                                                    <span className="detail-label">
+                                                        Requested Grade
+                                                    </span>
+
+                                                    <strong>
+                                                        {user.requestedGrade
+                                                            ? `Grade ${user.requestedGrade}`
+                                                            : '—'}
+                                                    </strong>
+
+                                                </div>
+
+                                            </div>
+                                        )}
+
+                                        {/* Teacher Details */}
+                                        {user.role === 'TEACHER' && (
+                                            <div className="registration-detail-section">
+
+                                                <div className="registration-detail-item">
+
+                                                    <span className="detail-label">
+                                                        Teacher ID
+                                                    </span>
+
+                                                    <strong>
+                                                        {user.teacherId ||
+                                                            '—'}
+                                                    </strong>
+
+                                                </div>
+
+                                                <div className="registration-detail-item">
+
+                                                    <span className="detail-label">
+                                                        School Section
+                                                    </span>
+
+                                                    <strong>
+                                                        {formatSection(
+                                                            user.teacherSection
+                                                        )}
+                                                    </strong>
+
+                                                </div>
+
+                                                <div className="registration-detail-item">
+
+                                                    <span className="detail-label">
+                                                        Subject
+                                                    </span>
+
+                                                    <strong>
+                                                        {user.subject ||
+                                                            '—'}
+                                                    </strong>
+
+                                                </div>
+
+                                            </div>
+                                        )}
+
                                     </div>
 
+                                    {/* Approve Button */}
                                     <button
                                         className="accept-registration-button"
                                         onClick={() =>
@@ -727,13 +797,10 @@ function RegistrationRequests() {
                                             )
                                         }
                                         disabled={
-                                            approvingId ===
-                                            user.id
+                                            approvingId === user.id
                                         }
                                     >
-
                                         Approve
-
                                     </button>
 
                                 </div>
@@ -741,17 +808,12 @@ function RegistrationRequests() {
                             ))}
 
                         </div>
-
                     )}
 
             </div>
 
-            {/* =================================
-                APPROVAL MODAL
-                ================================= */}
-
+            {/* Approval Confirmation Modal */}
             {selectedRequest && (
-
                 <div
                     className="registration-modal-overlay"
                     onClick={closeApprovalConfirmation}
@@ -781,6 +843,7 @@ function RegistrationRequests() {
                             ?
                         </p>
 
+                        {/* User Summary */}
                         <div className="approval-user-summary">
 
                             <div className="approval-avatar">
@@ -794,7 +857,9 @@ function RegistrationRequests() {
                             <div>
 
                                 <strong>
-                                    {selectedRequest.username}
+                                    {getFullName(
+                                        selectedRequest
+                                    )}
                                 </strong>
 
                                 <span>
@@ -803,10 +868,98 @@ function RegistrationRequests() {
                                     )}
                                 </span>
 
+                                <small>
+                                    @{selectedRequest.username}
+                                </small>
+
                             </div>
 
                         </div>
 
+                        {/* Additional Student Information */}
+                        {selectedRequest.role === 'STUDENT' && (
+                            <div className="approval-detail-summary">
+
+                                <div>
+                                    <span>
+                                        Student ID
+                                    </span>
+
+                                    <strong>
+                                        {selectedRequest.studentId ||
+                                            '—'}
+                                    </strong>
+                                </div>
+
+                                <div>
+                                    <span>
+                                        Requested Grade
+                                    </span>
+
+                                    <strong>
+                                        {selectedRequest.requestedGrade
+                                            ? `Grade ${selectedRequest.requestedGrade}`
+                                            : '—'}
+                                    </strong>
+                                </div>
+
+                                <div>
+                                    <span>
+                                        Section
+                                    </span>
+
+                                    <strong>
+                                        {formatSection(
+                                            selectedRequest.requestedSection
+                                        )}
+                                    </strong>
+                                </div>
+
+                            </div>
+                        )}
+
+                        {/* Additional Teacher Information */}
+                        {selectedRequest.role === 'TEACHER' && (
+                            <div className="approval-detail-summary">
+
+                                <div>
+                                    <span>
+                                        Teacher ID
+                                    </span>
+
+                                    <strong>
+                                        {selectedRequest.teacherId ||
+                                            '—'}
+                                    </strong>
+                                </div>
+
+                                <div>
+                                    <span>
+                                        Section
+                                    </span>
+
+                                    <strong>
+                                        {formatSection(
+                                            selectedRequest.teacherSection
+                                        )}
+                                    </strong>
+                                </div>
+
+                                <div>
+                                    <span>
+                                        Subject
+                                    </span>
+
+                                    <strong>
+                                        {selectedRequest.subject ||
+                                            '—'}
+                                    </strong>
+                                </div>
+
+                            </div>
+                        )}
+
+                        {/* Warning */}
                         <div className="approval-warning">
 
                             <span>
@@ -821,6 +974,7 @@ function RegistrationRequests() {
 
                         </div>
 
+                        {/* Modal Actions */}
                         <div className="registration-modal-actions">
 
                             <button
@@ -858,7 +1012,6 @@ function RegistrationRequests() {
                     </div>
 
                 </div>
-
             )}
 
         </div>

@@ -1,5 +1,11 @@
 package com.gradexa.backend.service;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.gradexa.backend.entity.AcademicClass;
 import com.gradexa.backend.entity.Role;
 import com.gradexa.backend.entity.Student;
@@ -8,11 +14,6 @@ import com.gradexa.backend.entity.User;
 import com.gradexa.backend.repository.StudentEnrollmentRepository;
 import com.gradexa.backend.repository.StudentRepository;
 import com.gradexa.backend.repository.UserRepository;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class StudentService {
@@ -34,12 +35,17 @@ public class StudentService {
         this.academicClassService = academicClassService;
     }
 
+    // ===============================
+    // CREATE STUDENT
+    // ===============================
+
     @Transactional
     public Student createStudent(
             Long userId,
             String studentNumber,
             String firstName,
-            String lastName
+            String lastName,
+            LocalDate dateOfBirth
     ) {
 
         User user = userRepository.findById(userId)
@@ -61,19 +67,19 @@ public class StudentService {
             );
         }
 
-        if (studentRepository
-                .existsByStudentNumber(studentNumber)) {
-
-            throw new RuntimeException(
-                    "Student number already exists"
-            );
-        }
-
         if (studentNumber == null ||
                 studentNumber.trim().isEmpty()) {
 
             throw new RuntimeException(
                     "Student number is required"
+            );
+        }
+
+        if (studentRepository
+                .existsByStudentNumber(studentNumber.trim())) {
+
+            throw new RuntimeException(
+                    "Student number already exists"
             );
         }
 
@@ -96,19 +102,31 @@ public class StudentService {
         Student student = new Student();
 
         student.setUser(user);
+
         student.setStudentNumber(
                 studentNumber.trim()
         );
+
         student.setFirstName(
                 firstName.trim()
         );
+
         student.setLastName(
                 lastName.trim()
         );
+
+        student.setDateOfBirth(
+                dateOfBirth
+        );
+
         student.setActive(true);
 
         return studentRepository.save(student);
     }
+
+    // ===============================
+    // ENROLL STUDENT
+    // ===============================
 
     @Transactional
     public StudentEnrollment enrollStudent(
@@ -144,16 +162,25 @@ public class StudentService {
                 new StudentEnrollment();
 
         enrollment.setStudent(student);
-        enrollment.setAcademicClass(academicClass);
+
+        enrollment.setAcademicClass(
+                academicClass
+        );
+
         enrollment.setAcademicYear(
                 academicClass.getAcademicYear()
         );
+
         enrollment.setActive(true);
 
         return enrollmentRepository.save(
                 enrollment
         );
     }
+
+    // ===============================
+    // GET STUDENT
+    // ===============================
 
     public Student getStudentById(
             Long id
@@ -167,6 +194,10 @@ public class StudentService {
                 );
     }
 
+    // ===============================
+    // GET STUDENT ENROLLMENTS
+    // ===============================
+
     public List<StudentEnrollment> getStudentEnrollments(
             Long studentId
     ) {
@@ -177,6 +208,10 @@ public class StudentService {
         return enrollmentRepository
                 .findByStudent(student);
     }
+
+    // ===============================
+    // GET STUDENTS BY CLASS
+    // ===============================
 
     public List<StudentEnrollment> getStudentsByClass(
             Long classId
