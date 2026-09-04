@@ -1,13 +1,11 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { registerUser } from '../services/authService';
 
 import './Register.css';
 
 function Register() {
-
-    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         username: '',
@@ -25,6 +23,7 @@ function Register() {
 
     const [showConfirmPassword, setShowConfirmPassword] =
         useState(false);
+
 
     // ===============================
     // HANDLE INPUT
@@ -45,6 +44,7 @@ function Register() {
         setError('');
         setSuccess('');
     };
+
 
     // ===============================
     // VALIDATE FORM
@@ -81,6 +81,7 @@ function Register() {
 
         return '';
     };
+
 
     // ===============================
     // HANDLE REGISTER
@@ -134,8 +135,10 @@ function Register() {
         }
     };
 
+
     return (
         <div className="register-page">
+
 
             {/* =================================
                 LEFT BRANDING
@@ -149,7 +152,9 @@ function Register() {
                         G
                     </div>
 
-                    <h1>Gradexa</h1>
+                    <h1>
+                        Gradexa
+                    </h1>
 
                     <p>
                         Academic Management System
@@ -165,6 +170,7 @@ function Register() {
 
             </div>
 
+
             {/* =================================
                 REGISTRATION SECTION
                 ================================= */}
@@ -173,9 +179,16 @@ function Register() {
 
                 <div className="register-card">
 
+
+                    {/* =================================
+                        HEADER
+                        ================================= */}
+
                     <div className="register-header">
 
-                        <h2>Create your account</h2>
+                        <h2>
+                            Create your account
+                        </h2>
 
                         <p>
                             Register to access Gradexa
@@ -183,7 +196,10 @@ function Register() {
 
                     </div>
 
-                    {/* APPROVAL NOTICE */}
+
+                    {/* =================================
+                        APPROVAL NOTICE
+                        ================================= */}
 
                     <div className="approval-notice">
 
@@ -192,6 +208,7 @@ function Register() {
                         </div>
 
                         <div>
+
                             <strong>
                                 Administrator approval required
                             </strong>
@@ -201,11 +218,15 @@ function Register() {
                                 until an administrator approves
                                 your registration.
                             </p>
+
                         </div>
 
                     </div>
 
-                    {/* ERROR */}
+
+                    {/* =================================
+                        ERROR MESSAGE
+                        ================================= */}
 
                     {error && (
                         <div className="register-error">
@@ -213,7 +234,10 @@ function Register() {
                         </div>
                     )}
 
-                    {/* SUCCESS */}
+
+                    {/* =================================
+                        SUCCESS MESSAGE
+                        ================================= */}
 
                     {success && (
                         <div className="register-success">
@@ -233,12 +257,20 @@ function Register() {
                         </div>
                     )}
 
+
+                    {/* =================================
+                        REGISTRATION FORM
+                        ================================= */}
+
                     <form
                         onSubmit={handleSubmit}
                         className="register-form"
                     >
 
-                        {/* USERNAME */}
+
+                        {/* =================================
+                            USERNAME
+                            ================================= */}
 
                         <div className="form-group">
 
@@ -259,7 +291,10 @@ function Register() {
 
                         </div>
 
-                        {/* ROLE */}
+
+                        {/* =================================
+                            ROLE
+                            ================================= */}
 
                         <div className="form-group">
 
@@ -283,27 +318,14 @@ function Register() {
                                     Teacher
                                 </option>
 
-                                <option value="SECTION_HEAD">
-                                    Section Head
-                                </option>
-
-                                <option value="VICE_PRINCIPAL">
-                                    Vice Principal
-                                </option>
-
-                                <option value="PRINCIPAL">
-                                    Principal
-                                </option>
-
-                                <option value="ADMIN">
-                                    Admin
-                                </option>
-
                             </select>
 
                         </div>
 
-                        {/* PASSWORD */}
+
+                        {/* =================================
+                            PASSWORD
+                            ================================= */}
 
                         <div className="form-group">
 
@@ -337,6 +359,11 @@ function Register() {
                                         )
                                     }
                                     disabled={loading}
+                                    aria-label={
+                                        showPassword
+                                            ? 'Hide password'
+                                            : 'Show password'
+                                    }
                                 >
                                     {showPassword
                                         ? 'Hide'
@@ -347,7 +374,10 @@ function Register() {
 
                         </div>
 
-                        {/* CONFIRM PASSWORD */}
+
+                        {/* =================================
+                            CONFIRM PASSWORD
+                            ================================= */}
 
                         <div className="form-group">
 
@@ -383,6 +413,11 @@ function Register() {
                                         )
                                     }
                                     disabled={loading}
+                                    aria-label={
+                                        showConfirmPassword
+                                            ? 'Hide password'
+                                            : 'Show password'
+                                    }
                                 >
                                     {showConfirmPassword
                                         ? 'Hide'
@@ -393,7 +428,10 @@ function Register() {
 
                         </div>
 
-                        {/* REGISTER BUTTON */}
+
+                        {/* =================================
+                            REGISTER BUTTON
+                            ================================= */}
 
                         <button
                             type="submit"
@@ -407,7 +445,10 @@ function Register() {
 
                     </form>
 
-                    {/* LOGIN LINK */}
+
+                    {/* =================================
+                        LOGIN LINK
+                        ================================= */}
 
                     <div className="login-link">
 
