@@ -12,9 +12,12 @@ import com.gradexa.backend.entity.AcademicClass;
 import com.gradexa.backend.entity.Role;
 import com.gradexa.backend.entity.Student;
 import com.gradexa.backend.entity.StudentEnrollment;
+import com.gradexa.backend.entity.Teacher;
 import com.gradexa.backend.entity.User;
 import com.gradexa.backend.repository.StudentEnrollmentRepository;
 import com.gradexa.backend.repository.StudentRepository;
+import com.gradexa.backend.repository.TeacherClassAssignmentRepository;
+import com.gradexa.backend.repository.TeacherRepository;
 import com.gradexa.backend.repository.UserRepository;
 
 @Service
@@ -24,17 +27,23 @@ public class StudentService {
     private final StudentEnrollmentRepository enrollmentRepository;
     private final UserRepository userRepository;
     private final AcademicClassService academicClassService;
+    private final TeacherClassAssignmentRepository assignmentRepository;
+    private final TeacherRepository teacherRepository;
 
     public StudentService(
             StudentRepository studentRepository,
             StudentEnrollmentRepository enrollmentRepository,
             UserRepository userRepository,
-            AcademicClassService academicClassService
+            AcademicClassService academicClassService,
+            TeacherClassAssignmentRepository assignmentRepository,
+            TeacherRepository teacherRepository
     ) {
         this.studentRepository = studentRepository;
         this.enrollmentRepository = enrollmentRepository;
         this.userRepository = userRepository;
         this.academicClassService = academicClassService;
+        this.assignmentRepository = assignmentRepository;
+        this.teacherRepository = teacherRepository;
     }
 
     // ===============================
@@ -275,6 +284,67 @@ public class StudentService {
     public List<StudentEnrollment> getStudentsByClass(
             Long classId
     ) {
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        if (authentication == null ||
+                !authentication.isAuthenticated()) {
+
+            throw new RuntimeException(
+                    "User is not authenticated"
+            );
+        }
+
+        String username =
+                authentication.getName();
+
+        User user =
+                userRepository
+                        .findByUsername(username)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Logged-in user not found"
+                                )
+                        );
+
+        /*
+         * Teachers can only view students
+         * from classes assigned to them.
+         */
+        if (user.getRole() == Role.TEACHER) {
+
+            Teacher teacher =
+                    teacherRepository
+                            .findByUser(user)
+                            .orElseThrow(() ->
+                                    new RuntimeException(
+                                            "Teacher profile not found."
+                                    )
+                            );
+
+            boolean assigned =
+                    assignmentRepository
+                            .findByTeacherIdAndActiveTrue(
+                                    teacher.getId()
+                            )
+                            .stream()
+                            .anyMatch(
+                                    assignment ->
+                                            assignment
+                                                    .getAcademicClass()
+                                                    .getId()
+                                                    .equals(classId)
+                            );
+
+            if (!assigned) {
+                throw new RuntimeException(
+                        "You are not assigned to this class."
+                );
+            }
+        }
 
         return enrollmentRepository
                 .findByAcademicClassIdAndActiveTrue(
