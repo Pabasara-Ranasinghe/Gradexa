@@ -1,21 +1,90 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import './TeacherDashboard.css';
 
 function TeacherDashboard() {
     const { user } = useAuth();
 
+    const [assignments, setAssignments] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    const [error, setError] = useState('');
+
+    const teacherName = user?.username || 'Teacher';
+
+    const loadAssignments = async () => {
+        try {
+            setError('');
+
+            const token = localStorage.getItem('gradexa_token');
+
+            if (!token) {
+                throw new Error('Authentication token not found.');
+            }
+
+            const response = await fetch(
+                'http://localhost:8082/api/teacher-assignments/me',
+                {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data?.message ||
+                    'Failed to load teacher assignments.'
+                );
+            }
+
+            setAssignments(data);
+        } catch (err) {
+            console.error('Error loading teacher assignments:', err);
+            setError(err.message || 'Failed to load assignments.');
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
+    };
+
+    useEffect(() => {
+        loadAssignments();
+    }, []);
 
     const handleRefresh = () => {
         setRefreshing(true);
-
-        setTimeout(() => {
-            setRefreshing(false);
-        }, 700);
+        loadAssignments();
     };
 
-    const teacherName = user?.username || 'Teacher';
+    /*
+     * Count unique academic classes.
+     *
+     * A teacher could teach multiple subjects
+     * in the same class, so we should not simply
+     * use assignments.length here.
+     */
+    const uniqueClassIds = new Set(
+        assignments.map(
+            (assignment) => assignment.academicClass?.id
+        )
+    );
+
+    const assignedClassesCount = uniqueClassIds.size;
+
+    /*
+     * Count unique subjects.
+     */
+    const uniqueSubjectIds = new Set(
+        assignments.map(
+            (assignment) => assignment.subject?.id
+        )
+    );
+
+    const subjectsCount = uniqueSubjectIds.size;
 
     return (
         <div className="teacher-dashboard">
@@ -59,6 +128,17 @@ function TeacherDashboard() {
 
 
             {/* ================================
+                ERROR MESSAGE
+            ================================= */}
+
+            {error && (
+                <div className="teacher-error-message">
+                    {error}
+                </div>
+            )}
+
+
+            {/* ================================
                 OVERVIEW CARDS
             ================================= */}
 
@@ -76,7 +156,7 @@ function TeacherDashboard() {
                         </span>
 
                         <strong>
-                            0
+                            {loading ? '...' : assignedClassesCount}
                         </strong>
 
                         <span className="teacher-stat-description">
@@ -122,7 +202,7 @@ function TeacherDashboard() {
                         </span>
 
                         <strong>
-                            0
+                            {loading ? '...' : subjectsCount}
                         </strong>
 
                         <span className="teacher-stat-description">
@@ -191,22 +271,92 @@ function TeacherDashboard() {
                     </div>
 
 
-                    <div className="teacher-empty-state">
+                    {loading ? (
 
-                        <div className="teacher-empty-icon">
-                            📚
+                        <div className="teacher-empty-state">
+
+                            <div className="teacher-empty-icon">
+                                ⏳
+                            </div>
+
+                            <h3>
+                                Loading your classes...
+                            </h3>
+
+                            <p>
+                                Please wait while we load your
+                                assigned classes.
+                            </p>
+
                         </div>
 
-                        <h3>
-                            No classes assigned yet
-                        </h3>
+                    ) : assignments.length === 0 ? (
 
-                        <p>
-                            Your assigned classes will appear here
-                            once they are added to your account.
-                        </p>
+                        <div className="teacher-empty-state">
 
-                    </div>
+                            <div className="teacher-empty-icon">
+                                📚
+                            </div>
+
+                            <h3>
+                                No classes assigned yet
+                            </h3>
+
+                            <p>
+                                Your assigned classes will appear here
+                                once they are added to your account.
+                            </p>
+
+                        </div>
+
+                    ) : (
+
+                        <div className="teacher-assignment-list">
+
+                            {assignments.map((assignment) => {
+
+                                const academicClass =
+                                    assignment.academicClass;
+
+                                const subject =
+                                    assignment.subject;
+
+                                return (
+                                    <div
+                                        className="teacher-assignment-item"
+                                        key={assignment.id}
+                                    >
+
+                                        <div className="teacher-assignment-icon">
+                                            📚
+                                        </div>
+
+                                        <div className="teacher-assignment-details">
+
+                                            <h3>
+                                                Grade {academicClass?.grade}{' '}
+                                                {academicClass?.sectionName}
+                                            </h3>
+
+                                            <p>
+                                                {academicClass?.academicYear}
+                                                {' • '}
+                                                {academicClass?.schoolSection}
+                                            </p>
+
+                                            <span>
+                                                {subject?.subjectName}
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+                                );
+                            })}
+
+                        </div>
+
+                    )}
 
                 </section>
 
@@ -325,10 +475,10 @@ function TeacherDashboard() {
                     </h2>
 
                     <p>
-                        Once classes and students are assigned,
-                        you will be able to manage student information,
-                        enter marks for each term and view class
-                        performance reports from this dashboard.
+                        Your assigned classes and subjects are
+                        displayed above. You will soon be able to
+                        manage students, enter marks for each term,
+                        review marks and submit them to students.
                     </p>
                 </div>
 

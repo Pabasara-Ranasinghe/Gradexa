@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,8 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.gradexa.backend.entity.Teacher;
 import com.gradexa.backend.entity.TeacherClassAssignment;
 import com.gradexa.backend.service.TeacherClassAssignmentService;
+import com.gradexa.backend.service.TeacherService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,13 +26,12 @@ import lombok.RequiredArgsConstructor;
 public class TeacherClassAssignmentController {
 
     private final TeacherClassAssignmentService assignmentService;
+    private final TeacherService teacherService;
+
 
     /*
      * ADMIN:
      * Assign a teacher to a class and subject.
-     *
-     * Example:
-     * POST /api/teacher-assignments?teacherId=1&academicClassId=1&subjectId=2
      */
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -49,7 +51,37 @@ public class TeacherClassAssignmentController {
         return ResponseEntity.ok(assignment);
     }
 
+
     /*
+     * TEACHER:
+     * Get the assignments belonging to the
+     * currently logged-in teacher.
+     */
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<List<TeacherClassAssignment>>
+    getMyAssignments(
+            Authentication authentication
+    ) {
+
+        String username =
+                authentication.getName();
+
+        Teacher teacher =
+                teacherService.getTeacherByUsername(
+                        username
+                );
+
+        return ResponseEntity.ok(
+                assignmentService.getTeacherAssignments(
+                        teacher.getId()
+                )
+        );
+    }
+
+
+    /*
+     * ADMIN:
      * Get all active assignments for a teacher.
      */
     @GetMapping("/teacher/{teacherId}")
@@ -66,7 +98,9 @@ public class TeacherClassAssignmentController {
         );
     }
 
+
     /*
+     * ADMIN:
      * Get all active teacher assignments for a class.
      */
     @GetMapping("/class/{academicClassId}")
@@ -82,6 +116,7 @@ public class TeacherClassAssignmentController {
                 )
         );
     }
+
 
     /*
      * ADMIN:

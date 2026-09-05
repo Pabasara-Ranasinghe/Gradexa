@@ -12,9 +12,9 @@ public interface TeacherRepository
 
     Optional<Teacher> findByUser(User user);
 
-    Optional<Teacher> findByTeacherNumber(String teacherNumber);
+    Optional<Teacher> findByUserUsername(String username);
 
-    boolean existsByUser(User user);
+    Optional<Teacher> findByTeacherNumber(String teacherNumber);
 
     boolean existsByTeacherNumber(String teacherNumber);
 }
