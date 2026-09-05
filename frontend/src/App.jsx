@@ -17,6 +17,7 @@ import Users from './pages/admin/Users';
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
 import TeacherStudents from './pages/teacher/TeacherStudents';
 import TeacherMarks from './pages/teacher/TeacherMarks';
+import TeacherDraftMarks from './pages/teacher/TeacherDraftMarks';
 
 import StudentDashboard from './pages/student/StudentDashboard';
 import MyMarks from './pages/student/MyMarks';
@@ -100,6 +101,11 @@ function App() {
                 <Route
                     path="/teacher/marks"
                     element={<TeacherMarks />}
+                />
+
+                <Route
+                    path="/teacher/drafts"
+                    element={<TeacherDraftMarks />}
                 />
 
                 {/* ==================================================

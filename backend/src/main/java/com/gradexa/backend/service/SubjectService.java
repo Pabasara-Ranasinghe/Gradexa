@@ -1,9 +1,17 @@
 package com.gradexa.backend.service;
 
 import com.gradexa.backend.entity.AcademicClass;
+import com.gradexa.backend.entity.Role;
 import com.gradexa.backend.entity.Subject;
+import com.gradexa.backend.entity.Teacher;
+import com.gradexa.backend.entity.TeacherClassAssignment;
+import com.gradexa.backend.entity.User;
 import com.gradexa.backend.repository.SubjectRepository;
+import com.gradexa.backend.repository.TeacherClassAssignmentRepository;
+import com.gradexa.backend.repository.TeacherRepository;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,14 +23,24 @@ public class SubjectService {
 
     private final SubjectRepository subjectRepository;
     private final AcademicClassService academicClassService;
+    private final TeacherClassAssignmentRepository assignmentRepository;
+    private final TeacherRepository teacherRepository;
 
     public SubjectService(
             SubjectRepository subjectRepository,
-            AcademicClassService academicClassService
+            AcademicClassService academicClassService,
+            TeacherClassAssignmentRepository assignmentRepository,
+            TeacherRepository teacherRepository
     ) {
         this.subjectRepository = subjectRepository;
         this.academicClassService = academicClassService;
+        this.assignmentRepository = assignmentRepository;
+        this.teacherRepository = teacherRepository;
     }
+
+    // ==========================================================
+    // CREATE SUBJECT
+    // ==========================================================
 
     public Subject createSubject(
             Long classId,
@@ -32,7 +50,10 @@ public class SubjectService {
         AcademicClass academicClass =
                 academicClassService.getClassById(classId);
 
+        checkTeacherClassAccess(academicClass);
+
         if (!academicClass.isActive()) {
+
             throw new RuntimeException(
                     "Cannot add a subject to an inactive class"
             );
@@ -56,6 +77,7 @@ public class SubjectService {
                         );
 
         if (subjectCount >= MAX_SUBJECTS_PER_CLASS) {
+
             throw new RuntimeException(
                     "A class can have a maximum of 15 subjects"
             );
@@ -81,11 +103,18 @@ public class SubjectService {
         return subjectRepository.save(subject);
     }
 
+    // ==========================================================
+    // GET SUBJECTS BY CLASS
+    // ==========================================================
+
     public List<Subject> getSubjectsByClass(
             Long classId
     ) {
 
-        academicClassService.getClassById(classId);
+        AcademicClass academicClass =
+                academicClassService.getClassById(classId);
+
+        checkTeacherClassAccess(academicClass);
 
         return subjectRepository
                 .findByAcademicClassIdAndActiveTrue(
@@ -93,17 +122,32 @@ public class SubjectService {
                 );
     }
 
+    // ==========================================================
+    // GET SUBJECT BY ID
+    // ==========================================================
+
     public Subject getSubjectById(
             Long id
     ) {
 
-        return subjectRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Subject not found"
-                        )
-                );
+        Subject subject =
+                subjectRepository.findById(id)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Subject not found"
+                                )
+                        );
+
+        checkTeacherClassAccess(
+                subject.getAcademicClass()
+        );
+
+        return subject;
     }
+
+    // ==========================================================
+    // UPDATE SUBJECT
+    // ==========================================================
 
     public Subject updateSubject(
             Long id,
@@ -114,6 +158,7 @@ public class SubjectService {
                 getSubjectById(id);
 
         if (!subject.isActive()) {
+
             throw new RuntimeException(
                     "Cannot update an inactive subject"
             );
@@ -158,6 +203,10 @@ public class SubjectService {
         return subjectRepository.save(subject);
     }
 
+    // ==========================================================
+    // DEACTIVATE SUBJECT
+    // ==========================================================
+
     public Subject deactivateSubject(
             Long id
     ) {
@@ -168,5 +217,103 @@ public class SubjectService {
         subject.setActive(false);
 
         return subjectRepository.save(subject);
+    }
+
+    // ==========================================================
+    // TEACHER CLASS ACCESS CHECK
+    // ==========================================================
+
+    private void checkTeacherClassAccess(
+            AcademicClass academicClass
+    ) {
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        if (authentication == null ||
+                !authentication.isAuthenticated()) {
+
+            throw new RuntimeException(
+                    "You are not authenticated."
+            );
+        }
+
+        String username =
+                authentication.getName();
+
+        User user =
+                (User) authentication
+                        .getPrincipal();
+
+        // ------------------------------------------------------
+        // ADMIN AND PRINCIPAL
+        // ------------------------------------------------------
+
+        if (user.getRole() == Role.ADMIN ||
+                user.getRole() == Role.PRINCIPAL) {
+
+            return;
+        }
+
+        // ------------------------------------------------------
+        // TEACHER
+        // ------------------------------------------------------
+
+        if (user.getRole() == Role.TEACHER) {
+
+            Teacher teacher =
+                    teacherRepository
+                            .findByUserUsername(username)
+                            .orElseThrow(() ->
+                                    new RuntimeException(
+                                            "Teacher profile not found."
+                                    )
+                            );
+
+            if (!teacher.isActive()) {
+
+                throw new RuntimeException(
+                        "Your teacher account is inactive."
+                );
+            }
+
+            List<TeacherClassAssignment> assignments =
+                    assignmentRepository
+                            .findByTeacherIdAndActiveTrue(
+                                    teacher.getId()
+                            );
+
+            boolean assignedToClass =
+                    assignments.stream()
+                            .anyMatch(
+                                    assignment ->
+                                            assignment
+                                                    .getAcademicClass()
+                                                    .getId()
+                                                    .equals(
+                                                            academicClass
+                                                                    .getId()
+                                                    )
+                            );
+
+            if (!assignedToClass) {
+
+                throw new RuntimeException(
+                        "You are not assigned to this class."
+                );
+            }
+
+            return;
+        }
+
+        // ------------------------------------------------------
+        // OTHER ROLES
+        // ------------------------------------------------------
+
+        throw new RuntimeException(
+                "You do not have permission to manage subjects."
+        );
     }
 }
