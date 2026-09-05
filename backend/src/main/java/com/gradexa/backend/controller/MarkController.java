@@ -1,34 +1,30 @@
 package com.gradexa.backend.controller;
 
-import com.gradexa.backend.dto.MarkCalculationResponse;
-import com.gradexa.backend.dto.MarkRankingResponse;
-import com.gradexa.backend.dto.MarkYearlyRankingResponse;
-import com.gradexa.backend.dto.MarkYearlyResultResponse;
-import com.gradexa.backend.entity.Mark;
-import com.gradexa.backend.entity.StudentEnrollment;
-import com.gradexa.backend.entity.Term;
-import com.gradexa.backend.repository.StudentEnrollmentRepository;
-import com.gradexa.backend.service.MarkService;
+import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.gradexa.backend.entity.Mark;
+import com.gradexa.backend.entity.StudentEnrollment;
+import com.gradexa.backend.entity.Term;
+import com.gradexa.backend.service.MarkService;
 
 @RestController
 @RequestMapping("/api/marks")
 public class MarkController {
 
     private final MarkService markService;
-    private final StudentEnrollmentRepository enrollmentRepository;
 
-    public MarkController(
-            MarkService markService,
-            StudentEnrollmentRepository enrollmentRepository
-    ) {
+    public MarkController(MarkService markService) {
         this.markService = markService;
-        this.enrollmentRepository = enrollmentRepository;
     }
 
     // ============================================================
@@ -55,6 +51,29 @@ public class MarkController {
     }
 
     // ============================================================
+    // ADD TEACHER DRAFT MARK
+    // ============================================================
+
+    @PreAuthorize("hasRole('TEACHER')")
+    @PostMapping("/teacher/draft")
+    public ResponseEntity<Mark> addTeacherDraftMark(
+            @RequestParam Long enrollmentId,
+            @RequestParam Long subjectId,
+            @RequestParam Term term,
+            @RequestParam Double marks
+    ) {
+
+        Mark mark = markService.addTeacherDraftMark(
+                enrollmentId,
+                subjectId,
+                term,
+                marks
+        );
+
+        return ResponseEntity.ok(mark);
+    }
+
+    // ============================================================
     // GET ALL MARKS FOR ENROLLMENT
     // ============================================================
 
@@ -65,17 +84,55 @@ public class MarkController {
     ) {
 
         StudentEnrollment enrollment =
-                enrollmentRepository.findById(enrollmentId)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Student enrollment not found"
-                                )
-                        );
+                markService.getEnrollmentForController(
+                        enrollmentId
+                );
 
         checkStudentAccessIfNeeded(enrollment);
 
         return ResponseEntity.ok(
                 markService.getMarksByEnrollment(
+                        enrollmentId
+                )
+        );
+    }
+
+    // ============================================================
+    // GET SUBMITTED MARKS FOR ENROLLMENT
+    // ============================================================
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT')")
+    @GetMapping("/enrollment/{enrollmentId}/submitted")
+    public ResponseEntity<List<Mark>> getSubmittedMarks(
+            @PathVariable Long enrollmentId
+    ) {
+
+        StudentEnrollment enrollment =
+                markService.getEnrollmentForController(
+                        enrollmentId
+                );
+
+        checkStudentAccessIfNeeded(enrollment);
+
+        return ResponseEntity.ok(
+                markService.getSubmittedMarksByEnrollment(
+                        enrollmentId
+                )
+        );
+    }
+
+    // ============================================================
+    // GET DRAFT MARKS
+    // ============================================================
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'PRINCIPAL', 'TEACHER')")
+    @GetMapping("/enrollment/{enrollmentId}/drafts")
+    public ResponseEntity<List<Mark>> getDraftMarks(
+            @PathVariable Long enrollmentId
+    ) {
+
+        return ResponseEntity.ok(
+                markService.getDraftMarksByEnrollment(
                         enrollmentId
                 )
         );
@@ -93,17 +150,40 @@ public class MarkController {
     ) {
 
         StudentEnrollment enrollment =
-                enrollmentRepository.findById(enrollmentId)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Student enrollment not found"
-                                )
-                        );
+                markService.getEnrollmentForController(
+                        enrollmentId
+                );
 
         checkStudentAccessIfNeeded(enrollment);
 
         return ResponseEntity.ok(
                 markService.getMarksByEnrollmentAndTerm(
+                        enrollmentId,
+                        term
+                )
+        );
+    }
+
+    // ============================================================
+    // GET SUBMITTED MARKS BY TERM
+    // ============================================================
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT')")
+    @GetMapping("/enrollment/{enrollmentId}/term/{term}/submitted")
+    public ResponseEntity<List<Mark>> getSubmittedMarksByTerm(
+            @PathVariable Long enrollmentId,
+            @PathVariable Term term
+    ) {
+
+        StudentEnrollment enrollment =
+                markService.getEnrollmentForController(
+                        enrollmentId
+                );
+
+        checkStudentAccessIfNeeded(enrollment);
+
+        return ResponseEntity.ok(
+                markService.getSubmittedMarksByEnrollmentAndTerm(
                         enrollmentId,
                         term
                 )
@@ -120,8 +200,7 @@ public class MarkController {
             @PathVariable Long id
     ) {
 
-        Mark mark =
-                markService.getMarkById(id);
+        Mark mark = markService.getMarkById(id);
 
         checkStudentAccessIfNeeded(
                 mark.getStudentEnrollment()
@@ -150,28 +229,60 @@ public class MarkController {
     }
 
     // ============================================================
-    // TERM RESULTS
+    // UPDATE TEACHER DRAFT MARK
+    // ============================================================
+
+    @PreAuthorize("hasRole('TEACHER')")
+    @PutMapping("/teacher/draft/{id}")
+    public ResponseEntity<Mark> updateTeacherDraftMark(
+            @PathVariable Long id,
+            @RequestParam Double marks
+    ) {
+
+        return ResponseEntity.ok(
+                markService.updateTeacherDraftMark(
+                        id,
+                        marks
+                )
+        );
+    }
+
+    // ============================================================
+    // SUBMIT TEACHER DRAFT MARK
+    // ============================================================
+
+    @PreAuthorize("hasRole('TEACHER')")
+    @PutMapping("/teacher/draft/{id}/submit")
+    public ResponseEntity<Mark> submitTeacherDraftMark(
+            @PathVariable Long id
+    ) {
+
+        return ResponseEntity.ok(
+                markService.submitTeacherDraftMark(id)
+        );
+    }
+
+    // ============================================================
+    // TERM RESULT
     // ============================================================
 
     @PreAuthorize("hasAnyRole('ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT')")
     @GetMapping("/enrollment/{enrollmentId}/term/{term}/results")
-    public ResponseEntity<MarkCalculationResponse> calculateTermResults(
+    public ResponseEntity<MarkService.MarkCalculationResult>
+    calculateTermResult(
             @PathVariable Long enrollmentId,
             @PathVariable Term term
     ) {
 
         StudentEnrollment enrollment =
-                enrollmentRepository.findById(enrollmentId)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Student enrollment not found"
-                                )
-                        );
+                markService.getEnrollmentForController(
+                        enrollmentId
+                );
 
         checkStudentAccessIfNeeded(enrollment);
 
         return ResponseEntity.ok(
-                markService.calculateTermResults(
+                markService.calculateTermResult(
                         enrollmentId,
                         term
                 )
@@ -179,56 +290,57 @@ public class MarkController {
     }
 
     // ============================================================
-    // TERM RANKING
+    // CLASS RANKING
     // ============================================================
 
     @PreAuthorize("hasAnyRole('ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT')")
     @GetMapping("/enrollment/{enrollmentId}/term/{term}/ranking")
-    public ResponseEntity<MarkRankingResponse> calculateClassRanking(
+    public ResponseEntity<List<MarkService.MarkRankingResult>>
+    calculateClassRanking(
             @PathVariable Long enrollmentId,
             @PathVariable Term term
     ) {
 
         StudentEnrollment enrollment =
-                enrollmentRepository.findById(enrollmentId)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Student enrollment not found"
-                                )
-                        );
+                markService.getEnrollmentForController(
+                        enrollmentId
+                );
 
         checkStudentAccessIfNeeded(enrollment);
 
+        Long classId =
+                enrollment
+                        .getAcademicClass()
+                        .getId();
+
         return ResponseEntity.ok(
                 markService.calculateClassRanking(
-                        enrollmentId,
+                        classId,
                         term
                 )
         );
     }
 
     // ============================================================
-    // YEARLY RESULTS
+    // YEARLY RESULT
     // ============================================================
 
     @PreAuthorize("hasAnyRole('ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT')")
     @GetMapping("/enrollment/{enrollmentId}/yearly")
-    public ResponseEntity<MarkYearlyResultResponse> calculateYearlyResults(
+    public ResponseEntity<MarkService.MarkYearlyResult>
+    calculateYearlyResult(
             @PathVariable Long enrollmentId
     ) {
 
         StudentEnrollment enrollment =
-                enrollmentRepository.findById(enrollmentId)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Student enrollment not found"
-                                )
-                        );
+                markService.getEnrollmentForController(
+                        enrollmentId
+                );
 
         checkStudentAccessIfNeeded(enrollment);
 
         return ResponseEntity.ok(
-                markService.calculateYearlyResults(
+                markService.calculateYearlyResult(
                         enrollmentId
                 )
         );
@@ -240,23 +352,26 @@ public class MarkController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT')")
     @GetMapping("/enrollment/{enrollmentId}/yearly/ranking")
-    public ResponseEntity<MarkYearlyRankingResponse> calculateYearlyClassRanking(
+    public ResponseEntity<List<MarkService.MarkYearlyRankingResult>>
+    calculateYearlyClassRanking(
             @PathVariable Long enrollmentId
     ) {
 
         StudentEnrollment enrollment =
-                enrollmentRepository.findById(enrollmentId)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Student enrollment not found"
-                                )
-                        );
+                markService.getEnrollmentForController(
+                        enrollmentId
+                );
 
         checkStudentAccessIfNeeded(enrollment);
 
+        Long classId =
+                enrollment
+                        .getAcademicClass()
+                        .getId();
+
         return ResponseEntity.ok(
-                markService.calculateYearlyClassRanking(
-                        enrollmentId
+                markService.calculateYearlyRanking(
+                        classId
                 )
         );
     }
@@ -276,6 +391,7 @@ public class MarkController {
                         .getAuthentication();
 
         if (authentication == null) {
+
             throw new RuntimeException(
                     "User is not authenticated"
             );
@@ -285,11 +401,13 @@ public class MarkController {
                 authentication.getAuthorities()
                         .stream()
                         .anyMatch(authority ->
-                                authority.getAuthority()
+                                authority
+                                        .getAuthority()
                                         .equals("ROLE_STUDENT")
                         );
 
         if (isStudent) {
+
             markService.checkStudentAccess(
                     enrollment
             );
