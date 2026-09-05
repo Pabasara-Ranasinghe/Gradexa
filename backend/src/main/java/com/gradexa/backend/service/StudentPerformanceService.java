@@ -1,8 +1,15 @@
 package com.gradexa.backend.service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.gradexa.backend.dto.StudentPerformanceResponse;
 import com.gradexa.backend.entity.AcademicClass;
 import com.gradexa.backend.entity.Mark;
+import com.gradexa.backend.entity.Student;
 import com.gradexa.backend.entity.StudentEnrollment;
 import com.gradexa.backend.entity.Term;
 import com.gradexa.backend.exception.ResourceNotFoundException;
@@ -10,23 +17,19 @@ import com.gradexa.backend.repository.AcademicClassRepository;
 import com.gradexa.backend.repository.MarkRepository;
 import com.gradexa.backend.repository.StudentEnrollmentRepository;
 
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
 @Service
 public class StudentPerformanceService {
 
     private final StudentEnrollmentRepository enrollmentRepository;
     private final MarkRepository markRepository;
     private final AcademicClassRepository academicClassRepository;
+    private final StudentService studentService;
 
     public StudentPerformanceService(
             StudentEnrollmentRepository enrollmentRepository,
             MarkRepository markRepository,
-            AcademicClassRepository academicClassRepository
+            AcademicClassRepository academicClassRepository,
+            StudentService studentService
     ) {
         this.enrollmentRepository =
                 enrollmentRepository;
@@ -36,7 +39,14 @@ public class StudentPerformanceService {
 
         this.academicClassRepository =
                 academicClassRepository;
+
+        this.studentService =
+                studentService;
     }
+
+    // ==========================================================
+    // GET CLASS PERFORMANCE
+    // ==========================================================
 
     public List<StudentPerformanceResponse> getClassPerformance(
             Long classId
@@ -196,7 +206,55 @@ public class StudentPerformanceService {
     }
 
     // ==========================================================
-    // Calculate One Term
+    // GET CURRENT LOGGED-IN STUDENT PERFORMANCE
+    // ==========================================================
+
+    public StudentPerformanceResponse
+    getCurrentStudentPerformance() {
+
+        // Get currently logged-in student
+        Student student =
+                studentService.getCurrentStudent();
+
+        // Get current active enrollment
+        StudentEnrollment enrollment =
+                enrollmentRepository
+                        .findByStudentAndActiveTrue(
+                                student
+                        )
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Current student enrollment not found"
+                                )
+                        );
+
+        // Get performance for the student's class
+        List<StudentPerformanceResponse> classPerformance =
+                getClassPerformance(
+                        enrollment
+                                .getAcademicClass()
+                                .getId()
+                );
+
+        // Find the current student's result
+        return classPerformance
+                .stream()
+                .filter(result ->
+                        result.getEnrollmentId()
+                                .equals(
+                                        enrollment.getId()
+                                )
+                )
+                .findFirst()
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "No marks found for the current student"
+                        )
+                );
+    }
+
+    // ==========================================================
+    // CALCULATE ONE TERM
     // ==========================================================
 
     private TermResult calculateTermResult(
@@ -229,7 +287,7 @@ public class StudentPerformanceService {
     }
 
     // ==========================================================
-    // Term Result Helper
+    // TERM RESULT HELPER
     // ==========================================================
 
     private static class TermResult {
@@ -250,7 +308,7 @@ public class StudentPerformanceService {
     }
 
     // ==========================================================
-    // Student Result Helper
+    // STUDENT RESULT HELPER
     // ==========================================================
 
     private static class StudentResult {

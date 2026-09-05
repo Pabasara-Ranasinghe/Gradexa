@@ -4,12 +4,15 @@ import './StudentDashboard.css';
 function StudentDashboard() {
 
     const [student, setStudent] = useState(null);
+    const [enrollment, setEnrollment] = useState(null);
+    const [performance, setPerformance] = useState(null);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
     useEffect(() => {
 
-        const loadStudent = async () => {
+        const loadStudentDashboard = async () => {
 
             try {
 
@@ -17,47 +20,108 @@ function StudentDashboard() {
                     localStorage.getItem('gradexa_token');
 
                 if (!token) {
-                    setError(
+                    throw new Error(
                         'You are not logged in.'
                     );
-                    setLoading(false);
-                    return;
                 }
 
-                const response = await fetch(
-                    'http://localhost:8082/api/students/me',
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
+                // ==================================================
+                // LOAD STUDENT PROFILE
+                // ==================================================
+
+                const studentResponse =
+                    await fetch(
+                        'http://localhost:8082/api/students/me',
+                        {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
                         }
-                    }
-                );
+                    );
 
-                const data =
-                    await response.json();
+                const studentData =
+                    await studentResponse.json();
 
-                if (!response.ok) {
+                if (!studentResponse.ok) {
                     throw new Error(
-                        data?.message ||
-                        data ||
+                        studentData?.message ||
+                        studentData ||
                         'Failed to load student information.'
                     );
                 }
 
-                setStudent(data);
+                setStudent(studentData);
+
+                // ==================================================
+                // LOAD CURRENT ENROLLMENT
+                // ==================================================
+
+                const enrollmentResponse =
+                    await fetch(
+                        'http://localhost:8082/api/students/me/enrollment',
+                        {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        }
+                    );
+
+                const enrollmentData =
+                    await enrollmentResponse.json();
+
+                if (!enrollmentResponse.ok) {
+                    throw new Error(
+                        enrollmentData?.message ||
+                        enrollmentData ||
+                        'Failed to load enrollment information.'
+                    );
+                }
+
+                setEnrollment(enrollmentData);
+
+                // ==================================================
+                // LOAD STUDENT PERFORMANCE
+                // ==================================================
+
+                const performanceResponse =
+                    await fetch(
+                        'http://localhost:8082/api/reports/me/performance',
+                        {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        }
+                    );
+
+                const performanceData =
+                    await performanceResponse.json();
+
+                if (!performanceResponse.ok) {
+                    throw new Error(
+                        performanceData?.message ||
+                        performanceData ||
+                        'Failed to load performance information.'
+                    );
+                }
+
+                setPerformance(performanceData);
 
             } catch (err) {
 
                 console.error(
-                    'Failed to load student:',
+                    'Failed to load student dashboard:',
                     err
                 );
 
                 setError(
                     err.message ||
-                    'Failed to load student information.'
+                    'Failed to load dashboard information.'
                 );
 
             } finally {
@@ -66,13 +130,13 @@ function StudentDashboard() {
             }
         };
 
-        loadStudent();
+        loadStudentDashboard();
 
     }, []);
 
-    // ===============================
-    // LOADING STATE
-    // ===============================
+    // ==========================================================
+    // LOADING
+    // ==========================================================
 
     if (loading) {
 
@@ -93,9 +157,9 @@ function StudentDashboard() {
         );
     }
 
-    // ===============================
-    // ERROR STATE
-    // ===============================
+    // ==========================================================
+    // ERROR
+    // ==========================================================
 
     if (error) {
 
@@ -122,9 +186,9 @@ function StudentDashboard() {
         );
     }
 
-    // ===============================
-    // STUDENT DATA
-    // ===============================
+    // ==========================================================
+    // STUDENT INFORMATION
+    // ==========================================================
 
     const fullName =
         `${student.firstName} ${student.lastName}`;
@@ -132,12 +196,36 @@ function StudentDashboard() {
     const initials =
         `${student.firstName?.charAt(0) || ''}${student.lastName?.charAt(0) || ''}`;
 
+    const academicYear =
+        enrollment?.academicYear || '--';
+
+    const grade =
+        enrollment?.grade || '--';
+
+    const classSection =
+        enrollment?.sectionName || '--';
+
+    // ==========================================================
+    // PERFORMANCE INFORMATION
+    // ==========================================================
+
+    const average =
+        performance?.overallAverage != null
+            ? performance.overallAverage.toFixed(2)
+            : '--';
+
+    const classRank =
+        performance?.place != null &&
+        performance?.totalStudents != null
+            ? `${performance.place} / ${performance.totalStudents}`
+            : '--';
+
     return (
         <div className="student-dashboard">
 
-            {/* =================================
+            {/* ==================================================
                 HEADER
-            ================================= */}
+            ================================================== */}
 
             <div className="student-header">
 
@@ -160,10 +248,9 @@ function StudentDashboard() {
 
             </div>
 
-
-            {/* =================================
+            {/* ==================================================
                 STUDENT INFORMATION
-            ================================= */}
+            ================================================== */}
 
             <div className="student-info-card">
 
@@ -182,9 +269,7 @@ function StudentDashboard() {
                     </p>
 
                     <p>
-                        {student.active
-                            ? 'Active Student'
-                            : 'Inactive Student'}
+                        Grade {grade} • Upper Section {classSection}
                     </p>
 
                 </div>
@@ -196,17 +281,16 @@ function StudentDashboard() {
                     </span>
 
                     <strong>
-                        2026
+                        {academicYear}
                     </strong>
 
                 </div>
 
             </div>
 
-
-            {/* =================================
+            {/* ==================================================
                 SUMMARY CARDS
-            ================================= */}
+            ================================================== */}
 
             <div className="student-summary">
 
@@ -223,13 +307,12 @@ function StudentDashboard() {
                         </p>
 
                         <h3>
-                            --
+                            {average}
                         </h3>
 
                     </div>
 
                 </div>
-
 
                 <div className="summary-card">
 
@@ -244,13 +327,12 @@ function StudentDashboard() {
                         </p>
 
                         <h3>
-                            --
+                            {classRank}
                         </h3>
 
                     </div>
 
                 </div>
-
 
                 <div className="summary-card">
 
@@ -271,7 +353,6 @@ function StudentDashboard() {
                     </div>
 
                 </div>
-
 
                 <div className="summary-card">
 
@@ -295,10 +376,9 @@ function StudentDashboard() {
 
             </div>
 
-
-            {/* =================================
+            {/* ==================================================
                 QUICK ACCESS
-            ================================= */}
+            ================================================== */}
 
             <div className="student-section">
 
@@ -313,7 +393,6 @@ function StudentDashboard() {
                     </p>
 
                 </div>
-
 
                 <div className="quick-access-grid">
 
@@ -337,7 +416,6 @@ function StudentDashboard() {
 
                     </div>
 
-
                     <div className="quick-card">
 
                         <div className="quick-icon">
@@ -358,7 +436,6 @@ function StudentDashboard() {
 
                     </div>
 
-
                     <div className="quick-card">
 
                         <div className="quick-icon">
@@ -378,7 +455,6 @@ function StudentDashboard() {
                         </div>
 
                     </div>
-
 
                     <div className="quick-card">
 
@@ -404,10 +480,9 @@ function StudentDashboard() {
 
             </div>
 
-
-            {/* =================================
+            {/* ==================================================
                 RECENT RESULTS
-            ================================= */}
+            ================================================== */}
 
             <div className="student-section">
 
@@ -423,21 +498,45 @@ function StudentDashboard() {
 
                 </div>
 
+                <div className="results-summary-card">
 
-                <div className="empty-results">
+                    <div className="result-item">
 
-                    <div className="empty-icon">
-                        📊
+                        <span>
+                            Term 1 Average
+                        </span>
+
+                        <strong>
+                            {performance?.term1Average != null
+                                ? performance.term1Average.toFixed(2)
+                                : '--'}
+                        </strong>
+
                     </div>
 
-                    <h3>
-                        No results available yet
-                    </h3>
+                    <div className="result-item">
 
-                    <p>
-                        Your marks and results will appear here
-                        once they are added by your teacher.
-                    </p>
+                        <span>
+                            Overall Average
+                        </span>
+
+                        <strong>
+                            {average}
+                        </strong>
+
+                    </div>
+
+                    <div className="result-item">
+
+                        <span>
+                            Class Position
+                        </span>
+
+                        <strong>
+                            {classRank}
+                        </strong>
+
+                    </div>
 
                 </div>
 
