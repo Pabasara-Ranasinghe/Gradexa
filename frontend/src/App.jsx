@@ -17,6 +17,10 @@ import Settings from './pages/admin/Settings';
 
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
 import StudentDashboard from './pages/student/StudentDashboard';
+import MyMarks from './pages/student/MyMarks';
+import MyProfile from './pages/student/MyProfile';
+import MyClasses from './pages/student/MyClasses';
+import Marksheet from './pages/student/Marksheet';
 
 
 function App() {
@@ -140,6 +144,26 @@ function App() {
             <Route
                 path="/student/dashboard"
                 element={<StudentDashboard />}
+            />
+
+            <Route
+                path="/student/marks"
+                element={<MyMarks />}
+            />
+
+            <Route
+                path="/student/profile"
+                element={<MyProfile />}
+            />
+
+            <Route
+                path="/student/classes"
+                element={<MyClasses />}
+            />
+
+            <Route
+                path="/student/marksheet"
+                element={<Marksheet />}
             />
 
         </Routes>

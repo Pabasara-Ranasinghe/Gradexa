@@ -1,0 +1,796 @@
+.marksheet-page {
+    min-height: 100%;
+    padding: 32px;
+    background: var(--color-background);
+}
+
+.marksheet-page > * {
+    width: 100%;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.marksheet-page {
+    min-height: 100%;
+    padding: 32px;
+    background: var(--color-background);
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.marksheet-header {
+    margin-bottom: 28px;
+}
+
+.marksheet-breadcrumb {
+    margin: 0 0 6px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    color: var(--color-primary);
+
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.marksheet-header h1 {
+    margin: 0;
+
+    font-size: 30px;
+    font-weight: 700;
+
+    color: var(--color-text-primary);
+}
+
+.marksheet-subtitle {
+    margin: 8px 0 0;
+
+    font-size: 15px;
+
+    color: var(--color-text-secondary);
+}
+
+/* =========================
+   MAIN MARKSHEET CARD
+========================= */
+
+.marksheet-card {
+    width: 100%;
+    max-width: 1100px;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-large);
+
+    box-shadow: var(--shadow-medium);
+
+    overflow: hidden;
+}
+
+/* =========================
+   TITLE
+========================= */
+
+.marksheet-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 28px;
+
+    background: var(--color-background-soft);
+
+    border-bottom: 1px solid var(--color-border);
+}
+
+.marksheet-title h2 {
+    margin: 0;
+
+    font-size: 21px;
+    font-weight: 700;
+
+    color: var(--color-text-primary);
+}
+
+.marksheet-title p {
+    margin: 6px 0 0;
+
+    font-size: 14px;
+
+    color: var(--color-text-secondary);
+}
+
+.marksheet-document-icon {
+    width: 54px;
+    height: 54px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: var(--radius-medium);
+
+    background: var(--color-primary);
+
+    font-size: 25px;
+}
+
+/* =========================
+   STUDENT INFORMATION
+========================= */
+
+.marksheet-student-info {
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 18px;
+
+    padding: 26px 28px;
+
+    border-bottom: 1px solid var(--color-border);
+}
+
+.marksheet-info-item {
+    padding: 16px 18px;
+
+    background: var(--color-background-soft);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-medium);
+}
+
+.marksheet-info-item span {
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    color: var(--color-text-light);
+
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.marksheet-info-item strong {
+    display: block;
+
+    font-size: 15px;
+    font-weight: 700;
+
+    color: var(--color-text-primary);
+}
+
+/* =========================
+   TERM RESULTS
+========================= */
+
+.marksheet-results {
+    padding: 28px;
+}
+
+.marksheet-results-heading {
+    margin-bottom: 20px;
+}
+
+.marksheet-results-heading h3 {
+    margin: 0;
+
+    font-size: 18px;
+    font-weight: 700;
+
+    color: var(--color-text-primary);
+}
+
+.marksheet-results-heading p {
+    margin: 6px 0 0;
+
+    font-size: 14px;
+
+    color: var(--color-text-secondary);
+}
+
+/* =========================
+   TERM CARDS GRID
+========================= */
+
+.marksheet-results-grid {
+    display: grid;
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    gap: 20px;
+
+    align-items: stretch;
+}
+
+/* =========================
+   TERM CARD
+========================= */
+
+.result-card {
+    display: flex;
+    flex-direction: column;
+
+    padding: 24px;
+
+    background: var(--color-background-soft);
+
+    border: 1px solid var(--color-border);
+
+    border-radius: var(--radius-medium);
+
+    text-align: center;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.result-card:hover {
+    transform: translateY(-2px);
+
+    border-color: var(--color-primary);
+
+    box-shadow: var(--shadow-small);
+}
+
+/* =========================
+   TERM CARD HEADER
+========================= */
+
+.result-card-header {
+    padding-bottom: 16px;
+
+    border-bottom: 1px solid var(--color-border);
+}
+
+.result-card-header span {
+    display: block;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    color: var(--color-text-primary);
+
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* =========================
+   POSITION
+========================= */
+
+.result-position {
+    padding: 22px 0 20px;
+
+    text-align: center;
+}
+
+.result-position strong {
+    display: block;
+
+    font-size: 48px;
+    line-height: 1;
+
+    font-weight: 700;
+
+    color: var(--color-primary);
+}
+
+.result-position small {
+    display: block;
+
+    margin-top: 8px;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    color: var(--color-text-light);
+
+    letter-spacing: 1px;
+}
+
+/* =========================
+   RESULT DETAILS
+========================= */
+
+.result-details {
+    display: flex;
+    flex-direction: column;
+
+    margin-top: auto;
+
+    border-top: 1px solid var(--color-border);
+}
+
+.result-detail {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    padding: 12px 0;
+
+    border-bottom: 1px solid var(--color-border);
+
+    text-align: left;
+}
+
+.result-detail:last-child {
+    border-bottom: none;
+}
+
+.result-detail span {
+    font-size: 12px;
+
+    color: var(--color-text-secondary);
+}
+
+.result-detail strong {
+    flex-shrink: 0;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    color: var(--color-text-primary);
+}
+
+/* =========================
+   OVERALL RESULT
+========================= */
+
+.overall-result {
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    border-top: 1px solid var(--color-border);
+
+    background: var(--color-sidebar);
+}
+
+.overall-result > div {
+    padding: 24px;
+
+    text-align: center;
+
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.overall-result > div:last-child {
+    border-right: none;
+}
+
+.overall-result span {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    color: rgba(255, 255, 255, 0.72);
+
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.overall-result strong {
+    display: block;
+
+    font-size: 24px;
+    font-weight: 700;
+
+    color: var(--color-text-white);
+}
+
+/* =========================
+   EMPTY STATE
+========================= */
+
+.marksheet-empty {
+    max-width: 600px;
+
+    margin: 80px auto;
+
+    padding: 32px;
+
+    text-align: center;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+
+    border-radius: var(--radius-large);
+
+    box-shadow: var(--shadow-small);
+}
+
+.marksheet-empty .empty-icon {
+    margin-bottom: 12px;
+
+    font-size: 42px;
+}
+
+.marksheet-empty h2 {
+    margin: 0 0 10px;
+
+    color: var(--color-text-primary);
+}
+
+.marksheet-empty p {
+    margin: 0;
+
+    color: var(--color-text-secondary);
+
+    line-height: 1.6;
+}
+
+/* =========================
+   LOADING
+========================= */
+
+.marksheet-loading {
+    min-height: 400px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-text-secondary);
+}
+
+.marksheet-loading p {
+    margin-top: 14px;
+
+    font-size: 15px;
+}
+
+.loading-spinner {
+    width: 38px;
+    height: 38px;
+
+    border: 4px solid var(--color-accent);
+    border-top-color: var(--color-primary);
+
+    border-radius: 50%;
+
+    animation: marksheet-spin 0.8s linear infinite;
+}
+
+@keyframes marksheet-spin {
+
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =========================
+   ERROR
+========================= */
+
+.marksheet-error {
+    max-width: 600px;
+
+    margin: 80px auto;
+
+    padding: 32px;
+
+    text-align: center;
+
+    background: var(--color-surface);
+
+    border: 1px solid var(--color-border);
+
+    border-radius: var(--radius-large);
+
+    box-shadow: var(--shadow-small);
+}
+
+.marksheet-error .error-icon {
+    margin-bottom: 12px;
+
+    font-size: 40px;
+}
+
+.marksheet-error h2 {
+    margin: 0 0 10px;
+
+    color: var(--color-text-primary);
+}
+
+.marksheet-error p {
+    margin: 0;
+
+    color: var(--color-text-secondary);
+
+    line-height: 1.6;
+}
+
+/* =========================
+   RESPONSIVE - TABLET
+========================= */
+
+@media (max-width: 900px) {
+
+    .marksheet-page {
+        padding: 24px;
+    }
+
+    .marksheet-results-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .result-card {
+        width: 100%;
+    }
+}
+
+/* =========================
+   RESPONSIVE - MOBILE
+========================= */
+
+@media (max-width: 600px) {
+
+    .marksheet-page {
+        padding: 16px;
+    }
+
+    .marksheet-header {
+        margin-bottom: 20px;
+    }
+
+    .marksheet-header h1 {
+        font-size: 26px;
+    }
+
+    .marksheet-title {
+        padding: 20px;
+    }
+
+    .marksheet-title h2 {
+        font-size: 18px;
+    }
+
+    .marksheet-document-icon {
+        width: 46px;
+        height: 46px;
+
+        font-size: 21px;
+    }
+
+    .marksheet-student-info {
+        grid-template-columns: 1fr;
+
+        padding: 20px;
+    }
+
+    .marksheet-results {
+        padding: 20px;
+    }
+
+    .result-card {
+        padding: 20px;
+    }
+
+    .result-position strong {
+        font-size: 42px;
+    }
+
+    .overall-result {
+        grid-template-columns: 1fr;
+    }
+
+    .overall-result > div {
+        border-right: none;
+
+        border-bottom: 1px solid
+            rgba(255, 255, 255, 0.12);
+    }
+
+    .overall-result > div:last-child {
+        border-bottom: none;
+    }
+}
+
+/* =========================
+   VERY SMALL SCREENS
+========================= */
+
+@media (max-width: 400px) {
+
+    .marksheet-page {
+        padding: 12px;
+    }
+
+    .marksheet-title {
+        padding: 18px;
+    }
+
+    .marksheet-title p {
+        font-size: 13px;
+    }
+
+    .marksheet-results {
+        padding: 16px;
+    }
+
+    .result-card {
+        padding: 18px;
+    }
+
+    .result-position strong {
+        font-size: 38px;
+    }
+
+    .result-detail {
+        gap: 10px;
+    }
+
+    .result-detail span,
+    .result-detail strong {
+        font-size: 11px;
+    }
+}
+
+/* ==========================================================
+   TITLE ACTIONS
+========================================================== */
+
+.marksheet-title-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+/* ==========================================================
+   DOWNLOAD RESULT BUTTON
+========================================================== */
+
+.download-result-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    padding: 10px 16px;
+
+    border: none;
+    border-radius: var(--radius-medium);
+
+    background: var(--color-primary);
+    color: var(--color-text-white);
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow: var(--shadow-small);
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.download-result-button:hover:not(:disabled) {
+    background: var(--color-sidebar);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium);
+}
+
+.download-result-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.download-result-button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.download-result-button > span {
+    font-size: 18px;
+    line-height: 1;
+}
+
+/* ==========================================================
+   DOWNLOAD SPINNER
+========================================================== */
+
+.download-spinner {
+    width: 14px;
+    height: 14px;
+
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: var(--color-text-white);
+
+    border-radius: 50%;
+
+    animation: download-spin 0.7s linear infinite;
+}
+
+@keyframes download-spin {
+
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ==========================================================
+   DOWNLOAD ERROR
+========================================================== */
+
+.download-error {
+    margin: 0 28px 20px;
+    padding: 11px 14px;
+
+    border: 1px solid var(--color-error);
+
+    border-radius: var(--radius-medium);
+
+    background: rgba(214, 69, 69, 0.06);
+
+    color: var(--color-error);
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width: 700px) {
+
+    .marksheet-title-actions {
+        align-items: flex-end;
+        flex-direction: column;
+    }
+
+    .download-result-button {
+        width: 100%;
+    }
+
+}
+
+@media (max-width: 480px) {
+
+    .marksheet-title-actions {
+        width: 100%;
+        align-items: stretch;
+    }
+
+    .marksheet-document-icon {
+        align-self: flex-end;
+    }
+
+    .download-result-button {
+        width: 100%;
+    }
+
+    .download-error {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+}

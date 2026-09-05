@@ -115,6 +115,28 @@ public class StudentController {
     }
 
     // ===============================
+    // GET MY ENROLLMENTS
+    // ===============================
+
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("/me/enrollments")
+    public ResponseEntity<List<StudentEnrollmentResponse>>
+    getMyEnrollments() {
+
+        Student student =
+                studentService.getCurrentStudent();
+
+        List<StudentEnrollmentResponse> enrollments =
+                studentService
+                        .getStudentEnrollments(student.getId())
+                        .stream()
+                        .map(this::toEnrollmentResponse)
+                        .toList();
+
+        return ResponseEntity.ok(enrollments);
+    }
+
+    // ===============================
     // GET STUDENT BY ID
     // ===============================
 
