@@ -1,39 +1,30 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext.jsx';
+import { useAuth } from '../../context/AuthContext';
 import './TeacherDashboard.css';
 
 function TeacherDashboard() {
 
     const navigate = useNavigate();
-
-    const { user } = useAuth();
+    const { token } = useAuth();
 
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState('');
-
-    const teacherName = user?.username || 'Teacher';
-
-
-    // ==========================================
-    // LOAD TEACHER ASSIGNMENTS
-    // ==========================================
 
     const loadAssignments = async () => {
 
         try {
 
+            setLoading(true);
             setError('');
 
-            const token =
+            const storedToken =
+                token ||
                 localStorage.getItem('gradexa_token');
 
-            if (!token) {
-                throw new Error(
-                    'Authentication token not found.'
-                );
+            if (!storedToken) {
+                throw new Error('You are not logged in.');
             }
 
             const response =
@@ -42,8 +33,10 @@ function TeacherDashboard() {
                     {
                         method: 'GET',
                         headers: {
-                            Authorization:
-                                `Bearer ${token}`
+                            'Authorization':
+                                `Bearer ${storedToken}`,
+                            'Content-Type':
+                                'application/json'
                         }
                     }
                 );
@@ -52,18 +45,24 @@ function TeacherDashboard() {
                 await response.json();
 
             if (!response.ok) {
+
                 throw new Error(
                     data?.message ||
+                    data ||
                     'Failed to load teacher assignments.'
                 );
             }
 
-            setAssignments(data);
+            setAssignments(
+                Array.isArray(data)
+                    ? data
+                    : []
+            );
 
         } catch (err) {
 
             console.error(
-                'Error loading teacher assignments:',
+                'Failed to load teacher assignments:',
                 err
             );
 
@@ -75,245 +74,235 @@ function TeacherDashboard() {
         } finally {
 
             setLoading(false);
-            setRefreshing(false);
         }
     };
-
-
-    // ==========================================
-    // LOAD ASSIGNMENTS ON PAGE LOAD
-    // ==========================================
 
     useEffect(() => {
 
         loadAssignments();
 
-    }, []);
+    }, [token]);
 
+    // ==========================================================
+    // CALCULATIONS
+    // ==========================================================
 
-    // ==========================================
-    // REFRESH
-    // ==========================================
+    const uniqueClasses =
+        new Map();
 
-    const handleRefresh = () => {
+    const uniqueSubjects =
+        new Map();
 
-        setRefreshing(true);
+    assignments.forEach(
+        assignment => {
 
-        loadAssignments();
-    };
+            const academicClass =
+                assignment.academicClass;
 
+            const subject =
+                assignment.subject;
 
-    // ==========================================
-    // COUNT UNIQUE CLASSES
-    // ==========================================
+            if (academicClass) {
 
-    const uniqueClassIds =
-        new Set(
-            assignments.map(
-                (assignment) =>
-                    assignment.academicClass?.id
-            )
-        );
+                uniqueClasses.set(
+                    academicClass.id,
+                    academicClass
+                );
+            }
 
-    const assignedClassesCount =
-        uniqueClassIds.size;
+            if (subject) {
 
+                uniqueSubjects.set(
+                    subject.id,
+                    subject
+                );
+            }
+        }
+    );
 
-    // ==========================================
-    // COUNT UNIQUE SUBJECTS
-    // ==========================================
+    const classCount =
+        uniqueClasses.size;
 
-    const uniqueSubjectIds =
-        new Set(
-            assignments.map(
-                (assignment) =>
-                    assignment.subject?.id
-            )
-        );
+    const subjectCount =
+        uniqueSubjects.size;
 
-    const subjectsCount =
-        uniqueSubjectIds.size;
+    // ==========================================================
+    // LOADING
+    // ==========================================================
 
+    if (loading) {
 
-    // ==========================================
-    // RENDER
-    // ==========================================
+        return (
+            <div className="teacher-dashboard">
 
-    return (
+                <div className="teacher-loading">
 
-        <div className="teacher-dashboard">
-
-            {/* =================================
-                PAGE HEADER
-            ================================== */}
-
-            <div className="teacher-dashboard-header">
-
-                <div>
-
-                    <span className="teacher-eyebrow">
-                        TEACHER PORTAL
-                    </span>
-
-                    <h1>
-                        Welcome, {teacherName}
-                    </h1>
+                    <div className="loading-spinner"></div>
 
                     <p>
-                        Manage your classes, students and
-                        academic performance from one place.
+                        Loading your dashboard...
                     </p>
 
                 </div>
 
+            </div>
+        );
+    }
+
+    // ==========================================================
+    // ERROR
+    // ==========================================================
+
+    if (error) {
+
+        return (
+            <div className="teacher-dashboard">
+
+                <div className="teacher-error">
+
+                    <div className="error-icon">
+                        ⚠️
+                    </div>
+
+                    <h2>
+                        Unable to load dashboard
+                    </h2>
+
+                    <p>
+                        {error}
+                    </p>
+
+                    <button
+                        onClick={loadAssignments}
+                    >
+                        Try Again
+                    </button>
+
+                </div>
+
+            </div>
+        );
+    }
+
+    // ==========================================================
+    // DASHBOARD
+    // ==========================================================
+
+    return (
+        <div className="teacher-dashboard">
+
+            {/* ==================================================
+                HEADER
+            ================================================== */}
+
+            <div className="teacher-header">
+
+                <div>
+
+                    <p className="teacher-welcome">
+                        Welcome back 👋
+                    </p>
+
+                    <h1>
+                        Teacher Dashboard
+                    </h1>
+
+                    <p className="teacher-subtitle">
+                        Manage your classes, students and marks.
+                    </p>
+
+                </div>
 
                 <button
-                    className={`teacher-refresh-button ${
-                        refreshing ? 'refreshing' : ''
-                    }`}
-                    onClick={handleRefresh}
-                    disabled={refreshing}
+                    className="refresh-button"
+                    onClick={loadAssignments}
                 >
-
-                    <span className="teacher-refresh-icon">
-                        ↻
-                    </span>
-
-                    {refreshing
-                        ? 'Refreshing...'
-                        : 'Refresh'}
-
+                    ↻ Refresh
                 </button>
 
             </div>
 
+            {/* ==================================================
+                SUMMARY
+            ================================================== */}
 
-            {/* =================================
-                ERROR MESSAGE
-            ================================== */}
+            <div className="teacher-summary">
 
-            {error && (
+                <div className="teacher-summary-card">
 
-                <div className="teacher-error-message">
-                    {error}
+                    <div className="summary-icon">
+                        🏫
+                    </div>
+
+                    <div>
+
+                        <p>
+                            Assigned Classes
+                        </p>
+
+                        <h2>
+                            {classCount}
+                        </h2>
+
+                    </div>
+
                 </div>
 
-            )}
+                <div className="teacher-summary-card">
 
-
-            {/* =================================
-                OVERVIEW CARDS
-            ================================== */}
-
-            <div className="teacher-stat-grid">
-
-
-                {/* ASSIGNED CLASSES */}
-
-                <div className="teacher-stat-card">
-
-                    <div className="teacher-stat-icon teacher-icon-classes">
+                    <div className="summary-icon">
                         📚
                     </div>
 
-                    <div className="teacher-stat-content">
+                    <div>
 
-                        <span className="teacher-stat-label">
-                            Assigned Classes
-                        </span>
+                        <p>
+                            Subjects
+                        </p>
 
-                        <strong>
-                            {loading
-                                ? '...'
-                                : assignedClassesCount}
-                        </strong>
-
-                        <span className="teacher-stat-description">
-                            Classes assigned to you
-                        </span>
+                        <h2>
+                            {subjectCount}
+                        </h2>
 
                     </div>
 
                 </div>
 
+                <div className="teacher-summary-card">
 
-                {/* TOTAL STUDENTS */}
-
-                <div className="teacher-stat-card">
-
-                    <div className="teacher-stat-icon teacher-icon-students">
+                    <div className="summary-icon">
                         👨‍🎓
                     </div>
 
-                    <div className="teacher-stat-content">
+                    <div>
 
-                        <span className="teacher-stat-label">
-                            Total Students
-                        </span>
+                        <p>
+                            Students
+                        </p>
 
-                        <strong>
+                        <h2>
                             0
-                        </strong>
-
-                        <span className="teacher-stat-description">
-                            Students in your classes
-                        </span>
+                        </h2>
 
                     </div>
 
                 </div>
 
+                <div className="teacher-summary-card">
 
-                {/* SUBJECTS */}
-
-                <div className="teacher-stat-card">
-
-                    <div className="teacher-stat-icon teacher-icon-subjects">
-                        📖
-                    </div>
-
-                    <div className="teacher-stat-content">
-
-                        <span className="teacher-stat-label">
-                            Subjects
-                        </span>
-
-                        <strong>
-                            {loading
-                                ? '...'
-                                : subjectsCount}
-                        </strong>
-
-                        <span className="teacher-stat-description">
-                            Subjects you manage
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                {/* MARKS PENDING */}
-
-                <div className="teacher-stat-card">
-
-                    <div className="teacher-stat-icon teacher-icon-marks">
+                    <div className="summary-icon">
                         📝
                     </div>
 
-                    <div className="teacher-stat-content">
+                    <div>
 
-                        <span className="teacher-stat-label">
+                        <p>
                             Marks Pending
-                        </span>
+                        </p>
 
-                        <strong>
+                        <h2>
                             0
-                        </strong>
-
-                        <span className="teacher-stat-description">
-                            Entries requiring attention
-                        </span>
+                        </h2>
 
                     </div>
 
@@ -321,304 +310,247 @@ function TeacherDashboard() {
 
             </div>
 
+            {/* ==================================================
+                QUICK ACTIONS
+            ================================================== */}
 
-            {/* =================================
-                MAIN CONTENT
-            ================================== */}
+            <div className="teacher-section">
 
-            <div className="teacher-dashboard-grid">
+                <div className="section-heading">
 
+                    <h2>
+                        Quick Actions
+                    </h2>
 
-                {/* =================================
-                    ASSIGNED CLASSES
-                ================================== */}
+                    <p>
+                        Access your teaching tools quickly.
+                    </p>
 
-                <section className="teacher-dashboard-card">
+                </div>
 
-                    <div className="teacher-card-header">
+                <div className="teacher-actions">
+
+                    <button
+                        className="teacher-action-card"
+                        onClick={() =>
+                            navigate('/teacher/students')
+                        }
+                    >
+
+                        <div className="action-icon">
+                            👨‍🎓
+                        </div>
 
                         <div>
 
-                            <span className="teacher-card-eyebrow">
-                                YOUR CLASSES
-                            </span>
-
-                            <h2>
-                                Assigned Classes
-                            </h2>
+                            <h3>
+                                Manage Students
+                            </h3>
 
                             <p>
-                                Classes currently assigned to you.
+                                View students in your assigned classes.
                             </p>
 
                         </div>
 
-                        <div className="teacher-card-header-icon">
+                    </button>
+
+                    <button
+                        className="teacher-action-card"
+                        onClick={() =>
+                            navigate('/teacher/marks')
+                        }
+                    >
+
+                        <div className="action-icon">
+                            📝
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                Enter Marks
+                            </h3>
+
+                            <p>
+                                Enter and manage student marks.
+                            </p>
+
+                        </div>
+
+                    </button>
+
+                    <button
+                        className="teacher-action-card"
+                        onClick={() =>
+                            navigate('/teacher/marks')
+                        }
+                    >
+
+                        <div className="action-icon">
+                            📊
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                View Reports
+                            </h3>
+
+                            <p>
+                                View student performance reports.
+                            </p>
+
+                        </div>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            {/* ==================================================
+                ASSIGNED CLASSES
+            ================================================== */}
+
+            <div className="teacher-section">
+
+                <div className="section-heading">
+
+                    <h2>
+                        My Assigned Classes
+                    </h2>
+
+                    <p>
+                        Classes and subjects assigned to you.
+                    </p>
+
+                </div>
+
+                {assignments.length === 0 ? (
+
+                    <div className="empty-state">
+
+                        <div className="empty-icon">
                             📚
                         </div>
 
+                        <h3>
+                            No assignments yet
+                        </h3>
+
+                        <p>
+                            You have not been assigned any classes or subjects.
+                        </p>
+
                     </div>
 
+                ) : (
 
-                    {loading ? (
+                    <div className="assignments-grid">
 
-                        <div className="teacher-empty-state">
+                        {assignments.map(
+                            assignment => {
 
-                            <div className="teacher-empty-icon">
-                                ⏳
-                            </div>
+                                const academicClass =
+                                    assignment.academicClass;
 
-                            <h3>
-                                Loading your classes...
-                            </h3>
+                                const subject =
+                                    assignment.subject;
 
-                            <p>
-                                Please wait while we load your
-                                assigned classes.
-                            </p>
+                                return (
+                                    <div
+                                        className="assignment-card"
+                                        key={assignment.id}
+                                    >
 
-                        </div>
+                                        <div className="assignment-header">
 
-                    ) : assignments.length === 0 ? (
-
-                        <div className="teacher-empty-state">
-
-                            <div className="teacher-empty-icon">
-                                📚
-                            </div>
-
-                            <h3>
-                                No classes assigned yet
-                            </h3>
-
-                            <p>
-                                Your assigned classes will appear
-                                here once they are added to your
-                                account.
-                            </p>
-
-                        </div>
-
-                    ) : (
-
-                        <div className="teacher-assignment-list">
-
-                            {assignments.map(
-                                (assignment) => {
-
-                                    const academicClass =
-                                        assignment.academicClass;
-
-                                    const subject =
-                                        assignment.subject;
-
-                                    return (
-
-                                        <div
-                                            className="teacher-assignment-item"
-                                            key={assignment.id}
-                                        >
-
-                                            <div className="teacher-assignment-icon">
-                                                📚
+                                            <div className="assignment-icon">
+                                                🏫
                                             </div>
 
-                                            <div className="teacher-assignment-details">
+                                            <div>
 
                                                 <h3>
-                                                    Grade{' '}
-                                                    {academicClass?.grade}{' '}
-                                                    {academicClass?.sectionName}
+                                                    Grade {academicClass?.grade}
                                                 </h3>
 
                                                 <p>
-                                                    {academicClass?.academicYear}
-                                                    {' • '}
-                                                    {academicClass?.schoolSection}
+                                                    Section {academicClass?.sectionName}
                                                 </p>
-
-                                                <span>
-                                                    {subject?.subjectName}
-                                                </span>
 
                                             </div>
 
                                         </div>
 
-                                    );
-                                }
-                            )}
+                                        <div className="assignment-details">
 
-                        </div>
+                                            <div>
+                                                <span>
+                                                    Academic Year
+                                                </span>
 
-                    )}
+                                                <strong>
+                                                    {academicClass?.academicYear || '--'}
+                                                </strong>
+                                            </div>
 
-                </section>
+                                            <div>
+                                                <span>
+                                                    School Section
+                                                </span>
 
+                                                <strong>
+                                                    {academicClass?.schoolSection || '--'}
+                                                </strong>
+                                            </div>
 
-                {/* =================================
-                    QUICK ACTIONS
-                ================================== */}
+                                            <div>
+                                                <span>
+                                                    Subject
+                                                </span>
 
-                <section className="teacher-dashboard-card">
+                                                <strong>
+                                                    {subject?.subjectName || '--'}
+                                                </strong>
+                                            </div>
 
-                    <div className="teacher-card-header">
+                                        </div>
 
-                        <div>
+                                        <div className="assignment-actions">
 
-                            <span className="teacher-card-eyebrow">
-                                QUICK ACTIONS
-                            </span>
+                                            <button
+                                                onClick={() =>
+                                                    navigate(
+                                                        '/teacher/students'
+                                                    )
+                                                }
+                                            >
+                                                View Students
+                                            </button>
 
-                            <h2>
-                                Get Started
-                            </h2>
+                                            <button
+                                                onClick={() =>
+                                                    navigate(
+                                                        '/teacher/marks'
+                                                    )
+                                                }
+                                            >
+                                                Enter Marks
+                                            </button>
 
-                            <p>
-                                Common actions for managing your
-                                classes.
-                            </p>
+                                        </div>
 
-                        </div>
-
-                        <div className="teacher-card-header-icon">
-                            ⚡
-                        </div>
-
-                    </div>
-
-
-                    <div className="teacher-quick-actions">
-
-
-                        {/* =================================
-                            VIEW STUDENTS
-                        ================================== */}
-
-                        <button
-                            className="teacher-action-button"
-                            onClick={() =>
-                                navigate('/teacher/students')
+                                    </div>
+                                );
                             }
-                        >
-
-                            <span className="teacher-action-icon">
-                                👨‍🎓
-                            </span>
-
-                            <span>
-
-                                <strong>
-                                    View Students
-                                </strong>
-
-                                <small>
-                                    Manage your students
-                                </small>
-
-                            </span>
-
-                            <span className="teacher-action-arrow">
-                                →
-                            </span>
-
-                        </button>
-
-
-                        {/* =================================
-                            ENTER MARKS
-                        ================================== */}
-
-                        <button
-                            className="teacher-action-button"
-                        >
-
-                            <span className="teacher-action-icon">
-                                📝
-                            </span>
-
-                            <span>
-
-                                <strong>
-                                    Enter Marks
-                                </strong>
-
-                                <small>
-                                    Add student marks
-                                </small>
-
-                            </span>
-
-                            <span className="teacher-action-arrow">
-                                →
-                            </span>
-
-                        </button>
-
-
-                        {/* =================================
-                            VIEW REPORTS
-                        ================================== */}
-
-                        <button
-                            className="teacher-action-button"
-                        >
-
-                            <span className="teacher-action-icon">
-                                📊
-                            </span>
-
-                            <span>
-
-                                <strong>
-                                    View Reports
-                                </strong>
-
-                                <small>
-                                    Check class performance
-                                </small>
-
-                            </span>
-
-                            <span className="teacher-action-arrow">
-                                →
-                            </span>
-
-                        </button>
+                        )}
 
                     </div>
-
-                </section>
+                )}
 
             </div>
-
-
-            {/* =================================
-                INFORMATION SECTION
-            ================================== */}
-
-            <section className="teacher-information-card">
-
-                <div className="teacher-information-icon">
-                    💡
-                </div>
-
-                <div>
-
-                    <h2>
-                        Teacher Workspace
-                    </h2>
-
-                    <p>
-                        Your assigned classes and subjects are
-                        displayed above. You will soon be able to
-                        manage students, enter marks for each term,
-                        review marks and submit them to students.
-                    </p>
-
-                </div>
-
-            </section>
 
         </div>
     );
