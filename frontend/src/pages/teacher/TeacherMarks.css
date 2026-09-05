@@ -1,6 +1,6 @@
 /* ==========================================================
    TEACHER MARKS PAGE
-   ========================================================== */
+========================================================== */
 
 .teacher-marks-page {
     min-height: 100vh;
@@ -12,7 +12,7 @@
 
 /* ==========================================================
    HEADER
-   ========================================================== */
+========================================================== */
 
 .teacher-marks-header {
     max-width: 1200px;
@@ -32,7 +32,7 @@
     margin: 0 0 8px;
     color: var(--color-text-primary);
     font-size: 32px;
-    font-weight: 750;
+    font-weight: 700;
     line-height: 1.2;
 }
 
@@ -45,15 +45,15 @@
 
 /* ==========================================================
    SELECTION CARD
-   ========================================================== */
+========================================================== */
 
 .marks-selection-card {
     max-width: 1200px;
     margin: 0 auto 22px;
     padding: 24px;
+
     display: grid;
-    grid-template-columns:
-        repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 20px;
 
     background: var(--color-surface);
@@ -66,7 +66,7 @@
 
 /* ==========================================================
    SELECTION GROUP
-   ========================================================== */
+========================================================== */
 
 .selection-group {
     display: flex;
@@ -88,7 +88,7 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-medium);
 
-    background: #ffffff;
+    background: var(--color-background);
     color: var(--color-text-primary);
 
     font-family: inherit;
@@ -112,8 +112,7 @@
 
 .selection-group select:focus {
     border-color: var(--color-border-focus);
-    box-shadow:
-        0 0 0 3px rgba(13, 206, 218, 0.10);
+    box-shadow: 0 0 0 3px rgba(13, 206, 218, 0.10);
 }
 
 .selection-group select:disabled {
@@ -125,7 +124,7 @@
 
 /* ==========================================================
    MESSAGE AREA
-   ========================================================== */
+========================================================== */
 
 .teacher-marks-message {
     max-width: 1200px;
@@ -156,28 +155,30 @@
 }
 
 .success-message {
-    background: #eefaf5;
-    border: 1px solid #c9eedf;
+    background: rgba(34, 160, 107, 0.08);
+    border: 1px solid rgba(34, 160, 107, 0.20);
     color: var(--color-success);
 }
 
 .error-message {
-    background: #fff3f3;
-    border: 1px solid #f0cccc;
+    background: rgba(214, 69, 69, 0.06);
+    border: 1px solid rgba(214, 69, 69, 0.20);
     color: var(--color-error);
 }
 
 /* ==========================================================
    STUDENTS SECTION
-   ========================================================== */
+========================================================== */
 
 .teacher-marks-section {
     max-width: 1200px;
     margin: 0 auto;
 
     background: var(--color-surface);
+
     border: 1px solid var(--color-border);
     border-radius: var(--radius-large);
+
     box-shadow: var(--shadow-small);
 
     overflow: hidden;
@@ -185,16 +186,16 @@
 
 /* ==========================================================
    SECTION HEADING
-   ========================================================== */
+========================================================== */
 
 .teacher-marks-section .section-heading {
     min-height: 82px;
-
     padding: 22px 24px;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     gap: 20px;
 
     border-bottom: 1px solid var(--color-border);
@@ -204,7 +205,6 @@
 
 .teacher-marks-section .section-heading h2 {
     margin: 0 0 6px;
-
     color: var(--color-text-primary);
     font-size: 20px;
     font-weight: 700;
@@ -212,7 +212,6 @@
 
 .teacher-marks-section .section-heading p {
     margin: 0;
-
     color: var(--color-text-secondary);
     font-size: 14px;
     line-height: 1.5;
@@ -228,14 +227,16 @@
     border-radius: 999px;
 
     color: var(--color-text-primary);
+
     font-size: 13px;
     font-weight: 700;
+
     white-space: nowrap;
 }
 
 /* ==========================================================
    TABLE WRAPPER
-   ========================================================== */
+========================================================== */
 
 .marks-table-wrapper {
     width: 100%;
@@ -245,7 +246,7 @@
 
 /* ==========================================================
    TABLE
-   ========================================================== */
+========================================================== */
 
 .marks-table {
     width: 100%;
@@ -257,7 +258,7 @@
 
 /* ==========================================================
    TABLE HEADER
-   ========================================================== */
+========================================================== */
 
 .marks-table th {
     padding: 14px 20px;
@@ -267,7 +268,7 @@
     color: var(--color-text-secondary);
 
     font-size: 11px;
-    font-weight: 750;
+    font-weight: 700;
 
     text-align: left;
     text-transform: uppercase;
@@ -280,12 +281,12 @@
 
 /* ==========================================================
    TABLE CELLS
-   ========================================================== */
+========================================================== */
 
 .marks-table td {
     padding: 16px 20px;
 
-    background: #ffffff;
+    background: var(--color-surface);
 
     color: var(--color-text-primary);
 
@@ -303,17 +304,16 @@
 }
 
 .marks-table tbody tr {
-    transition:
-        background 0.15s ease;
+    transition: background 0.15s ease;
 }
 
 .marks-table tbody tr:hover td {
-    background: #fbfffe;
+    background: var(--color-background-soft);
 }
 
 /* ==========================================================
    COLUMN WIDTHS
-   ========================================================== */
+========================================================== */
 
 .marks-table th:nth-child(1),
 .marks-table td:nth-child(1) {
@@ -343,7 +343,7 @@
 
 /* ==========================================================
    STUDENT ID
-   ========================================================== */
+========================================================== */
 
 .student-id {
     display: inline-flex;
@@ -352,7 +352,6 @@
     padding: 6px 9px;
 
     background: var(--color-background-soft);
-
     border: 1px solid var(--color-border);
     border-radius: 7px;
 
@@ -366,17 +365,17 @@
 
 /* ==========================================================
    STUDENT NAME
-   ========================================================== */
+========================================================== */
 
 .student-name {
     color: var(--color-text-primary);
     font-size: 14px;
-    font-weight: 650;
+    font-weight: 600;
 }
 
 /* ==========================================================
    MARK INPUT
-   ========================================================== */
+========================================================== */
 
 .mark-input {
     width: 120px;
@@ -387,7 +386,7 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-medium);
 
-    background: #ffffff;
+    background: var(--color-background);
     color: var(--color-text-primary);
 
     font-family: inherit;
@@ -428,7 +427,7 @@
 
 /* ==========================================================
    SAVE BUTTON
-   ========================================================== */
+========================================================== */
 
 .save-mark-button {
     min-width: 112px;
@@ -444,7 +443,7 @@
 
     font-family: inherit;
     font-size: 13px;
-    font-weight: 750;
+    font-weight: 700;
 
     cursor: pointer;
 
@@ -459,6 +458,8 @@
 
     box-shadow:
         0 4px 12px rgba(12, 44, 85, 0.10);
+
+    background: var(--color-primary);
 }
 
 .save-mark-button:active {
@@ -474,7 +475,7 @@
 
 /* ==========================================================
    EMPTY STATE
-   ========================================================== */
+========================================================== */
 
 .teacher-marks-empty {
     max-width: 1200px;
@@ -485,8 +486,10 @@
     text-align: center;
 
     background: var(--color-surface);
+
     border: 1px solid var(--color-border);
     border-radius: var(--radius-large);
+
     box-shadow: var(--shadow-small);
 
     box-sizing: border-box;
@@ -512,6 +515,7 @@
     margin: 0 0 8px;
 
     color: var(--color-text-primary);
+
     font-size: 19px;
     font-weight: 700;
 }
@@ -521,20 +525,20 @@
     margin: 0 auto;
 
     color: var(--color-text-secondary);
+
     font-size: 14px;
     line-height: 1.6;
 }
 
 /* ==========================================================
    LOADING
-   ========================================================== */
+========================================================== */
 
 .teacher-marks-loading {
     min-height: 300px;
 
     display: flex;
     flex-direction: column;
-
     justify-content: center;
     align-items: center;
 
@@ -557,12 +561,10 @@
 
     border-radius: 50%;
 
-    animation:
-        teacherMarksSpin 0.8s linear infinite;
+    animation: teacherMarksSpin 0.8s linear infinite;
 }
 
 @keyframes teacherMarksSpin {
-
     to {
         transform: rotate(360deg);
     }
@@ -570,12 +572,12 @@
 
 /* ==========================================================
    FULL ERROR PAGE
-   ========================================================== */
+========================================================== */
 
 .teacher-marks-error {
     max-width: 520px;
-
     margin: 100px auto;
+
     padding: 40px;
 
     text-align: center;
@@ -599,6 +601,7 @@
     margin: 0 0 10px;
 
     color: var(--color-text-primary);
+
     font-size: 21px;
 }
 
@@ -613,7 +616,7 @@
 
 /* ==========================================================
    RESPONSIVE — TABLET
-   ========================================================== */
+========================================================== */
 
 @media (max-width: 900px) {
 
@@ -638,7 +641,7 @@
 
 /* ==========================================================
    RESPONSIVE — MOBILE
-   ========================================================== */
+========================================================== */
 
 @media (max-width: 600px) {
 
@@ -703,7 +706,7 @@
 
 /* ==========================================================
    VERY SMALL SCREENS
-   ========================================================== */
+========================================================== */
 
 @media (max-width: 420px) {
 

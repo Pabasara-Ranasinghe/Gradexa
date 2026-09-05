@@ -12,7 +12,6 @@ function TeacherMarks() {
     const [selectedTerm, setSelectedTerm] = useState('TERM_1');
 
     const [students, setStudents] = useState([]);
-
     const [marks, setMarks] = useState({});
 
     const [loadingAssignments, setLoadingAssignments] =
@@ -25,9 +24,9 @@ function TeacherMarks() {
         useState(null);
 
     const [error, setError] = useState('');
-
     const [successMessage, setSuccessMessage] =
         useState('');
+
 
     // ==========================================================
     // LOAD TEACHER ASSIGNMENTS
@@ -57,8 +56,10 @@ function TeacherMarks() {
                         {
                             method: 'GET',
                             headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
+                                Authorization:
+                                    `Bearer ${token}`,
+                                'Content-Type':
+                                    'application/json'
                             }
                         }
                     );
@@ -91,11 +92,13 @@ function TeacherMarks() {
                         ? data
                         : [];
 
-                setAssignments(assignmentList);
+                setAssignments(
+                    assignmentList
+                );
 
-                // ==================================================
-                // UNIQUE CLASSES
-                // ==================================================
+                // --------------------------------------------------
+                // BUILD UNIQUE CLASSES
+                // --------------------------------------------------
 
                 const uniqueClasses = [];
 
@@ -109,7 +112,8 @@ function TeacherMarks() {
                             academicClass &&
                             !uniqueClasses.some(
                                 (item) =>
-                                    item.id === academicClass.id
+                                    item.id ===
+                                    academicClass.id
                             )
                         ) {
 
@@ -120,11 +124,13 @@ function TeacherMarks() {
                     }
                 );
 
-                setClasses(uniqueClasses);
+                setClasses(
+                    uniqueClasses
+                );
 
-                // ==================================================
+                // --------------------------------------------------
                 // SELECT FIRST CLASS
-                // ==================================================
+                // --------------------------------------------------
 
                 if (uniqueClasses.length > 0) {
 
@@ -154,6 +160,7 @@ function TeacherMarks() {
         loadAssignments();
 
     }, []);
+
 
     // ==========================================================
     // UPDATE SUBJECTS WHEN CLASS CHANGES
@@ -192,12 +199,16 @@ function TeacherMarks() {
                     )
                 ) {
 
-                    uniqueSubjects.push(subject);
+                    uniqueSubjects.push(
+                        subject
+                    );
                 }
             }
         );
 
-        setSubjects(uniqueSubjects);
+        setSubjects(
+            uniqueSubjects
+        );
 
         if (uniqueSubjects.length > 0) {
 
@@ -214,6 +225,7 @@ function TeacherMarks() {
         selectedClassId,
         assignments
     ]);
+
 
     // ==========================================================
     // LOAD STUDENTS WHEN CLASS CHANGES
@@ -241,6 +253,7 @@ function TeacherMarks() {
                     localStorage.getItem('gradexa_token');
 
                 if (!token) {
+
                     throw new Error(
                         'You are not logged in.'
                     );
@@ -252,8 +265,10 @@ function TeacherMarks() {
                         {
                             method: 'GET',
                             headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
+                                Authorization:
+                                    `Bearer ${token}`,
+                                'Content-Type':
+                                    'application/json'
                             }
                         }
                     );
@@ -286,11 +301,13 @@ function TeacherMarks() {
                         ? data
                         : [];
 
-                setStudents(studentList);
+                setStudents(
+                    studentList
+                );
 
-                // ==================================================
+                // --------------------------------------------------
                 // INITIALIZE MARK VALUES
-                // ==================================================
+                // --------------------------------------------------
 
                 const initialMarks = {};
 
@@ -304,11 +321,12 @@ function TeacherMarks() {
                         initialMarks[
                             enrollmentId
                         ] = '';
-
                     }
                 );
 
-                setMarks(initialMarks);
+                setMarks(
+                    initialMarks
+                );
 
             } catch (err) {
 
@@ -334,6 +352,7 @@ function TeacherMarks() {
 
     }, [selectedClassId]);
 
+
     // ==========================================================
     // HANDLE MARK INPUT
     // ==========================================================
@@ -343,7 +362,6 @@ function TeacherMarks() {
         value
     ) => {
 
-        // Allow empty input
         if (value === '') {
 
             setMarks(
@@ -356,15 +374,17 @@ function TeacherMarks() {
             return;
         }
 
-        // Only numbers
-        if (!/^\d{0,3}(\.\d{0,2})?$/.test(value)) {
+        if (
+            !/^\d{0,3}(\.\d{0,2})?$/.test(
+                value
+            )
+        ) {
             return;
         }
 
         const numericValue =
             Number(value);
 
-        // Prevent values above 100
         if (numericValue > 100) {
             return;
         }
@@ -376,6 +396,7 @@ function TeacherMarks() {
             })
         );
     };
+
 
     // ==========================================================
     // SAVE DRAFT MARK
@@ -394,6 +415,7 @@ function TeacherMarks() {
                 localStorage.getItem('gradexa_token');
 
             if (!token) {
+
                 throw new Error(
                     'You are not logged in.'
                 );
@@ -406,9 +428,9 @@ function TeacherMarks() {
             const markValue =
                 marks[enrollmentId];
 
-            // ==================================================
-            // VALIDATION
-            // ==================================================
+            // --------------------------------------------------
+            // VALIDATE MARK
+            // --------------------------------------------------
 
             if (
                 markValue === '' ||
@@ -453,9 +475,9 @@ function TeacherMarks() {
                 enrollmentId
             );
 
-            // ==================================================
+            // --------------------------------------------------
             // SAVE DRAFT
-            // ==================================================
+            // --------------------------------------------------
 
             const response =
                 await fetch(
@@ -464,7 +486,7 @@ function TeacherMarks() {
                         method: 'POST',
 
                         headers: {
-                            'Authorization':
+                            Authorization:
                                 `Bearer ${token}`,
 
                             'Content-Type':
@@ -473,6 +495,7 @@ function TeacherMarks() {
 
                         body:
                             new URLSearchParams({
+
                                 enrollmentId:
                                     enrollmentId.toString(),
 
@@ -487,11 +510,6 @@ function TeacherMarks() {
                             })
                     }
                 );
-
-            // ==================================================
-            // IMPORTANT:
-            // BACKEND MAY RETURN PLAIN TEXT ERROR
-            // ==================================================
 
             const responseText =
                 await response.text();
@@ -511,10 +529,6 @@ function TeacherMarks() {
                     responseText;
             }
 
-            // ==================================================
-            // HANDLE ERROR
-            // ==================================================
-
             if (!response.ok) {
 
                 const errorMessage =
@@ -529,16 +543,8 @@ function TeacherMarks() {
                 );
             }
 
-            // ==================================================
-            // SUCCESS
-            // ==================================================
-
             setSuccessMessage(
-                `Draft mark saved successfully for ${
-                    student.firstName ||
-                    student.studentName ||
-                    'student'
-                }.`
+                `Draft mark saved successfully for ${getStudentName(student)}.`
             );
 
         } catch (err) {
@@ -559,8 +565,9 @@ function TeacherMarks() {
         }
     };
 
+
     // ==========================================================
-    // GET STUDENT NAME
+    // HELPER — STUDENT NAME
     // ==========================================================
 
     const getStudentName = (
@@ -595,8 +602,9 @@ function TeacherMarks() {
         return 'Unknown Student';
     };
 
+
     // ==========================================================
-    // GET STUDENT NUMBER
+    // HELPER — STUDENT NUMBER
     // ==========================================================
 
     const getStudentNumber = (
@@ -618,8 +626,9 @@ function TeacherMarks() {
         return '--';
     };
 
+
     // ==========================================================
-    // GET CLASS NAME
+    // HELPER — CLASS NAME
     // ==========================================================
 
     const getClassName = (
@@ -635,6 +644,31 @@ function TeacherMarks() {
             `${academicClass.sectionName}`
         );
     };
+
+
+    // ==========================================================
+    // SELECTED CLASS
+    // ==========================================================
+
+    const selectedClass =
+        classes.find(
+            (academicClass) =>
+                academicClass.id.toString() ===
+                selectedClassId.toString()
+        );
+
+
+    // ==========================================================
+    // SELECTED SUBJECT
+    // ==========================================================
+
+    const selectedSubject =
+        subjects.find(
+            (subject) =>
+                subject.id.toString() ===
+                selectedSubjectId.toString()
+        );
+
 
     // ==========================================================
     // LOADING
@@ -658,6 +692,7 @@ function TeacherMarks() {
             </div>
         );
     }
+
 
     // ==========================================================
     // ERROR WITHOUT ASSIGNMENTS
@@ -691,6 +726,7 @@ function TeacherMarks() {
         );
     }
 
+
     // ==========================================================
     // NO ASSIGNMENTS
     // ==========================================================
@@ -721,6 +757,7 @@ function TeacherMarks() {
         );
     }
 
+
     // ==========================================================
     // RENDER
     // ==========================================================
@@ -728,16 +765,16 @@ function TeacherMarks() {
     return (
         <div className="teacher-marks-page">
 
-            {/* ==================================================
+            {/* ================================================
                 HEADER
-            ================================================== */}
+            ================================================= */}
 
             <div className="teacher-marks-header">
 
                 <div>
 
                     <p className="teacher-marks-welcome">
-                        Teacher Portal
+                        TEACHER PORTAL
                     </p>
 
                     <h1>
@@ -745,153 +782,251 @@ function TeacherMarks() {
                     </h1>
 
                     <p className="teacher-marks-subtitle">
-                        Enter and save student marks
-                        for your assigned classes.
+                        Enter and manage marks for students
+                        in your assigned classes.
                     </p>
 
                 </div>
 
             </div>
 
-            {/* ==================================================
-                SELECTION CARD
-            ================================================== */}
 
-            <div className="marks-selection-card">
+            {/* ================================================
+                CLASS / SUBJECT / TERM SELECTION
+            ================================================= */}
 
-                <div className="selection-group">
+            <section className="marks-selection-card">
 
-                    <label htmlFor="class-select">
-                        Class
-                    </label>
+                <div className="selection-card-header">
 
-                    <select
-                        id="class-select"
-                        value={selectedClassId}
-                        onChange={(event) => {
+                    <div>
 
-                            setSelectedClassId(
-                                event.target.value
-                            );
+                        <span className="selection-eyebrow">
+                            MARK ENTRY
+                        </span>
 
-                            setSuccessMessage('');
-                            setError('');
+                        <h2>
+                            Select Assessment
+                        </h2>
 
-                        }}
-                    >
+                        <p>
+                            Choose the class, subject and term
+                            before entering marks.
+                        </p>
 
-                        <option value="">
-                            Select Class
-                        </option>
+                    </div>
 
-                        {classes.map(
-                            (academicClass) => (
-
-                                <option
-                                    key={academicClass.id}
-                                    value={academicClass.id}
-                                >
-                                    {getClassName(
-                                        academicClass
-                                    )}
-                                </option>
-
-                            )
-                        )}
-
-                    </select>
+                    <div className="selection-card-icon">
+                        📝
+                    </div>
 
                 </div>
 
-                <div className="selection-group">
 
-                    <label htmlFor="subject-select">
-                        Subject
-                    </label>
+                <div className="selection-grid">
 
-                    <select
-                        id="subject-select"
-                        value={selectedSubjectId}
-                        onChange={(event) => {
+                    {/* CLASS */}
 
-                            setSelectedSubjectId(
-                                event.target.value
-                            );
+                    <div className="selection-group">
 
-                            setSuccessMessage('');
-                            setError('');
+                        <label htmlFor="class-select">
+                            Class
+                        </label>
 
-                        }}
-                        disabled={
-                            subjects.length === 0
-                        }
-                    >
+                        <select
+                            id="class-select"
+                            value={selectedClassId}
+                            onChange={(event) => {
 
-                        <option value="">
-                            Select Subject
-                        </option>
+                                setSelectedClassId(
+                                    event.target.value
+                                );
 
-                        {subjects.map(
-                            (subject) => (
+                                setSuccessMessage('');
+                                setError('');
+                            }}
+                        >
 
-                                <option
-                                    key={subject.id}
-                                    value={subject.id}
-                                >
-                                    {subject.subjectName}
-                                </option>
+                            <option value="">
+                                Select Class
+                            </option>
 
-                            )
-                        )}
+                            {classes.map(
+                                (academicClass) => (
 
-                    </select>
+                                    <option
+                                        key={academicClass.id}
+                                        value={academicClass.id}
+                                    >
+                                        {getClassName(
+                                            academicClass
+                                        )}
+                                    </option>
+
+                                )
+                            )}
+
+                        </select>
+
+                    </div>
+
+
+                    {/* SUBJECT */}
+
+                    <div className="selection-group">
+
+                        <label htmlFor="subject-select">
+                            Subject
+                        </label>
+
+                        <select
+                            id="subject-select"
+                            value={selectedSubjectId}
+                            onChange={(event) => {
+
+                                setSelectedSubjectId(
+                                    event.target.value
+                                );
+
+                                setSuccessMessage('');
+                                setError('');
+                            }}
+                            disabled={
+                                subjects.length === 0
+                            }
+                        >
+
+                            <option value="">
+                                Select Subject
+                            </option>
+
+                            {subjects.map(
+                                (subject) => (
+
+                                    <option
+                                        key={subject.id}
+                                        value={subject.id}
+                                    >
+                                        {subject.subjectName}
+                                    </option>
+
+                                )
+                            )}
+
+                        </select>
+
+                    </div>
+
+
+                    {/* TERM */}
+
+                    <div className="selection-group">
+
+                        <label htmlFor="term-select">
+                            Term
+                        </label>
+
+                        <select
+                            id="term-select"
+                            value={selectedTerm}
+                            onChange={(event) => {
+
+                                setSelectedTerm(
+                                    event.target.value
+                                );
+
+                                setSuccessMessage('');
+                                setError('');
+                            }}
+                        >
+
+                            <option value="TERM_1">
+                                Term 1
+                            </option>
+
+                            <option value="TERM_2">
+                                Term 2
+                            </option>
+
+                            <option value="TERM_3">
+                                Term 3
+                            </option>
+
+                        </select>
+
+                    </div>
 
                 </div>
 
-                <div className="selection-group">
+            </section>
 
-                    <label htmlFor="term-select">
-                        Term
-                    </label>
 
-                    <select
-                        id="term-select"
-                        value={selectedTerm}
-                        onChange={(event) => {
+            {/* ================================================
+                SELECTED ASSESSMENT SUMMARY
+            ================================================= */}
 
-                            setSelectedTerm(
-                                event.target.value
-                            );
+            {selectedClass && (
 
-                            setSuccessMessage('');
-                            setError('');
+                <div className="marks-context-bar">
 
-                        }}
-                    >
+                    <div className="context-item">
 
-                        <option value="TERM_1">
-                            Term 1
-                        </option>
+                        <span>
+                            Class
+                        </span>
 
-                        <option value="TERM_2">
-                            Term 2
-                        </option>
+                        <strong>
+                            {getClassName(
+                                selectedClass
+                            )}
+                        </strong>
 
-                        <option value="TERM_3">
-                            Term 3
-                        </option>
+                    </div>
 
-                    </select>
+                    <div className="context-divider"></div>
+
+                    <div className="context-item">
+
+                        <span>
+                            Subject
+                        </span>
+
+                        <strong>
+                            {selectedSubject?.subjectName ||
+                                '--'}
+                        </strong>
+
+                    </div>
+
+                    <div className="context-divider"></div>
+
+                    <div className="context-item">
+
+                        <span>
+                            Term
+                        </span>
+
+                        <strong>
+                            {selectedTerm === 'TERM_1'
+                                ? 'Term 1'
+                                : selectedTerm === 'TERM_2'
+                                    ? 'Term 2'
+                                    : 'Term 3'}
+                        </strong>
+
+                    </div>
 
                 </div>
 
-            </div>
+            )}
 
-            {/* ==================================================
+
+            {/* ================================================
                 ERROR MESSAGE
-            ================================================== */}
+            ================================================= */}
 
             {error && (
+
                 <div className="teacher-marks-message error-message">
 
                     <span>
@@ -903,13 +1038,16 @@ function TeacherMarks() {
                     </p>
 
                 </div>
+
             )}
 
-            {/* ==================================================
+
+            {/* ================================================
                 SUCCESS MESSAGE
-            ================================================== */}
+            ================================================= */}
 
             {successMessage && (
+
                 <div className="teacher-marks-message success-message">
 
                     <span>
@@ -921,26 +1059,32 @@ function TeacherMarks() {
                     </p>
 
                 </div>
+
             )}
 
-            {/* ==================================================
-                STUDENTS SECTION
-            ================================================== */}
 
-            <div className="teacher-marks-section">
+            {/* ================================================
+                STUDENT MARK ENTRY
+            ================================================= */}
+
+            <section className="teacher-marks-section">
 
                 <div className="section-heading">
 
                     <div>
 
+                        <span className="section-eyebrow">
+                            STUDENT MARKS
+                        </span>
+
                         <h2>
-                            Students
+                            Enter Student Marks
                         </h2>
 
                         <p>
-                            Enter marks from 0 to 100.
-                            Saved marks are stored as drafts
-                            until they are reviewed and submitted.
+                            Enter a mark from 0 to 100 for
+                            each student. Saved marks remain
+                            as drafts until reviewed.
                         </p>
 
                     </div>
@@ -948,7 +1092,9 @@ function TeacherMarks() {
                     <div className="student-count">
 
                         {students.length}
+
                         {' '}
+
                         {students.length === 1
                             ? 'Student'
                             : 'Students'}
@@ -957,9 +1103,10 @@ function TeacherMarks() {
 
                 </div>
 
-                {/* ==================================================
+
+                {/* ============================================
                     LOADING STUDENTS
-                ================================================== */}
+                ============================================= */}
 
                 {loadingStudents ? (
 
@@ -994,146 +1141,211 @@ function TeacherMarks() {
 
                 ) : (
 
-                    <div className="marks-table-wrapper">
+                    <div className="marks-table-card">
 
-                        <table className="marks-table">
+                        <div className="marks-table-wrapper">
 
-                            <thead>
+                            <table className="marks-table">
 
-                                <tr>
+                                <thead>
 
-                                    <th>
-                                        #
-                                    </th>
+                                    <tr>
 
-                                    <th>
-                                        Student ID
-                                    </th>
+                                        <th>
+                                            #
+                                        </th>
 
-                                    <th>
-                                        Student Name
-                                    </th>
+                                        <th>
+                                            Student ID
+                                        </th>
 
-                                    <th>
-                                        Mark
-                                    </th>
+                                        <th>
+                                            Student Name
+                                        </th>
 
-                                    <th>
-                                        Action
-                                    </th>
+                                        <th>
+                                            Mark
+                                        </th>
 
-                                </tr>
+                                        <th>
+                                            Status
+                                        </th>
 
-                            </thead>
+                                        <th>
+                                            Action
+                                        </th>
 
-                            <tbody>
+                                    </tr>
 
-                                {students.map(
-                                    (
-                                        student,
-                                        index
-                                    ) => {
+                                </thead>
 
-                                        const enrollmentId =
-                                            student.enrollmentId ||
-                                            student.id;
+                                <tbody>
 
-                                        return (
-                                            <tr
-                                                key={
+                                    {students.map(
+                                        (
+                                            student,
+                                            index
+                                        ) => {
+
+                                            const enrollmentId =
+                                                student.enrollmentId ||
+                                                student.id;
+
+                                            const currentMark =
+                                                marks[
                                                     enrollmentId
-                                                }
-                                            >
+                                                ];
 
-                                                <td>
-                                                    {index + 1}
-                                                </td>
+                                            const isSaving =
+                                                savingStudentId ===
+                                                enrollmentId;
 
-                                                <td>
-                                                    <span className="student-id">
-                                                        {
-                                                            getStudentNumber(
-                                                                student
-                                                            )
-                                                        }
-                                                    </span>
-                                                </td>
+                                            return (
 
-                                                <td>
-                                                    <span className="student-name">
-                                                        {
-                                                            getStudentName(
-                                                                student
-                                                            )
-                                                        }
-                                                    </span>
-                                                </td>
-
-                                                <td>
-
-                                                    <input
-                                                        type="number"
-                                                        min="0"
-                                                        max="100"
-                                                        step="0.01"
-                                                        className="mark-input"
-                                                        placeholder="0 - 100"
-                                                        value={
-                                                            marks[
-                                                                enrollmentId
-                                                            ] ??
-                                                            ''
-                                                        }
-                                                        onChange={
-                                                            (
-                                                                event
-                                                            ) =>
-                                                                handleMarkChange(
-                                                                    enrollmentId,
-                                                                    event.target.value
-                                                                )
-                                                        }
-                                                    />
-
-                                                </td>
-
-                                                <td>
-
-                                                    <button
-                                                        type="button"
-                                                        className="save-mark-button"
-                                                        onClick={() =>
-                                                            handleSaveMark(
-                                                                student
-                                                            )
-                                                        }
-                                                        disabled={
-                                                            savingStudentId ===
-                                                            enrollmentId
-                                                        }
-                                                    >
-
-                                                        {savingStudentId ===
+                                                <tr
+                                                    key={
                                                         enrollmentId
-                                                            ? 'Saving...'
-                                                            : 'Save Draft'}
+                                                    }
+                                                >
 
-                                                    </button>
+                                                    <td>
+                                                        {index + 1}
+                                                    </td>
 
-                                                </td>
+                                                    <td>
 
-                                            </tr>
-                                        );
-                                    }
-                                )}
+                                                        <span className="student-id">
+                                                            {
+                                                                getStudentNumber(
+                                                                    student
+                                                                )
+                                                            }
+                                                        </span>
 
-                            </tbody>
+                                                    </td>
 
-                        </table>
+                                                    <td>
+
+                                                        <span className="student-name">
+                                                            {
+                                                                getStudentName(
+                                                                    student
+                                                                )
+                                                            }
+                                                        </span>
+
+                                                    </td>
+
+                                                    <td>
+
+                                                        <input
+                                                            type="number"
+                                                            min="0"
+                                                            max="100"
+                                                            step="0.01"
+                                                            className="mark-input"
+                                                            placeholder="0 - 100"
+                                                            value={
+                                                                currentMark ??
+                                                                ''
+                                                            }
+                                                            onChange={
+                                                                (event) =>
+                                                                    handleMarkChange(
+                                                                        enrollmentId,
+                                                                        event.target.value
+                                                                    )
+                                                            }
+                                                        />
+
+                                                    </td>
+
+                                                    <td>
+
+                                                        <span
+                                                            className={
+                                                                currentMark !== '' &&
+                                                                currentMark !== undefined &&
+                                                                currentMark !== null
+                                                                    ? 'mark-status-entered'
+                                                                    : 'mark-status-empty'
+                                                            }
+                                                        >
+                                                            {currentMark !== '' &&
+                                                            currentMark !== undefined &&
+                                                            currentMark !== null
+                                                                ? 'Entered'
+                                                                : 'Not entered'}
+                                                        </span>
+
+                                                    </td>
+
+                                                    <td>
+
+                                                        <button
+                                                            type="button"
+                                                            className="save-mark-button"
+                                                            onClick={() =>
+                                                                handleSaveMark(
+                                                                    student
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                isSaving
+                                                            }
+                                                        >
+
+                                                            {isSaving
+                                                                ? 'Saving...'
+                                                                : 'Save Draft'}
+
+                                                        </button>
+
+                                                    </td>
+
+                                                </tr>
+
+                                            );
+                                        }
+                                    )}
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
 
                     </div>
 
                 )}
+
+            </section>
+
+
+            {/* ================================================
+                INFORMATION
+            ================================================= */}
+
+            <div className="marks-information-card">
+
+                <div className="information-icon">
+                    💡
+                </div>
+
+                <div>
+
+                    <h3>
+                        Mark workflow
+                    </h3>
+
+                    <p>
+                        Enter marks and save them as drafts.
+                        Draft marks can be reviewed before
+                        they are officially submitted and
+                        published to students.
+                    </p>
+
+                </div>
 
             </div>
 
