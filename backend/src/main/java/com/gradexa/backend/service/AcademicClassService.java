@@ -12,16 +12,22 @@ import java.util.List;
 public class AcademicClassService {
 
     private final AcademicClassRepository academicClassRepository;
+    private final DefaultSubjectService defaultSubjectService;
 
     public AcademicClassService(
-            AcademicClassRepository academicClassRepository
+            AcademicClassRepository academicClassRepository,
+            DefaultSubjectService defaultSubjectService
     ) {
-        this.academicClassRepository = academicClassRepository;
+        this.academicClassRepository =
+                academicClassRepository;
+
+        this.defaultSubjectService =
+                defaultSubjectService;
     }
 
-    // ===============================
+    // ==========================================================
     // CREATE CLASS
-    // ===============================
+    // ==========================================================
 
     public AcademicClass createClass(
             Integer academicYear,
@@ -29,43 +35,126 @@ public class AcademicClassService {
             String sectionName
     ) {
 
-        validateGrade(grade);
+        // ======================================================
+        // VALIDATION
+        // ======================================================
 
-        String normalizedSection =
-                normalizeSectionName(sectionName);
-
-        SchoolSection schoolSection =
-                determineSchoolSection(grade);
-
-        if (academicClassRepository
-                .existsByAcademicYearAndGradeAndSectionName(
-                        academicYear,
-                        grade,
-                        normalizedSection
-                )) {
+        if (academicYear == null) {
 
             throw new RuntimeException(
-                    "This class already exists for the selected academic year"
+                    "Academic year is required"
             );
         }
+
+        if (grade == null) {
+
+            throw new RuntimeException(
+                    "Grade is required"
+            );
+        }
+
+        if (grade < 1 || grade > 13) {
+
+            throw new RuntimeException(
+                    "Grade must be between 1 and 13"
+            );
+        }
+
+        if (sectionName == null ||
+                sectionName.trim().isEmpty()) {
+
+            throw new RuntimeException(
+                    "Section name is required"
+            );
+        }
+
+        String cleanedSectionName =
+                sectionName.trim();
+
+        // ======================================================
+        // DETERMINE SCHOOL SECTION
+        // ======================================================
+
+        SchoolSection schoolSection;
+
+        if (grade <= 5) {
+
+            schoolSection =
+                    SchoolSection.PRIMARY;
+
+        } else {
+
+            schoolSection =
+                    SchoolSection.UPPER;
+        }
+
+        // ======================================================
+        // CHECK DUPLICATE CLASS
+        // ======================================================
+
+        boolean exists =
+                academicClassRepository
+                        .existsByAcademicYearAndGradeAndSectionName(
+                                academicYear,
+                                grade,
+                                cleanedSectionName
+                        );
+
+        if (exists) {
+
+            throw new RuntimeException(
+                    "This academic class already exists"
+            );
+        }
+
+        // ======================================================
+        // CREATE CLASS
+        // ======================================================
 
         AcademicClass academicClass =
                 new AcademicClass();
 
-        academicClass.setAcademicYear(academicYear);
-        academicClass.setGrade(grade);
-        academicClass.setSectionName(normalizedSection);
-        academicClass.setSchoolSection(schoolSection);
+        academicClass.setAcademicYear(
+                academicYear
+        );
+
+        academicClass.setSchoolSection(
+                schoolSection
+        );
+
+        academicClass.setGrade(
+                grade
+        );
+
+        academicClass.setSectionName(
+                cleanedSectionName
+        );
+
         academicClass.setActive(true);
 
-        return academicClassRepository.save(
-                academicClass
+        // ======================================================
+        // SAVE CLASS FIRST
+        // ======================================================
+
+        AcademicClass savedClass =
+                academicClassRepository.save(
+                        academicClass
+                );
+
+        // ======================================================
+        // CREATE DEFAULT SUBJECTS
+        // ======================================================
+
+        defaultSubjectService.createDefaultSubjects(
+                savedClass
         );
+
+        return savedClass;
     }
 
-    // ===============================
-    // GET ALL CLASSES FOR YEAR
-    // ===============================
+    // ==========================================================
+    // GET CLASSES BY YEAR
+    // ==========================================================
 
     public List<AcademicClass> getClassesByYear(
             Integer academicYear
@@ -77,16 +166,14 @@ public class AcademicClassService {
                 );
     }
 
-    // ===============================
+    // ==========================================================
     // GET CLASSES BY GRADE
-    // ===============================
+    // ==========================================================
 
     public List<AcademicClass> getClassesByGrade(
             Integer academicYear,
             Integer grade
     ) {
-
-        validateGrade(grade);
 
         return academicClassRepository
                 .findByAcademicYearAndGrade(
@@ -98,9 +185,9 @@ public class AcademicClassService {
                 .toList();
     }
 
-    // ===============================
+    // ==========================================================
     // GET CLASSES BY SCHOOL SECTION
-    // ===============================
+    // ==========================================================
 
     public List<AcademicClass> getClassesBySchoolSection(
             Integer academicYear,
@@ -117,9 +204,19 @@ public class AcademicClassService {
                 .toList();
     }
 
-    // ===============================
+    // ==========================================================
+    // GET ALL ACTIVE CLASSES
+    // ==========================================================
+
+    public List<AcademicClass> getAllActiveClasses() {
+
+        return academicClassRepository
+                .findByActiveTrue();
+    }
+
+    // ==========================================================
     // GET CLASS BY ID
-    // ===============================
+    // ==========================================================
 
     public AcademicClass getClassById(
             Long id
@@ -129,14 +226,14 @@ public class AcademicClassService {
                 .findById(id)
                 .orElseThrow(() ->
                         new RuntimeException(
-                                "Class not found"
+                                "Academic class not found"
                         )
                 );
     }
 
-    // ===============================
+    // ==========================================================
     // UPDATE CLASS SECTION NAME
-    // ===============================
+    // ==========================================================
 
     public AcademicClass updateClassSection(
             Long id,
@@ -144,38 +241,24 @@ public class AcademicClassService {
     ) {
 
         AcademicClass academicClass =
-                getClassById(id);
-
-        if (!academicClass.isActive()) {
-
-            throw new RuntimeException(
-                    "Cannot update an inactive class"
-            );
-        }
-
-        String normalizedSection =
-                normalizeSectionName(sectionName);
-
-        boolean duplicate =
                 academicClassRepository
-                        .existsByAcademicYearAndGradeAndSectionName(
-                                academicClass.getAcademicYear(),
-                                academicClass.getGrade(),
-                                normalizedSection
+                        .findById(id)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Academic class not found"
+                                )
                         );
 
-        if (duplicate &&
-                !academicClass
-                        .getSectionName()
-                        .equals(normalizedSection)) {
+        if (sectionName == null ||
+                sectionName.trim().isEmpty()) {
 
             throw new RuntimeException(
-                    "This class already exists"
+                    "Section name is required"
             );
         }
 
         academicClass.setSectionName(
-                normalizedSection
+                sectionName.trim()
         );
 
         return academicClassRepository.save(
@@ -183,85 +266,27 @@ public class AcademicClassService {
         );
     }
 
-    // ===============================
+    // ==========================================================
     // DEACTIVATE CLASS
-    // ===============================
+    // ==========================================================
 
     public AcademicClass deactivateClass(
             Long id
     ) {
 
         AcademicClass academicClass =
-                getClassById(id);
+                academicClassRepository
+                        .findById(id)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Academic class not found"
+                                )
+                        );
 
         academicClass.setActive(false);
 
         return academicClassRepository.save(
                 academicClass
         );
-    }
-
-    // ===============================
-    // VALIDATE GRADE
-    // ===============================
-
-    private void validateGrade(
-            Integer grade
-    ) {
-
-        if (grade == null ||
-                grade < 1 ||
-                grade > 13) {
-
-            throw new RuntimeException(
-                    "Grade must be between 1 and 13"
-            );
-        }
-    }
-
-    // ===============================
-    // DETERMINE SCHOOL SECTION
-    // ===============================
-
-    private SchoolSection determineSchoolSection(
-            Integer grade
-    ) {
-
-        if (grade <= 5) {
-            return SchoolSection.PRIMARY;
-        }
-
-        return SchoolSection.UPPER;
-    }
-
-    // ===============================
-    // NORMALIZE SECTION NAME
-    // ===============================
-
-    private String normalizeSectionName(
-            String sectionName
-    ) {
-
-        if (sectionName == null ||
-                sectionName.trim().isEmpty()) {
-
-            throw new RuntimeException(
-                    "Class section is required"
-            );
-        }
-
-        String normalized =
-                sectionName
-                        .trim()
-                        .toUpperCase();
-
-        if (!normalized.matches("[A-Z]+")) {
-
-            throw new RuntimeException(
-                    "Class section must contain letters only"
-            );
-        }
-
-        return normalized;
     }
 }

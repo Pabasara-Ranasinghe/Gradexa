@@ -330,6 +330,10 @@ function TeacherDashboard() {
 
                 <div className="teacher-actions">
 
+                    {/* ==================================================
+                        MANAGE STUDENTS
+                    ================================================== */}
+
                     <button
                         className="teacher-action-card"
                         onClick={() =>
@@ -355,6 +359,39 @@ function TeacherDashboard() {
 
                     </button>
 
+                    {/* ==================================================
+                        MANAGE SUBJECTS
+                    ================================================== */}
+
+                    <button
+                        className="teacher-action-card"
+                        onClick={() =>
+                            navigate('/teacher/subjects')
+                        }
+                    >
+
+                        <div className="action-icon">
+                            📚
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                Manage Subjects
+                            </h3>
+
+                            <p>
+                                View and manage subjects for your classes.
+                            </p>
+
+                        </div>
+
+                    </button>
+
+                    {/* ==================================================
+                        ENTER MARKS
+                    ================================================== */}
+
                     <button
                         className="teacher-action-card"
                         onClick={() =>
@@ -379,6 +416,39 @@ function TeacherDashboard() {
                         </div>
 
                     </button>
+
+                    {/* ==================================================
+                        REVIEW DRAFT MARKS
+                    ================================================== */}
+
+                    <button
+                        className="teacher-action-card"
+                        onClick={() =>
+                            navigate('/teacher/drafts')
+                        }
+                    >
+
+                        <div className="action-icon">
+                            📋
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                Review Draft Marks
+                            </h3>
+
+                            <p>
+                                Review and submit marks before publishing.
+                            </p>
+
+                        </div>
+
+                    </button>
+
+                    {/* ==================================================
+                        VIEW REPORTS
+                    ================================================== */}
 
                     <button
                         className="teacher-action-card"
@@ -487,6 +557,7 @@ function TeacherDashboard() {
                                         <div className="assignment-details">
 
                                             <div>
+
                                                 <span>
                                                     Academic Year
                                                 </span>
@@ -494,9 +565,11 @@ function TeacherDashboard() {
                                                 <strong>
                                                     {academicClass?.academicYear || '--'}
                                                 </strong>
+
                                             </div>
 
                                             <div>
+
                                                 <span>
                                                     School Section
                                                 </span>
@@ -504,9 +577,11 @@ function TeacherDashboard() {
                                                 <strong>
                                                     {academicClass?.schoolSection || '--'}
                                                 </strong>
+
                                             </div>
 
                                             <div>
+
                                                 <span>
                                                     Subject
                                                 </span>
@@ -514,6 +589,7 @@ function TeacherDashboard() {
                                                 <strong>
                                                     {subject?.subjectName || '--'}
                                                 </strong>
+
                                             </div>
 
                                         </div>

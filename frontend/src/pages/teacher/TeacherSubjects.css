@@ -1,0 +1,672 @@
+.teacher-subjects-page {
+    min-height: 100vh;
+    padding: 32px;
+    background: var(--color-background);
+    color: var(--color-text-primary);
+    box-sizing: border-box;
+}
+
+.teacher-subjects-header {
+    max-width: 1200px;
+    margin: 0 auto 26px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.teacher-subjects-label {
+    margin: 0 0 7px;
+    color: var(--color-primary);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.teacher-subjects-header h1 {
+    margin: 0 0 8px;
+    color: var(--color-text-primary);
+    font-size: 32px;
+    font-weight: 750;
+    line-height: 1.2;
+}
+
+.teacher-subjects-subtitle {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.subjects-refresh-button {
+    flex-shrink: 0;
+    padding: 11px 17px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-medium);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        transform 0.15s ease;
+}
+
+.subjects-refresh-button:hover:not(:disabled) {
+    background: var(--color-background-soft);
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+}
+
+.subjects-refresh-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* ==========================================================
+   MESSAGES
+   ========================================================== */
+
+.subject-message {
+    max-width: 1200px;
+    margin: 0 auto 18px;
+    padding: 13px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: var(--radius-medium);
+    box-sizing: border-box;
+}
+
+.subject-message span {
+    flex-shrink: 0;
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.subject-message p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.subject-error {
+    background: #fff5f5;
+    border: 1px solid #f2caca;
+    color: var(--color-error);
+}
+
+.subject-success {
+    background: #effcf5;
+    border: 1px solid #c7ecd8;
+    color: var(--color-success);
+}
+
+/* ==========================================================
+   CARDS
+   ========================================================== */
+
+.teacher-subjects-card {
+    max-width: 1200px;
+    margin: 0 auto 20px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-large);
+    box-shadow: var(--shadow-small);
+    overflow: hidden;
+}
+
+.subjects-card-header {
+    padding: 22px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.subjects-card-header h2 {
+    margin: 0 0 5px;
+    color: var(--color-text-primary);
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.subjects-card-header p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.subject-count {
+    flex-shrink: 0;
+    padding: 7px 11px;
+    background: var(--color-background-soft);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    color: var(--color-text-primary);
+    font-size: 12px;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+/* ==========================================================
+   CLASS SELECTOR
+   ========================================================== */
+
+.class-selector-area {
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.class-selector-area label {
+    color: var(--color-text-primary);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.class-selector-area select {
+    width: 100%;
+    max-width: 600px;
+    padding: 12px 14px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-medium);
+    color: var(--color-text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.class-selector-area select:focus {
+    border-color: var(--color-border-focus);
+    box-shadow: 0 0 0 3px rgba(13, 206, 218, 0.10);
+}
+
+/* ==========================================================
+   SELECTED CLASS
+   ========================================================== */
+
+.selected-class-card {
+    max-width: 1200px;
+    margin: 0 auto 20px;
+    padding: 19px 22px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: var(--color-background-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-large);
+    box-sizing: border-box;
+}
+
+.selected-class-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 13px;
+    font-size: 22px;
+}
+
+.selected-class-card > div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.selected-class-card span {
+    color: var(--color-text-secondary);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.selected-class-card strong {
+    color: var(--color-text-primary);
+    font-size: 17px;
+    font-weight: 750;
+}
+
+.selected-class-card p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+}
+
+/* ==========================================================
+   ADD SUBJECT FORM
+   ========================================================== */
+
+.add-subject-form {
+    padding: 22px 24px;
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+}
+
+.subject-input-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.subject-input-group label {
+    color: var(--color-text-primary);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.subject-input-group input {
+    width: 100%;
+    min-height: 45px;
+    padding: 11px 13px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-medium);
+    color: var(--color-text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.subject-input-group input::placeholder {
+    color: var(--color-text-light);
+}
+
+.subject-input-group input:focus {
+    border-color: var(--color-border-focus);
+    box-shadow: 0 0 0 3px rgba(13, 206, 218, 0.10);
+}
+
+.subject-input-group input:disabled {
+    background: var(--color-background-soft);
+    cursor: not-allowed;
+}
+
+.add-subject-button {
+    min-height: 45px;
+    padding: 0 18px;
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-medium);
+    background: var(--color-primary);
+    color: var(--color-text-white);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 750;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+        opacity 0.15s ease,
+        transform 0.15s ease;
+}
+
+.add-subject-button:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.add-subject-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.maximum-subjects-message {
+    margin: 0;
+    padding: 0 24px 20px;
+    color: var(--color-warning);
+    font-size: 12px;
+}
+
+/* ==========================================================
+   SUBJECT LIST
+   ========================================================== */
+
+.subjects-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.subject-item {
+    min-height: 74px;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 1px solid var(--color-border);
+    box-sizing: border-box;
+    transition: background 0.15s ease;
+}
+
+.subject-item:last-child {
+    border-bottom: none;
+}
+
+.subject-item:hover {
+    background: #fbfffe;
+}
+
+.subject-number {
+    width: 38px;
+    flex-shrink: 0;
+    color: var(--color-text-light);
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.subject-details {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.subject-details strong {
+    color: var(--color-text-primary);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.subject-details span {
+    color: var(--color-text-secondary);
+    font-size: 11px;
+}
+
+.edit-subject-input {
+    width: 100%;
+    max-width: 400px;
+    min-height: 40px;
+    padding: 8px 11px;
+    border: 1px solid var(--color-border-focus);
+    border-radius: 8px;
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    box-shadow: 0 0 0 3px rgba(13, 206, 218, 0.08);
+}
+
+.subject-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.subject-actions button {
+    min-height: 36px;
+    padding: 0 12px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        opacity 0.15s ease;
+}
+
+.subject-actions button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.edit-subject-button {
+    background: var(--color-background-soft);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+}
+
+.edit-subject-button:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    background: var(--color-accent);
+}
+
+.deactivate-subject-button {
+    background: #fff5f5;
+    border: 1px solid #f2caca;
+    color: var(--color-error);
+}
+
+.deactivate-subject-button:hover:not(:disabled) {
+    background: #ffeaea;
+}
+
+.save-edit-button {
+    background: var(--color-primary);
+    border: 1px solid var(--color-primary);
+    color: var(--color-text-white);
+}
+
+.save-edit-button:hover:not(:disabled) {
+    opacity: 0.9;
+}
+
+.cancel-edit-button {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+}
+
+.cancel-edit-button:hover:not(:disabled) {
+    background: var(--color-background-soft);
+}
+
+/* ==========================================================
+   EMPTY STATES
+   ========================================================== */
+
+.subjects-empty {
+    padding: 55px 24px;
+    text-align: center;
+}
+
+.subjects-empty-icon {
+    margin-bottom: 13px;
+    font-size: 40px;
+    line-height: 1;
+}
+
+.subjects-empty h3 {
+    margin: 0 0 7px;
+    color: var(--color-text-primary);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.subjects-empty p {
+    max-width: 430px;
+    margin: 0 auto;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* ==========================================================
+   LOADING
+   ========================================================== */
+
+.teacher-subjects-loading {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+}
+
+.teacher-subjects-loading p,
+.subjects-inline-loading p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+}
+
+.subjects-inline-loading {
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.loading-spinner {
+    width: 36px;
+    height: 36px;
+    border: 4px solid var(--color-accent);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: teacherSubjectsSpin 0.8s linear infinite;
+}
+
+@keyframes teacherSubjectsSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 800px) {
+
+    .teacher-subjects-page {
+        padding: 24px;
+    }
+
+    .teacher-subjects-header {
+        flex-direction: column;
+    }
+
+    .subjects-refresh-button {
+        align-self: flex-start;
+    }
+
+    .add-subject-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .add-subject-button {
+        width: 100%;
+    }
+
+    .subject-item {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .subject-details {
+        flex: 1 1 calc(100% - 55px);
+    }
+
+    .subject-actions {
+        width: 100%;
+        margin-left: 53px;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 600px) {
+
+    .teacher-subjects-page {
+        padding: 18px;
+    }
+
+    .teacher-subjects-header h1 {
+        font-size: 27px;
+    }
+
+    .teacher-subjects-subtitle {
+        font-size: 14px;
+    }
+
+    .teacher-subjects-card {
+        border-radius: var(--radius-medium);
+    }
+
+    .subjects-card-header {
+        padding: 18px;
+    }
+
+    .class-selector-area {
+        padding: 18px;
+    }
+
+    .selected-class-card {
+        padding: 16px;
+        border-radius: var(--radius-medium);
+    }
+
+    .add-subject-form {
+        padding: 18px;
+    }
+
+    .maximum-subjects-message {
+        padding: 0 18px 18px;
+    }
+
+    .subject-item {
+        padding: 14px 18px;
+    }
+
+    .subject-actions {
+        margin-left: 0;
+    }
+
+    .subject-actions button {
+        flex: 1;
+    }
+
+    .subject-count {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 420px) {
+
+    .teacher-subjects-page {
+        padding: 14px;
+    }
+
+    .teacher-subjects-header h1 {
+        font-size: 24px;
+    }
+
+    .subject-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .subject-actions button {
+        width: 100%;
+    }
+}

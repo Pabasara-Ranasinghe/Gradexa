@@ -1,11 +1,10 @@
 package com.gradexa.backend.service;
 
 import com.gradexa.backend.entity.AcademicClass;
-import com.gradexa.backend.entity.Role;
 import com.gradexa.backend.entity.Subject;
+import com.gradexa.backend.entity.SubjectCategory;
 import com.gradexa.backend.entity.Teacher;
-import com.gradexa.backend.entity.TeacherClassAssignment;
-import com.gradexa.backend.entity.User;
+import com.gradexa.backend.repository.AcademicClassRepository;
 import com.gradexa.backend.repository.SubjectRepository;
 import com.gradexa.backend.repository.TeacherClassAssignmentRepository;
 import com.gradexa.backend.repository.TeacherRepository;
@@ -20,26 +19,27 @@ import java.util.List;
 public class SubjectService {
 
     private static final int MAX_SUBJECTS_PER_CLASS = 15;
+    private static final int MAX_SUBJECTS_PER_BASKET = 15;
 
     private final SubjectRepository subjectRepository;
-    private final AcademicClassService academicClassService;
-    private final TeacherClassAssignmentRepository assignmentRepository;
+    private final AcademicClassRepository academicClassRepository;
     private final TeacherRepository teacherRepository;
+    private final TeacherClassAssignmentRepository assignmentRepository;
 
     public SubjectService(
             SubjectRepository subjectRepository,
-            AcademicClassService academicClassService,
-            TeacherClassAssignmentRepository assignmentRepository,
-            TeacherRepository teacherRepository
+            AcademicClassRepository academicClassRepository,
+            TeacherRepository teacherRepository,
+            TeacherClassAssignmentRepository assignmentRepository
     ) {
         this.subjectRepository = subjectRepository;
-        this.academicClassService = academicClassService;
-        this.assignmentRepository = assignmentRepository;
+        this.academicClassRepository = academicClassRepository;
         this.teacherRepository = teacherRepository;
+        this.assignmentRepository = assignmentRepository;
     }
 
     // ==========================================================
-    // CREATE SUBJECT
+    // CREATE CUSTOM SUBJECT
     // ==========================================================
 
     public Subject createSubject(
@@ -48,14 +48,18 @@ public class SubjectService {
     ) {
 
         AcademicClass academicClass =
-                academicClassService.getClassById(classId);
+                academicClassRepository.findById(classId)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Academic class not found"
+                                )
+                        );
 
         checkTeacherClassAccess(academicClass);
 
         if (!academicClass.isActive()) {
-
             throw new RuntimeException(
-                    "Cannot add a subject to an inactive class"
+                    "The selected class is not active"
             );
         }
 
@@ -63,30 +67,40 @@ public class SubjectService {
                 subjectName.trim().isEmpty()) {
 
             throw new RuntimeException(
-                    "Subject name is required"
+                    "Subject name cannot be empty"
             );
         }
 
-        String normalizedSubjectName =
+        String cleanedName =
                 subjectName.trim();
 
-        long subjectCount =
+        // ======================================================
+        // CHECK TOTAL SUBJECT LIMIT
+        // ======================================================
+
+        long totalSubjects =
                 subjectRepository
                         .countByAcademicClassIdAndActiveTrue(
                                 classId
                         );
 
-        if (subjectCount >= MAX_SUBJECTS_PER_CLASS) {
+        if (totalSubjects >= MAX_SUBJECTS_PER_CLASS) {
 
             throw new RuntimeException(
-                    "A class can have a maximum of 15 subjects"
+                    "A class can have a maximum of "
+                            + MAX_SUBJECTS_PER_CLASS
+                            + " active subjects"
             );
         }
+
+        // ======================================================
+        // CHECK DUPLICATE
+        // ======================================================
 
         if (subjectRepository
                 .existsByAcademicClassIdAndSubjectName(
                         classId,
-                        normalizedSubjectName
+                        cleanedName
                 )) {
 
             throw new RuntimeException(
@@ -94,10 +108,32 @@ public class SubjectService {
             );
         }
 
+        // ======================================================
+        // CUSTOM SUBJECT
+        // ======================================================
+
+        /*
+         * Teacher-created subjects are placed in Basket 01
+         * by default.
+         *
+         * The teacher can later manage the subject structure
+         * from the subject management page.
+         */
         Subject subject = new Subject();
 
         subject.setAcademicClass(academicClass);
-        subject.setSubjectName(normalizedSubjectName);
+        subject.setSubjectName(cleanedName);
+        subject.setCategory(
+                SubjectCategory.BASKET_01
+        );
+        subject.setBasketNumber(1);
+
+        // Put custom subject after existing subjects.
+        subject.setDisplayOrder(
+                (int) totalSubjects + 1
+        );
+
+        subject.setCustom(true);
         subject.setActive(true);
 
         return subjectRepository.save(subject);
@@ -112,13 +148,44 @@ public class SubjectService {
     ) {
 
         AcademicClass academicClass =
-                academicClassService.getClassById(classId);
+                academicClassRepository.findById(classId)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Academic class not found"
+                                )
+                        );
 
         checkTeacherClassAccess(academicClass);
 
         return subjectRepository
-                .findByAcademicClassIdAndActiveTrue(
+                .findByAcademicClassIdAndActiveTrueOrderByDisplayOrderAsc(
                         classId
+                );
+    }
+
+    // ==========================================================
+    // GET SUBJECTS BY CATEGORY
+    // ==========================================================
+
+    public List<Subject> getSubjectsByCategory(
+            Long classId,
+            SubjectCategory category
+    ) {
+
+        AcademicClass academicClass =
+                academicClassRepository.findById(classId)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Academic class not found"
+                                )
+                        );
+
+        checkTeacherClassAccess(academicClass);
+
+        return subjectRepository
+                .findByAcademicClassIdAndCategoryAndActiveTrueOrderByDisplayOrderAsc(
+                        classId,
+                        category
                 );
     }
 
@@ -155,50 +222,45 @@ public class SubjectService {
     ) {
 
         Subject subject =
-                getSubjectById(id);
+                subjectRepository.findById(id)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Subject not found"
+                                )
+                        );
 
-        if (!subject.isActive()) {
-
-            throw new RuntimeException(
-                    "Cannot update an inactive subject"
-            );
-        }
+        checkTeacherClassAccess(
+                subject.getAcademicClass()
+        );
 
         if (subjectName == null ||
                 subjectName.trim().isEmpty()) {
 
             throw new RuntimeException(
-                    "Subject name is required"
+                    "Subject name cannot be empty"
             );
         }
 
-        String normalizedSubjectName =
+        String cleanedName =
                 subjectName.trim();
 
-        Long classId =
-                subject.getAcademicClass().getId();
+        if (!cleanedName.equalsIgnoreCase(
+                subject.getSubjectName()
+        )) {
 
-        boolean duplicate =
-                subjectRepository
-                        .existsByAcademicClassIdAndSubjectName(
-                                classId,
-                                normalizedSubjectName
-                        );
+            if (subjectRepository
+                    .existsByAcademicClassIdAndSubjectName(
+                            subject.getAcademicClass().getId(),
+                            cleanedName
+                    )) {
 
-        if (duplicate &&
-                !subject.getSubjectName()
-                        .equalsIgnoreCase(
-                                normalizedSubjectName
-                        )) {
-
-            throw new RuntimeException(
-                    "This subject already exists for the selected class"
-            );
+                throw new RuntimeException(
+                        "This subject already exists for the selected class"
+                );
+            }
         }
 
-        subject.setSubjectName(
-                normalizedSubjectName
-        );
+        subject.setSubjectName(cleanedName);
 
         return subjectRepository.save(subject);
     }
@@ -212,7 +274,16 @@ public class SubjectService {
     ) {
 
         Subject subject =
-                getSubjectById(id);
+                subjectRepository.findById(id)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Subject not found"
+                                )
+                        );
+
+        checkTeacherClassAccess(
+                subject.getAcademicClass()
+        );
 
         subject.setActive(false);
 
@@ -220,7 +291,7 @@ public class SubjectService {
     }
 
     // ==========================================================
-    // TEACHER CLASS ACCESS CHECK
+    // CHECK TEACHER CLASS ACCESS
     // ==========================================================
 
     private void checkTeacherClassAccess(
@@ -236,84 +307,96 @@ public class SubjectService {
                 !authentication.isAuthenticated()) {
 
             throw new RuntimeException(
-                    "You are not authenticated."
+                    "You are not authenticated"
             );
         }
 
-        String username =
-                authentication.getName();
+        boolean isAdmin =
+                authentication.getAuthorities()
+                        .stream()
+                        .anyMatch(authority ->
+                                authority.getAuthority()
+                                        .equals("ROLE_ADMIN")
+                        );
 
-        User user =
-                (User) authentication
-                        .getPrincipal();
+        boolean isPrincipal =
+                authentication.getAuthorities()
+                        .stream()
+                        .anyMatch(authority ->
+                                authority.getAuthority()
+                                        .equals("ROLE_PRINCIPAL")
+                        );
 
-        // ------------------------------------------------------
-        // ADMIN AND PRINCIPAL
-        // ------------------------------------------------------
+        boolean isTeacher =
+                authentication.getAuthorities()
+                        .stream()
+                        .anyMatch(authority ->
+                                authority.getAuthority()
+                                        .equals("ROLE_TEACHER")
+                        );
 
-        if (user.getRole() == Role.ADMIN ||
-                user.getRole() == Role.PRINCIPAL) {
+        // ======================================================
+        // ADMIN / PRINCIPAL
+        // ======================================================
 
+        if (isAdmin || isPrincipal) {
             return;
         }
 
-        // ------------------------------------------------------
+        // ======================================================
         // TEACHER
-        // ------------------------------------------------------
+        // ======================================================
 
-        if (user.getRole() == Role.TEACHER) {
+        if (isTeacher) {
+
+            String username =
+                    authentication.getName();
 
             Teacher teacher =
                     teacherRepository
                             .findByUserUsername(username)
                             .orElseThrow(() ->
                                     new RuntimeException(
-                                            "Teacher profile not found."
+                                            "Teacher profile not found"
                                     )
                             );
 
             if (!teacher.isActive()) {
 
                 throw new RuntimeException(
-                        "Your teacher account is inactive."
+                        "Your teacher account is inactive"
                 );
             }
 
-            List<TeacherClassAssignment> assignments =
+            boolean assigned =
                     assignmentRepository
-                            .findByTeacherIdAndActiveTrue(
-                                    teacher.getId()
+                            .findByTeacherAndActiveTrue(teacher)
+                            .stream()
+                            .anyMatch(assignment ->
+                                    assignment
+                                            .getAcademicClass()
+                                            .getId()
+                                            .equals(
+                                                    academicClass.getId()
+                                            )
                             );
 
-            boolean assignedToClass =
-                    assignments.stream()
-                            .anyMatch(
-                                    assignment ->
-                                            assignment
-                                                    .getAcademicClass()
-                                                    .getId()
-                                                    .equals(
-                                                            academicClass
-                                                                    .getId()
-                                                    )
-                            );
-
-            if (!assignedToClass) {
+            if (!assigned) {
 
                 throw new RuntimeException(
-                        "You are not assigned to this class."
+                        "You are not assigned to this class"
                 );
             }
 
             return;
         }
 
-        // ------------------------------------------------------
+        // ======================================================
         // OTHER ROLES
-        // ------------------------------------------------------
+        // ======================================================
 
         throw new RuntimeException(
-                "You do not have permission to manage subjects."
+                "You do not have permission to manage subjects"
         );
     }
 }

@@ -64,4 +64,18 @@ public interface AcademicClassRepository
     List<AcademicClass> findByAcademicYearAndActiveTrue(
             Integer academicYear
     );
+
+    // ===============================
+    // FIND ALL ACTIVE CLASSES
+    // ===============================
+
+    List<AcademicClass> findByActiveTrue();
+
+    // ===============================
+    // FIND ACTIVE CLASSES BY GRADE
+    // ===============================
+
+    List<AcademicClass> findByGradeAndActiveTrue(
+            Integer grade
+    );
 }

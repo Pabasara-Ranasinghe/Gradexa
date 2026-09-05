@@ -18,6 +18,7 @@ import TeacherDashboard from './pages/teacher/TeacherDashboard';
 import TeacherStudents from './pages/teacher/TeacherStudents';
 import TeacherMarks from './pages/teacher/TeacherMarks';
 import TeacherDraftMarks from './pages/teacher/TeacherDraftMarks';
+import TeacherSubjects from './pages/teacher/TeacherSubjects';
 
 import StudentDashboard from './pages/student/StudentDashboard';
 import MyMarks from './pages/student/MyMarks';
@@ -106,6 +107,11 @@ function App() {
                 <Route
                     path="/teacher/drafts"
                     element={<TeacherDraftMarks />}
+                />
+
+                <Route
+                    path="/teacher/subjects"
+                    element={<TeacherSubjects />}
                 />
 
                 {/* ==================================================
