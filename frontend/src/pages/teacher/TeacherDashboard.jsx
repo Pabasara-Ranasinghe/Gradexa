@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import './TeacherDashboard.css';
 
 function TeacherDashboard() {
+
+    const navigate = useNavigate();
+
     const { user } = useAuth();
 
     const [assignments, setAssignments] = useState([]);
@@ -12,27 +16,40 @@ function TeacherDashboard() {
 
     const teacherName = user?.username || 'Teacher';
 
+
+    // ==========================================
+    // LOAD TEACHER ASSIGNMENTS
+    // ==========================================
+
     const loadAssignments = async () => {
+
         try {
+
             setError('');
 
-            const token = localStorage.getItem('gradexa_token');
+            const token =
+                localStorage.getItem('gradexa_token');
 
             if (!token) {
-                throw new Error('Authentication token not found.');
+                throw new Error(
+                    'Authentication token not found.'
+                );
             }
 
-            const response = await fetch(
-                'http://localhost:8082/api/teacher-assignments/me',
-                {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `Bearer ${token}`
+            const response =
+                await fetch(
+                    'http://localhost:8082/api/teacher-assignments/me',
+                    {
+                        method: 'GET',
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`
+                        }
                     }
-                }
-            );
+                );
 
-            const data = await response.json();
+            const data =
+                await response.json();
 
             if (!response.ok) {
                 throw new Error(
@@ -42,60 +59,98 @@ function TeacherDashboard() {
             }
 
             setAssignments(data);
+
         } catch (err) {
-            console.error('Error loading teacher assignments:', err);
-            setError(err.message || 'Failed to load assignments.');
+
+            console.error(
+                'Error loading teacher assignments:',
+                err
+            );
+
+            setError(
+                err.message ||
+                'Failed to load assignments.'
+            );
+
         } finally {
+
             setLoading(false);
             setRefreshing(false);
         }
     };
 
+
+    // ==========================================
+    // LOAD ASSIGNMENTS ON PAGE LOAD
+    // ==========================================
+
     useEffect(() => {
+
         loadAssignments();
+
     }, []);
 
+
+    // ==========================================
+    // REFRESH
+    // ==========================================
+
     const handleRefresh = () => {
+
         setRefreshing(true);
+
         loadAssignments();
     };
 
-    /*
-     * Count unique academic classes.
-     *
-     * A teacher could teach multiple subjects
-     * in the same class, so we should not simply
-     * use assignments.length here.
-     */
-    const uniqueClassIds = new Set(
-        assignments.map(
-            (assignment) => assignment.academicClass?.id
-        )
-    );
 
-    const assignedClassesCount = uniqueClassIds.size;
+    // ==========================================
+    // COUNT UNIQUE CLASSES
+    // ==========================================
 
-    /*
-     * Count unique subjects.
-     */
-    const uniqueSubjectIds = new Set(
-        assignments.map(
-            (assignment) => assignment.subject?.id
-        )
-    );
+    const uniqueClassIds =
+        new Set(
+            assignments.map(
+                (assignment) =>
+                    assignment.academicClass?.id
+            )
+        );
 
-    const subjectsCount = uniqueSubjectIds.size;
+    const assignedClassesCount =
+        uniqueClassIds.size;
+
+
+    // ==========================================
+    // COUNT UNIQUE SUBJECTS
+    // ==========================================
+
+    const uniqueSubjectIds =
+        new Set(
+            assignments.map(
+                (assignment) =>
+                    assignment.subject?.id
+            )
+        );
+
+    const subjectsCount =
+        uniqueSubjectIds.size;
+
+
+    // ==========================================
+    // RENDER
+    // ==========================================
 
     return (
+
         <div className="teacher-dashboard">
 
-            {/* ================================
+            {/* =================================
                 PAGE HEADER
-            ================================= */}
+            ================================== */}
 
             <div className="teacher-dashboard-header">
 
                 <div>
+
                     <span className="teacher-eyebrow">
                         TEACHER PORTAL
                     </span>
@@ -105,10 +160,12 @@ function TeacherDashboard() {
                     </h1>
 
                     <p>
-                        Manage your classes, students and academic
-                        performance from one place.
+                        Manage your classes, students and
+                        academic performance from one place.
                     </p>
+
                 </div>
+
 
                 <button
                     className={`teacher-refresh-button ${
@@ -117,32 +174,41 @@ function TeacherDashboard() {
                     onClick={handleRefresh}
                     disabled={refreshing}
                 >
+
                     <span className="teacher-refresh-icon">
                         ↻
                     </span>
 
-                    {refreshing ? 'Refreshing...' : 'Refresh'}
+                    {refreshing
+                        ? 'Refreshing...'
+                        : 'Refresh'}
+
                 </button>
 
             </div>
 
 
-            {/* ================================
+            {/* =================================
                 ERROR MESSAGE
-            ================================= */}
+            ================================== */}
 
             {error && (
+
                 <div className="teacher-error-message">
                     {error}
                 </div>
+
             )}
 
 
-            {/* ================================
+            {/* =================================
                 OVERVIEW CARDS
-            ================================= */}
+            ================================== */}
 
             <div className="teacher-stat-grid">
+
+
+                {/* ASSIGNED CLASSES */}
 
                 <div className="teacher-stat-card">
 
@@ -151,21 +217,27 @@ function TeacherDashboard() {
                     </div>
 
                     <div className="teacher-stat-content">
+
                         <span className="teacher-stat-label">
                             Assigned Classes
                         </span>
 
                         <strong>
-                            {loading ? '...' : assignedClassesCount}
+                            {loading
+                                ? '...'
+                                : assignedClassesCount}
                         </strong>
 
                         <span className="teacher-stat-description">
                             Classes assigned to you
                         </span>
+
                     </div>
 
                 </div>
 
+
+                {/* TOTAL STUDENTS */}
 
                 <div className="teacher-stat-card">
 
@@ -174,6 +246,7 @@ function TeacherDashboard() {
                     </div>
 
                     <div className="teacher-stat-content">
+
                         <span className="teacher-stat-label">
                             Total Students
                         </span>
@@ -185,10 +258,13 @@ function TeacherDashboard() {
                         <span className="teacher-stat-description">
                             Students in your classes
                         </span>
+
                     </div>
 
                 </div>
 
+
+                {/* SUBJECTS */}
 
                 <div className="teacher-stat-card">
 
@@ -197,21 +273,27 @@ function TeacherDashboard() {
                     </div>
 
                     <div className="teacher-stat-content">
+
                         <span className="teacher-stat-label">
                             Subjects
                         </span>
 
                         <strong>
-                            {loading ? '...' : subjectsCount}
+                            {loading
+                                ? '...'
+                                : subjectsCount}
                         </strong>
 
                         <span className="teacher-stat-description">
                             Subjects you manage
                         </span>
+
                     </div>
 
                 </div>
 
+
+                {/* MARKS PENDING */}
 
                 <div className="teacher-stat-card">
 
@@ -220,6 +302,7 @@ function TeacherDashboard() {
                     </div>
 
                     <div className="teacher-stat-content">
+
                         <span className="teacher-stat-label">
                             Marks Pending
                         </span>
@@ -231,6 +314,7 @@ function TeacherDashboard() {
                         <span className="teacher-stat-description">
                             Entries requiring attention
                         </span>
+
                     </div>
 
                 </div>
@@ -238,19 +322,23 @@ function TeacherDashboard() {
             </div>
 
 
-            {/* ================================
+            {/* =================================
                 MAIN CONTENT
-            ================================= */}
+            ================================== */}
 
             <div className="teacher-dashboard-grid">
 
-                {/* Classes */}
+
+                {/* =================================
+                    ASSIGNED CLASSES
+                ================================== */}
 
                 <section className="teacher-dashboard-card">
 
                     <div className="teacher-card-header">
 
                         <div>
+
                             <span className="teacher-card-eyebrow">
                                 YOUR CLASSES
                             </span>
@@ -262,6 +350,7 @@ function TeacherDashboard() {
                             <p>
                                 Classes currently assigned to you.
                             </p>
+
                         </div>
 
                         <div className="teacher-card-header-icon">
@@ -303,8 +392,9 @@ function TeacherDashboard() {
                             </h3>
 
                             <p>
-                                Your assigned classes will appear here
-                                once they are added to your account.
+                                Your assigned classes will appear
+                                here once they are added to your
+                                account.
                             </p>
 
                         </div>
@@ -313,46 +403,51 @@ function TeacherDashboard() {
 
                         <div className="teacher-assignment-list">
 
-                            {assignments.map((assignment) => {
+                            {assignments.map(
+                                (assignment) => {
 
-                                const academicClass =
-                                    assignment.academicClass;
+                                    const academicClass =
+                                        assignment.academicClass;
 
-                                const subject =
-                                    assignment.subject;
+                                    const subject =
+                                        assignment.subject;
 
-                                return (
-                                    <div
-                                        className="teacher-assignment-item"
-                                        key={assignment.id}
-                                    >
+                                    return (
 
-                                        <div className="teacher-assignment-icon">
-                                            📚
+                                        <div
+                                            className="teacher-assignment-item"
+                                            key={assignment.id}
+                                        >
+
+                                            <div className="teacher-assignment-icon">
+                                                📚
+                                            </div>
+
+                                            <div className="teacher-assignment-details">
+
+                                                <h3>
+                                                    Grade{' '}
+                                                    {academicClass?.grade}{' '}
+                                                    {academicClass?.sectionName}
+                                                </h3>
+
+                                                <p>
+                                                    {academicClass?.academicYear}
+                                                    {' • '}
+                                                    {academicClass?.schoolSection}
+                                                </p>
+
+                                                <span>
+                                                    {subject?.subjectName}
+                                                </span>
+
+                                            </div>
+
                                         </div>
 
-                                        <div className="teacher-assignment-details">
-
-                                            <h3>
-                                                Grade {academicClass?.grade}{' '}
-                                                {academicClass?.sectionName}
-                                            </h3>
-
-                                            <p>
-                                                {academicClass?.academicYear}
-                                                {' • '}
-                                                {academicClass?.schoolSection}
-                                            </p>
-
-                                            <span>
-                                                {subject?.subjectName}
-                                            </span>
-
-                                        </div>
-
-                                    </div>
-                                );
-                            })}
+                                    );
+                                }
+                            )}
 
                         </div>
 
@@ -361,13 +456,16 @@ function TeacherDashboard() {
                 </section>
 
 
-                {/* Quick Actions */}
+                {/* =================================
+                    QUICK ACTIONS
+                ================================== */}
 
                 <section className="teacher-dashboard-card">
 
                     <div className="teacher-card-header">
 
                         <div>
+
                             <span className="teacher-card-eyebrow">
                                 QUICK ACTIONS
                             </span>
@@ -377,8 +475,10 @@ function TeacherDashboard() {
                             </h2>
 
                             <p>
-                                Common actions for managing your classes.
+                                Common actions for managing your
+                                classes.
                             </p>
+
                         </div>
 
                         <div className="teacher-card-header-icon">
@@ -390,12 +490,24 @@ function TeacherDashboard() {
 
                     <div className="teacher-quick-actions">
 
-                        <button className="teacher-action-button">
+
+                        {/* =================================
+                            VIEW STUDENTS
+                        ================================== */}
+
+                        <button
+                            className="teacher-action-button"
+                            onClick={() =>
+                                navigate('/teacher/students')
+                            }
+                        >
+
                             <span className="teacher-action-icon">
                                 👨‍🎓
                             </span>
 
                             <span>
+
                                 <strong>
                                     View Students
                                 </strong>
@@ -403,20 +515,30 @@ function TeacherDashboard() {
                                 <small>
                                     Manage your students
                                 </small>
+
                             </span>
 
                             <span className="teacher-action-arrow">
                                 →
                             </span>
+
                         </button>
 
 
-                        <button className="teacher-action-button">
+                        {/* =================================
+                            ENTER MARKS
+                        ================================== */}
+
+                        <button
+                            className="teacher-action-button"
+                        >
+
                             <span className="teacher-action-icon">
                                 📝
                             </span>
 
                             <span>
+
                                 <strong>
                                     Enter Marks
                                 </strong>
@@ -424,20 +546,30 @@ function TeacherDashboard() {
                                 <small>
                                     Add student marks
                                 </small>
+
                             </span>
 
                             <span className="teacher-action-arrow">
                                 →
                             </span>
+
                         </button>
 
 
-                        <button className="teacher-action-button">
+                        {/* =================================
+                            VIEW REPORTS
+                        ================================== */}
+
+                        <button
+                            className="teacher-action-button"
+                        >
+
                             <span className="teacher-action-icon">
                                 📊
                             </span>
 
                             <span>
+
                                 <strong>
                                     View Reports
                                 </strong>
@@ -445,11 +577,13 @@ function TeacherDashboard() {
                                 <small>
                                     Check class performance
                                 </small>
+
                             </span>
 
                             <span className="teacher-action-arrow">
                                 →
                             </span>
+
                         </button>
 
                     </div>
@@ -459,9 +593,9 @@ function TeacherDashboard() {
             </div>
 
 
-            {/* ================================
+            {/* =================================
                 INFORMATION SECTION
-            ================================= */}
+            ================================== */}
 
             <section className="teacher-information-card">
 
@@ -470,6 +604,7 @@ function TeacherDashboard() {
                 </div>
 
                 <div>
+
                     <h2>
                         Teacher Workspace
                     </h2>
@@ -480,6 +615,7 @@ function TeacherDashboard() {
                         manage students, enter marks for each term,
                         review marks and submit them to students.
                     </p>
+
                 </div>
 
             </section>

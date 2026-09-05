@@ -16,6 +16,7 @@ import Reports from './pages/admin/Reports';
 import Settings from './pages/admin/Settings';
 
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
+import TeacherStudents from './pages/teacher/TeacherStudents';
 import StudentDashboard from './pages/student/StudentDashboard';
 import MyMarks from './pages/student/MyMarks';
 import MyProfile from './pages/student/MyProfile';
@@ -134,6 +135,11 @@ function App() {
             <Route
                 path="/teacher/dashboard"
                 element={<TeacherDashboard />}
+            />
+
+            <Route
+                path="/teacher/students"
+                element={<TeacherStudents />}
             />
 
 
