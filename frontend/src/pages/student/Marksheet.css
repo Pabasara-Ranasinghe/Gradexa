@@ -794,3 +794,107 @@
     }
 
 }
+
+/* ========================================================== REFRESH BUTTON ========================================================== */ .marksheet-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; } .marksheet-refresh-button, .marksheet-retry-button { border: none; border-radius: 8px; background: var(--color-sidebar, #0C2C55); color: #ffffff; padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s ease; } .marksheet-refresh-button:hover, .marksheet-retry-button:hover { opacity: 0.9; transform: translateY(-1px); } .marksheet-refresh-button:disabled { opacity: 0.7; cursor: not-allowed; transform: none; } .refresh-spinner, .download-spinner { display: inline-block; width: 14px; height: 14px; margin-right: 7px; border: 2px solid rgba(255, 255, 255, 0.35); border-top-color: #ffffff; border-radius: 50%; vertical-align: -2px; animation: marksheetSpin 0.8s linear infinite; } @keyframes marksheetSpin { to { transform: rotate(360deg); } } /* ========================================================== RESPONSIVE HEADER ========================================================== */ @media (max-width: 768px) { .marksheet-header { flex-direction: column; align-items: stretch; } .marksheet-refresh-button { align-self: flex-start; } }
+
+/* ==========================================================
+   SUBJECT MARKS TABLE
+   ========================================================== */
+
+.marksheet-subject-section {
+    margin-top: 32px;
+}
+
+.marksheet-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 18px;
+    border: 1px solid #dfe7ec;
+    border-radius: 12px;
+}
+
+.marksheet-subject-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 650px;
+    background: #ffffff;
+}
+
+.marksheet-subject-table th,
+.marksheet-subject-table td {
+    border-bottom: 1px solid #e4eaee;
+    padding: 14px 16px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.marksheet-subject-table th {
+    background: #0c2c55;
+    color: #ffffff;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.marksheet-subject-table th:nth-child(1) {
+    width: 70px;
+}
+
+.marksheet-subject-table th:nth-child(2) {
+    text-align: left;
+    width: 45%;
+}
+
+.marksheet-subject-table td:first-child {
+    font-weight: 600;
+}
+
+.marksheet-subject-table td:nth-child(2) {
+    text-align: left;
+}
+
+.marksheet-subject-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.marksheet-subject-table tbody tr:hover {
+    background: #ebfffa;
+}
+
+.subject-name-cell {
+    font-weight: 600;
+}
+
+.subject-name-cell strong {
+    margin-right: 5px;
+    font-weight: 500;
+}
+
+.subject-name-cell span {
+    font-weight: 500;
+}
+
+.absent-mark {
+    font-weight: 700;
+}
+
+.marksheet-table-empty {
+    text-align: center !important;
+    padding: 28px !important;
+    color: #6b7280;
+}
+
+/* ==========================================================
+   RESPONSIVE TABLE
+   ========================================================== */
+
+@media (max-width: 768px) {
+    .marksheet-subject-table th,
+    .marksheet-subject-table td {
+        padding: 11px 10px;
+        font-size: 13px;
+    }
+
+    .marksheet-subject-section {
+        margin-top: 24px;
+    }
+}

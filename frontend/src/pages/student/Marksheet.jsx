@@ -1,100 +1,381 @@
-import { useEffect, useState } from 'react';
-
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import './Marksheet.css';
 
+const API_URL = 'http://localhost:8082';
+
+const CORE_SUBJECTS = [
+    'Sinhala',
+    'Buddhism',
+    'English',
+    'Science',
+    'Mathematics',
+    'History'
+];
+
+const BASKET_CATEGORIES = [
+    'BASKET_01',
+    'BASKET_02',
+    'BASKET_03'
+];
+
+const normalize = (value) =>
+    value == null
+        ? ''
+        : String(value).trim().toLowerCase();
+
 function Marksheet() {
-
     const [performance, setPerformance] = useState(null);
-
+    const [submittedMarks, setSubmittedMarks] = useState([]);
     const [loading, setLoading] = useState(true);
-
+    const [refreshing, setRefreshing] = useState(false);
     const [downloading, setDownloading] = useState(false);
-
     const [error, setError] = useState('');
-
     const [downloadError, setDownloadError] = useState('');
 
-    useEffect(() => {
+    // ==========================================================
+    // GET TOKEN
+    // ==========================================================
 
-        const loadPerformance = async () => {
+    const getToken = () => {
+        const token = localStorage.getItem('gradexa_token');
 
-            try {
+        if (!token) {
+            throw new Error('You are not logged in.');
+        }
 
-                const token =
-                    localStorage.getItem('gradexa_token');
+        return token;
+    };
 
-                if (!token) {
-                    throw new Error(
-                        'You are not logged in.'
-                    );
-                }
+    // ==========================================================
+    // READ JSON RESPONSE
+    // ==========================================================
 
-                const response =
-                    await fetch(
-                        'http://localhost:8082/api/reports/me/performance',
-                        {
-                            method: 'GET',
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
-                            }
-                        }
-                    );
+    const readResponse = async (response) => {
+        let data = null;
 
-                const data =
-                    await response.json();
+        try {
+            data = await response.json();
+        } catch {
+            // Response was not JSON.
+        }
 
-                if (!response.ok) {
-                    throw new Error(
-                        data?.message ||
-                        data ||
-                        'Failed to load marksheet information.'
-                    );
-                }
+        if (!response.ok) {
+            throw new Error(
+                data?.message ||
+                (typeof data === 'string' ? data : '') ||
+                'Request failed.'
+            );
+        }
 
-                setPerformance(data);
+        return data;
+    };
 
-            } catch (err) {
+    // ==========================================================
+    // LOAD PERFORMANCE + SUBMITTED MARKS
+    // ==========================================================
 
-                console.error(
-                    'Failed to load marksheet:',
-                    err
-                );
-
-                setError(
-                    err.message ||
-                    'Failed to load marksheet information.'
-                );
-
-            } finally {
-
-                setLoading(false);
+    const loadPerformance = useCallback(async (isRefresh = false) => {
+        try {
+            if (isRefresh) {
+                setRefreshing(true);
+            } else {
+                setLoading(true);
             }
-        };
 
+            setError('');
+
+            const token = getToken();
+
+            // --------------------------------------------------
+            // LOAD PERFORMANCE SUMMARY
+            // --------------------------------------------------
+
+            const performanceResponse = await fetch(
+                `${API_URL}/api/reports/me/performance`,
+                {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            const performanceData =
+                await readResponse(performanceResponse);
+
+            // --------------------------------------------------
+            // LOAD SUBMITTED MARKS
+            // --------------------------------------------------
+
+            if (!performanceData?.enrollmentId) {
+                throw new Error(
+                    'Student enrollment information is not available.'
+                );
+            }
+
+            const marksResponse = await fetch(
+                `${API_URL}/api/marks/enrollment/${performanceData.enrollmentId}/submitted`,
+                {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            const marksData = await readResponse(marksResponse);
+
+            setPerformance(performanceData);
+            setSubmittedMarks(
+                Array.isArray(marksData)
+                    ? marksData
+                    : []
+            );
+        } catch (err) {
+            console.error(
+                'Failed to load marksheet:',
+                err
+            );
+
+            setError(
+                err.message ||
+                'Failed to load marksheet information.'
+            );
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
+    }, []);
+
+    // ==========================================================
+    // INITIAL LOAD
+    // ==========================================================
+
+    useEffect(() => {
         loadPerformance();
 
-    }, []);
+        const refreshInterval = setInterval(() => {
+            loadPerformance(true);
+        }, 5000);
+
+        return () => {
+            clearInterval(refreshInterval);
+        };
+    }, [loadPerformance]);
+
+    // ==========================================================
+    // REFRESH WHEN WINDOW GETS FOCUS
+    // ==========================================================
+
+    useEffect(() => {
+        const handleFocus = () => {
+            loadPerformance(true);
+        };
+
+        window.addEventListener(
+            'focus',
+            handleFocus
+        );
+
+        return () => {
+            window.removeEventListener(
+                'focus',
+                handleFocus
+            );
+        };
+    }, [loadPerformance]);
+
+    // ==========================================================
+    // SELECT EXACT STUDENT SUBJECTS
+    // ==========================================================
+
+    const selectedSubjects = useMemo(() => {
+        const markList = Array.isArray(submittedMarks)
+            ? submittedMarks
+            : [];
+
+        const classSubjects = [];
+
+        markList.forEach((mark) => {
+            const subject = mark?.subject;
+
+            if (!subject?.id) {
+                return;
+            }
+
+            const alreadyExists = classSubjects.some(
+                (item) =>
+                    String(item.id) ===
+                    String(subject.id)
+            );
+
+            if (!alreadyExists) {
+                classSubjects.push(subject);
+            }
+        });
+
+        // ------------------------------------------------------
+        // SIX CORE SUBJECTS
+        // ------------------------------------------------------
+
+        const selected = [];
+
+        CORE_SUBJECTS.forEach((coreName) => {
+            const subject = classSubjects.find(
+                (item) =>
+                    normalize(item.subjectName) ===
+                    normalize(coreName) &&
+                    normalize(item.category) === 'core'
+            );
+
+            if (subject) {
+                selected.push({
+                    ...subject,
+                    displayName: subject.subjectName,
+                    basketLabel: ''
+                });
+            }
+        });
+
+        // ------------------------------------------------------
+        // ONE SUBJECT FROM EACH BASKET
+        // ------------------------------------------------------
+
+        BASKET_CATEGORIES.forEach(
+            (basketCategory, basketIndex) => {
+                const basketSubjects =
+                    classSubjects
+                        .filter(
+                            (subject) =>
+                                normalize(
+                                    subject.category
+                                ) ===
+                                normalize(
+                                    basketCategory
+                                )
+                        )
+                        .sort(
+                            (a, b) =>
+                                (a.displayOrder ?? 999) -
+                                (b.displayOrder ?? 999)
+                        );
+
+                if (basketSubjects.length === 0) {
+                    return;
+                }
+
+                // Count submitted marks for each subject.
+                // The selected subject is the one actually used
+                // by this student across the submitted terms.
+                const subjectWithUsage =
+                    basketSubjects.map((subject) => ({
+                        subject,
+                        usageCount: markList.filter(
+                            (mark) =>
+                                mark?.status === 'SUBMITTED' &&
+                                mark?.subject?.id ===
+                                    subject.id
+                        ).length
+                    }));
+
+                subjectWithUsage.sort(
+                    (a, b) => {
+                        if (
+                            b.usageCount !==
+                            a.usageCount
+                        ) {
+                            return (
+                                b.usageCount -
+                                a.usageCount
+                            );
+                        }
+
+                        return (
+                            (a.subject.displayOrder ?? 999) -
+                            (b.subject.displayOrder ?? 999)
+                        );
+                    }
+                );
+
+                const chosen =
+                    subjectWithUsage[0]?.subject;
+
+                if (chosen) {
+                    selected.push({
+                        ...chosen,
+                        displayName:
+                            chosen.subjectName,
+                        basketLabel:
+                            `Basket 0${basketIndex + 1}`
+                    });
+                }
+            }
+        );
+
+        return selected.slice(0, 9);
+    }, [submittedMarks]);
+
+    // ==========================================================
+    // GET MARK FOR SUBJECT + TERM
+    // ==========================================================
+
+    const getMarkForSubject = (
+        subjectId,
+        term
+    ) => {
+        return submittedMarks.find(
+            (mark) =>
+                String(
+                    mark?.subject?.id
+                ) === String(subjectId) &&
+                mark?.term === term &&
+                mark?.status === 'SUBMITTED'
+        );
+    };
+
+    // ==========================================================
+    // DISPLAY MARK
+    // ==========================================================
+
+    const displayMark = (
+        subjectId,
+        term
+    ) => {
+        const mark = getMarkForSubject(
+            subjectId,
+            term
+        );
+
+        if (!mark) {
+            return '—';
+        }
+
+        if (mark.absent === true) {
+            return 'AB';
+        }
+
+        if (
+            mark.marks === null ||
+            mark.marks === undefined
+        ) {
+            return '—';
+        }
+
+        return formatNumber(mark.marks);
+    };
 
     // ==========================================================
     // DOWNLOAD RESULT
     // ==========================================================
 
     const handleDownloadResult = async () => {
-
         try {
-
             setDownloading(true);
             setDownloadError('');
 
-            const token =
-                localStorage.getItem('gradexa_token');
-
-            if (!token) {
-                throw new Error(
-                    'You are not logged in.'
-                );
-            }
+            const token = getToken();
 
             if (!performance?.enrollmentId) {
                 throw new Error(
@@ -102,31 +383,28 @@ function Marksheet() {
                 );
             }
 
-            const response =
-                await fetch(
-                    `http://localhost:8082/api/marksheets/enrollment/${performance.enrollmentId}/pdf`,
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
+            const response = await fetch(
+                `${API_URL}/api/marksheets/enrollment/${performance.enrollmentId}/pdf`,
+                {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${token}`
                     }
-                );
+                }
+            );
 
             if (!response.ok) {
-
                 let message =
                     'Failed to download result.';
 
                 try {
-
                     const errorData =
                         await response.json();
 
                     message =
                         errorData?.message ||
+                        errorData ||
                         message;
-
                 } catch {
                     // Response was not JSON.
                 }
@@ -134,8 +412,7 @@ function Marksheet() {
                 throw new Error(message);
             }
 
-            const blob =
-                await response.blob();
+            const blob = await response.blob();
 
             const downloadUrl =
                 window.URL.createObjectURL(blob);
@@ -157,9 +434,7 @@ function Marksheet() {
             window.URL.revokeObjectURL(
                 downloadUrl
             );
-
         } catch (err) {
-
             console.error(
                 'Failed to download result:',
                 err
@@ -169,32 +444,49 @@ function Marksheet() {
                 err.message ||
                 'Failed to download result.'
             );
-
         } finally {
-
             setDownloading(false);
         }
     };
+
+    // ==========================================================
+    // FORMAT NUMBER
+    // ==========================================================
+
+    function formatNumber(value) {
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return '0';
+        }
+
+        const number = Number(value);
+
+        if (Number.isNaN(number)) {
+            return '0';
+        }
+
+        return number
+            .toFixed(2)
+            .replace(/\.00$/, '')
+            .replace(/(\.\d)0$/, '$1');
+    }
 
     // ==========================================================
     // LOADING
     // ==========================================================
 
     if (loading) {
-
         return (
             <div className="marksheet-page">
-
                 <div className="marksheet-loading">
-
                     <div className="loading-spinner"></div>
 
                     <p>
                         Loading your marksheet...
                     </p>
-
                 </div>
-
             </div>
         );
     }
@@ -204,12 +496,9 @@ function Marksheet() {
     // ==========================================================
 
     if (error) {
-
         return (
             <div className="marksheet-page">
-
                 <div className="marksheet-error">
-
                     <div className="error-icon">
                         ⚠️
                     </div>
@@ -218,12 +507,18 @@ function Marksheet() {
                         Unable to load marksheet
                     </h2>
 
-                    <p>
-                        {error}
-                    </p>
+                    <p>{error}</p>
 
+                    <button
+                        type="button"
+                        className="marksheet-retry-button"
+                        onClick={() =>
+                            loadPerformance()
+                        }
+                    >
+                        Try Again
+                    </button>
                 </div>
-
             </div>
         );
     }
@@ -233,12 +528,9 @@ function Marksheet() {
     // ==========================================================
 
     if (!performance) {
-
         return (
             <div className="marksheet-page">
-
                 <div className="marksheet-empty">
-
                     <div className="empty-icon">
                         📄
                     </div>
@@ -248,37 +540,25 @@ function Marksheet() {
                     </h2>
 
                     <p>
-                        Your academic performance is not
-                        available yet.
+                        Your academic performance is
+                        not available yet.
                     </p>
 
+                    <button
+                        type="button"
+                        className="marksheet-retry-button"
+                        onClick={() =>
+                            loadPerformance()
+                        }
+                    >
+                        Refresh
+                    </button>
                 </div>
-
             </div>
         );
     }
 
-    // ==========================================================
-    // HELPER FOR DISPLAYING NUMBERS
-    // ==========================================================
-
-    const formatNumber = (value) => {
-
-        if (
-            value === null ||
-            value === undefined
-        ) {
-            return '0';
-        }
-
-        return Number(value)
-            .toFixed(2)
-            .replace(/\.00$/, '')
-            .replace(/(\.\d)0$/, '$1');
-    };
-
     return (
-
         <div className="marksheet-page">
 
             {/* ==================================================
@@ -286,9 +566,7 @@ function Marksheet() {
             ================================================== */}
 
             <div className="marksheet-header">
-
                 <div>
-
                     <p className="marksheet-breadcrumb">
                         Academic Performance
                     </p>
@@ -301,13 +579,29 @@ function Marksheet() {
                         View your academic performance
                         and results.
                     </p>
-
                 </div>
 
+                <button
+                    type="button"
+                    className="marksheet-refresh-button"
+                    onClick={() =>
+                        loadPerformance(true)
+                    }
+                    disabled={refreshing}
+                >
+                    {refreshing ? (
+                        <>
+                            <span className="refresh-spinner"></span>
+                            Refreshing...
+                        </>
+                    ) : (
+                        <>↻ Refresh</>
+                    )}
+                </button>
             </div>
 
             {/* ==================================================
-                MARKSHEET CARD
+                MAIN CARD
             ================================================== */}
 
             <div className="marksheet-card">
@@ -317,9 +611,7 @@ function Marksheet() {
                 ================================================== */}
 
                 <div className="marksheet-title">
-
                     <div>
-
                         <h2>
                             Student Marksheet
                         </h2>
@@ -327,11 +619,9 @@ function Marksheet() {
                         <p>
                             Academic Performance Report
                         </p>
-
                     </div>
 
                     <div className="marksheet-title-actions">
-
                         <div className="marksheet-document-icon">
                             📄
                         </div>
@@ -339,10 +629,11 @@ function Marksheet() {
                         <button
                             type="button"
                             className="download-result-button"
-                            onClick={handleDownloadResult}
+                            onClick={
+                                handleDownloadResult
+                            }
                             disabled={downloading}
                         >
-
                             {downloading ? (
                                 <>
                                     <span className="download-spinner"></span>
@@ -350,17 +641,12 @@ function Marksheet() {
                                 </>
                             ) : (
                                 <>
-                                    <span>
-                                        ↓
-                                    </span>
+                                    <span>↓</span>
                                     Download Result
                                 </>
                             )}
-
                         </button>
-
                     </div>
-
                 </div>
 
                 {/* ==================================================
@@ -368,11 +654,9 @@ function Marksheet() {
                 ================================================== */}
 
                 {downloadError && (
-
                     <div className="download-error">
                         ⚠️ {downloadError}
                     </div>
-
                 )}
 
                 {/* ==================================================
@@ -380,31 +664,182 @@ function Marksheet() {
                 ================================================== */}
 
                 <div className="marksheet-student-info">
-
                     <div className="marksheet-info-item">
-
                         <span>
                             Student
                         </span>
 
                         <strong>
-                            {performance.studentName}
+                            {performance.studentName ||
+                                '—'}
                         </strong>
-
                     </div>
 
                     <div className="marksheet-info-item">
-
                         <span>
                             Student ID
                         </span>
 
                         <strong>
-                            {performance.studentNumber}
+                            {performance.studentNumber ||
+                                '—'}
                         </strong>
+                    </div>
+                </div>
 
+                {/* ==================================================
+                    SUBJECT MARKS TABLE
+                ================================================== */}
+
+                <div className="marksheet-subject-section">
+
+                    <div className="marksheet-results-heading">
+                        <h3>
+                            Subject Marks
+                        </h3>
+
+                        <p>
+                            Your marks for the three
+                            academic terms.
+                        </p>
                     </div>
 
+                    <div className="marksheet-table-wrapper">
+                        <table className="marksheet-subject-table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        No.
+                                    </th>
+
+                                    <th>
+                                        Subject
+                                    </th>
+
+                                    <th>
+                                        Term 1
+                                    </th>
+
+                                    <th>
+                                        Term 2
+                                    </th>
+
+                                    <th>
+                                        Term 3
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {selectedSubjects.length >
+                                0 ? (
+                                    selectedSubjects.map(
+                                        (
+                                            subject,
+                                            index
+                                        ) => (
+                                            <tr
+                                                key={
+                                                    subject.id
+                                                }
+                                            >
+                                                <td>
+                                                    {
+                                                        index +
+                                                            1
+                                                    }
+                                                </td>
+
+                                                <td className="subject-name-cell">
+                                                    {subject.basketLabel ? (
+                                                        <>
+                                                            <strong>
+                                                                {
+                                                                    subject.basketLabel
+                                                                }
+                                                            </strong>
+
+                                                            <span>
+                                                                (
+                                                                {
+                                                                    subject.displayName
+                                                                }
+                                                                )
+                                                            </span>
+                                                        </>
+                                                    ) : (
+                                                        subject.displayName
+                                                    )}
+                                                </td>
+
+                                                <td
+                                                    className={
+                                                        displayMark(
+                                                            subject.id,
+                                                            'TERM_1'
+                                                        ) ===
+                                                        'AB'
+                                                            ? 'absent-mark'
+                                                            : ''
+                                                    }
+                                                >
+                                                    {displayMark(
+                                                        subject.id,
+                                                        'TERM_1'
+                                                    )}
+                                                </td>
+
+                                                <td
+                                                    className={
+                                                        displayMark(
+                                                            subject.id,
+                                                            'TERM_2'
+                                                        ) ===
+                                                        'AB'
+                                                            ? 'absent-mark'
+                                                            : ''
+                                                    }
+                                                >
+                                                    {displayMark(
+                                                        subject.id,
+                                                        'TERM_2'
+                                                    )}
+                                                </td>
+
+                                                <td
+                                                    className={
+                                                        displayMark(
+                                                            subject.id,
+                                                            'TERM_3'
+                                                        ) ===
+                                                        'AB'
+                                                            ? 'absent-mark'
+                                                            : ''
+                                                    }
+                                                >
+                                                    {displayMark(
+                                                        subject.id,
+                                                        'TERM_3'
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        )
+                                    )
+                                ) : (
+                                    <tr>
+                                        <td
+                                            colSpan="5"
+                                            className="marksheet-table-empty"
+                                        >
+                                            No submitted
+                                            subjects are
+                                            available yet.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 {/* ==================================================
@@ -414,7 +849,6 @@ function Marksheet() {
                 <div className="marksheet-results">
 
                     <div className="marksheet-results-heading">
-
                         <h3>
                             Term Results
                         </h3>
@@ -423,29 +857,24 @@ function Marksheet() {
                             Your academic performance
                             for each term.
                         </p>
-
                     </div>
 
                     <div className="marksheet-results-grid">
 
-                        {/* ==================================================
-                            TERM 1
-                        ================================================== */}
+                        {/* TERM 1 */}
 
                         <div className="result-card">
-
                             <div className="result-card-header">
-
                                 <span>
                                     TERM 1
                                 </span>
-
                             </div>
 
                             <div className="result-position">
-
                                 <strong>
-                                    {performance.term1Place > 0
+                                    {Number(
+                                        performance.term1Place
+                                    ) > 0
                                         ? performance.term1Place
                                         : '—'}
                                 </strong>
@@ -453,13 +882,11 @@ function Marksheet() {
                                 <small>
                                     POSITION
                                 </small>
-
                             </div>
 
                             <div className="result-details">
 
                                 <div className="result-detail">
-
                                     <span>
                                         Total
                                     </span>
@@ -469,11 +896,9 @@ function Marksheet() {
                                             performance.term1Total
                                         )}
                                     </strong>
-
                                 </div>
 
                                 <div className="result-detail">
-
                                     <span>
                                         Average
                                     </span>
@@ -483,67 +908,58 @@ function Marksheet() {
                                             performance.term1Average
                                         )}
                                     </strong>
-
                                 </div>
 
                                 <div className="result-detail">
-
                                     <span>
                                         No. of Students
                                     </span>
 
                                     <strong>
-                                        {performance.term1TotalStudents}
+                                        {performance.term1TotalStudents ??
+                                            0}
                                     </strong>
-
                                 </div>
 
                                 <div className="result-detail">
-
                                     <span>
                                         Participated Subjects
                                     </span>
 
                                     <strong>
-                                        {performance.term1ParticipatedSubjects}
+                                        {performance.term1ParticipatedSubjects ??
+                                            0}
                                     </strong>
-
                                 </div>
 
                                 <div className="result-detail">
-
                                     <span>
                                         Absent Subjects
                                     </span>
 
                                     <strong>
-                                        {performance.term1AbsentSubjects}
+                                        {performance.term1AbsentSubjects ??
+                                            0}
                                     </strong>
-
                                 </div>
 
                             </div>
-
                         </div>
 
-                        {/* ==================================================
-                            TERM 2
-                        ================================================== */}
+                        {/* TERM 2 */}
 
                         <div className="result-card">
-
                             <div className="result-card-header">
-
                                 <span>
                                     TERM 2
                                 </span>
-
                             </div>
 
                             <div className="result-position">
-
                                 <strong>
-                                    {performance.term2Place > 0
+                                    {Number(
+                                        performance.term2Place
+                                    ) > 0
                                         ? performance.term2Place
                                         : '—'}
                                 </strong>
@@ -551,13 +967,11 @@ function Marksheet() {
                                 <small>
                                     POSITION
                                 </small>
-
                             </div>
 
                             <div className="result-details">
 
                                 <div className="result-detail">
-
                                     <span>
                                         Total
                                     </span>
@@ -567,11 +981,9 @@ function Marksheet() {
                                             performance.term2Total
                                         )}
                                     </strong>
-
                                 </div>
 
                                 <div className="result-detail">
-
                                     <span>
                                         Average
                                     </span>
@@ -581,67 +993,58 @@ function Marksheet() {
                                             performance.term2Average
                                         )}
                                     </strong>
-
                                 </div>
 
                                 <div className="result-detail">
-
                                     <span>
                                         No. of Students
                                     </span>
 
                                     <strong>
-                                        {performance.term2TotalStudents}
+                                        {performance.term2TotalStudents ??
+                                            0}
                                     </strong>
-
                                 </div>
 
                                 <div className="result-detail">
-
                                     <span>
                                         Participated Subjects
                                     </span>
 
                                     <strong>
-                                        {performance.term2ParticipatedSubjects}
+                                        {performance.term2ParticipatedSubjects ??
+                                            0}
                                     </strong>
-
                                 </div>
 
                                 <div className="result-detail">
-
                                     <span>
                                         Absent Subjects
                                     </span>
 
                                     <strong>
-                                        {performance.term2AbsentSubjects}
+                                        {performance.term2AbsentSubjects ??
+                                            0}
                                     </strong>
-
                                 </div>
 
                             </div>
-
                         </div>
 
-                        {/* ==================================================
-                            TERM 3
-                        ================================================== */}
+                        {/* TERM 3 */}
 
                         <div className="result-card">
-
                             <div className="result-card-header">
-
                                 <span>
                                     TERM 3
                                 </span>
-
                             </div>
 
                             <div className="result-position">
-
                                 <strong>
-                                    {performance.term3Place > 0
+                                    {Number(
+                                        performance.term3Place
+                                    ) > 0
                                         ? performance.term3Place
                                         : '—'}
                                 </strong>
@@ -649,13 +1052,11 @@ function Marksheet() {
                                 <small>
                                     POSITION
                                 </small>
-
                             </div>
 
                             <div className="result-details">
 
                                 <div className="result-detail">
-
                                     <span>
                                         Total
                                     </span>
@@ -665,11 +1066,9 @@ function Marksheet() {
                                             performance.term3Total
                                         )}
                                     </strong>
-
                                 </div>
 
                                 <div className="result-detail">
-
                                     <span>
                                         Average
                                     </span>
@@ -679,51 +1078,45 @@ function Marksheet() {
                                             performance.term3Average
                                         )}
                                     </strong>
-
                                 </div>
 
                                 <div className="result-detail">
-
                                     <span>
                                         No. of Students
                                     </span>
 
                                     <strong>
-                                        {performance.term3TotalStudents}
+                                        {performance.term3TotalStudents ??
+                                            0}
                                     </strong>
-
                                 </div>
 
                                 <div className="result-detail">
-
                                     <span>
                                         Participated Subjects
                                     </span>
 
                                     <strong>
-                                        {performance.term3ParticipatedSubjects}
+                                        {performance.term3ParticipatedSubjects ??
+                                            0}
                                     </strong>
-
                                 </div>
 
                                 <div className="result-detail">
-
                                     <span>
                                         Absent Subjects
                                     </span>
 
                                     <strong>
-                                        {performance.term3AbsentSubjects}
+                                        {performance.term3AbsentSubjects ??
+                                            0}
                                     </strong>
-
                                 </div>
 
                             </div>
-
                         </div>
 
                     </div>
-
                 </div>
 
                 {/* ==================================================
@@ -733,7 +1126,6 @@ function Marksheet() {
                 <div className="overall-result">
 
                     <div>
-
                         <span>
                             Overall Average
                         </span>
@@ -743,11 +1135,9 @@ function Marksheet() {
                                 performance.overallAverage
                             )}
                         </strong>
-
                     </div>
 
                     <div>
-
                         <span>
                             Overall Total
                         </span>
@@ -757,13 +1147,11 @@ function Marksheet() {
                                 performance.overallTotal
                             )}
                         </strong>
-
                     </div>
 
                 </div>
 
             </div>
-
         </div>
     );
 }

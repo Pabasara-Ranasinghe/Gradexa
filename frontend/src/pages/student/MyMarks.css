@@ -326,3 +326,177 @@
         padding: 14px 12px;
     }
 }
+
+/* ==========================================
+   MARKS REFRESH BUTTON
+========================================== */
+
+.my-marks-header {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+}
+
+.marks-refresh-button {
+
+    min-height: 40px;
+
+    padding: 0 17px;
+
+    border: none;
+
+    border-radius: var(--radius-medium);
+
+    background: var(--color-sidebar);
+
+    color: var(--color-text-white);
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        opacity 0.2s ease;
+
+}
+
+.marks-refresh-button:hover:not(:disabled) {
+
+    background: var(--color-primary);
+
+    transform: translateY(-1px);
+
+}
+
+.marks-refresh-button:disabled {
+
+    cursor: not-allowed;
+
+    opacity: 0.55;
+
+}
+
+
+/* ==========================================
+   PUBLISHED MARKS NOTICE
+========================================== */
+
+.marks-published-notice {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 11px;
+
+    margin-bottom: 22px;
+
+    padding: 13px 16px;
+
+    border: 1px solid rgba(34, 160, 107, 0.18);
+
+    border-radius: var(--radius-medium);
+
+    background: rgba(34, 160, 107, 0.07);
+
+}
+
+.marks-published-notice > span {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 24px;
+
+    height: 24px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: rgba(34, 160, 107, 0.14);
+
+    color: var(--color-success);
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+}
+
+.marks-published-notice strong {
+
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: var(--color-text-primary);
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+}
+
+.marks-published-notice p {
+
+    margin: 0;
+
+    color: var(--color-text-secondary);
+
+    font-size: 11px;
+
+    line-height: 1.5;
+
+}
+
+
+/* ==========================================
+   ABSENT MARK
+========================================== */
+
+.mark-absent {
+
+    color: var(--color-error) !important;
+
+    font-weight: 700 !important;
+
+}
+
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 700px) {
+
+    .my-marks-header {
+
+        flex-direction: column;
+
+    }
+
+    .marks-refresh-button {
+
+        width: 100%;
+
+    }
+
+}
