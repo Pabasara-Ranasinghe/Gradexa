@@ -1,301 +1,385 @@
-/* ==========================================================
+/* =========================================================
    TEACHER MARKS PAGE
-========================================================== */
+   ========================================================= */
 
 .teacher-marks-page {
-    min-height: 100vh;
-    padding: 32px;
+    width: 100%;
+    min-height: 100%;
+    padding: 28px;
     background: var(--color-background);
-    color: var(--color-text-primary);
     box-sizing: border-box;
 }
 
-/* ==========================================================
-   HEADER
-========================================================== */
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
 
 .teacher-marks-header {
-    max-width: 1200px;
-    margin: 0 auto 28px;
-}
-
-.teacher-marks-welcome {
-    margin: 0 0 7px;
-    color: var(--color-primary);
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-}
-
-.teacher-marks-header h1 {
-    margin: 0 0 8px;
-    color: var(--color-text-primary);
-    font-size: 32px;
-    font-weight: 700;
-    line-height: 1.2;
-}
-
-.teacher-marks-subtitle {
-    margin: 0;
-    color: var(--color-text-secondary);
-    font-size: 15px;
-    line-height: 1.6;
-}
-
-/* ==========================================================
-   SELECTION CARD
-========================================================== */
-
-.marks-selection-card {
-    max-width: 1200px;
-    margin: 0 auto 22px;
-    padding: 24px;
-
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 20px;
-
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-large);
-    box-shadow: var(--shadow-small);
-
-    box-sizing: border-box;
-}
-
-/* ==========================================================
-   SELECTION GROUP
-========================================================== */
-
-.selection-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.selection-group label {
-    color: var(--color-text-primary);
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.selection-group select {
-    width: 100%;
-    min-height: 46px;
-    padding: 11px 14px;
-
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-medium);
-
-    background: var(--color-background);
-    color: var(--color-text-primary);
-
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 500;
-
-    outline: none;
-    cursor: pointer;
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease;
-
-    box-sizing: border-box;
-}
-
-.selection-group select:hover {
-    border-color: var(--color-primary);
-}
-
-.selection-group select:focus {
-    border-color: var(--color-border-focus);
-    box-shadow: 0 0 0 3px rgba(13, 206, 218, 0.10);
-}
-
-.selection-group select:disabled {
-    background: var(--color-background-soft);
-    color: var(--color-text-light);
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-/* ==========================================================
-   MESSAGE AREA
-========================================================== */
-
-.teacher-marks-message {
-    max-width: 1200px;
-    margin: 0 auto 20px;
-
-    display: flex;
-    align-items: center;
-    gap: 11px;
-
-    padding: 13px 16px;
-
-    border-radius: var(--radius-medium);
-
-    font-size: 14px;
-    font-weight: 600;
-
-    box-sizing: border-box;
-}
-
-.teacher-marks-message span {
-    flex-shrink: 0;
-    font-size: 17px;
-}
-
-.teacher-marks-message p {
-    margin: 0;
-    line-height: 1.5;
-}
-
-.success-message {
-    background: rgba(34, 160, 107, 0.08);
-    border: 1px solid rgba(34, 160, 107, 0.20);
-    color: var(--color-success);
-}
-
-.error-message {
-    background: rgba(214, 69, 69, 0.06);
-    border: 1px solid rgba(214, 69, 69, 0.20);
-    color: var(--color-error);
-}
-
-/* ==========================================================
-   STUDENTS SECTION
-========================================================== */
-
-.teacher-marks-section {
-    max-width: 1200px;
-    margin: 0 auto;
-
-    background: var(--color-surface);
-
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-large);
-
-    box-shadow: var(--shadow-small);
-
-    overflow: hidden;
-}
-
-/* ==========================================================
-   SECTION HEADING
-========================================================== */
-
-.teacher-marks-section .section-heading {
-    min-height: 82px;
-    padding: 22px 24px;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: 24px;
+}
 
-    gap: 20px;
+.teacher-marks-header h1 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 28px;
+    font-weight: 700;
+}
 
-    border-bottom: 1px solid var(--color-border);
+.teacher-marks-header p {
+    margin: 6px 0 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+}
 
+
+/* =========================================================
+   ALERTS
+   ========================================================= */
+
+.marks-alert {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding: 13px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
     box-sizing: border-box;
 }
 
-.teacher-marks-section .section-heading h2 {
-    margin: 0 0 6px;
-    color: var(--color-text-primary);
+.marks-alert.error {
+    border: 1px solid #f3b8b8;
+    background: #fff3f3;
+    color: #b42318;
+}
+
+.marks-alert.success {
+    border: 1px solid #a9e6d1;
+    background: var(--color-surface);
+    color: #087f5b;
+}
+
+.marks-alert button {
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: none;
+    border-radius: 5px;
+    background: transparent;
+    color: inherit;
     font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.marks-alert button:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+
+/* =========================================================
+   FILTER / MARK CONTROLS
+   ========================================================= */
+
+.marks-controls {
+    display: grid;
+    grid-template-columns:
+        minmax(180px, 1fr)
+        minmax(130px, 0.7fr)
+        minmax(200px, 1.2fr)
+        minmax(200px, 1.2fr)
+        minmax(100px, 0.6fr)
+        auto;
+    gap: 15px;
+    align-items: end;
+    margin-bottom: 22px;
+    padding: 20px;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-surface);
+    box-shadow:
+        0 2px 8px rgba(12, 44, 85, 0.05);
+    box-sizing: border-box;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+}
+
+.control-group label {
+    color: var(--color-text-primary);
+    font-size: 12px;
     font-weight: 700;
 }
 
-.teacher-marks-section .section-heading p {
-    margin: 0;
-    color: var(--color-text-secondary);
-    font-size: 14px;
-    line-height: 1.5;
+.control-group select,
+.control-group input {
+    width: 100%;
+    min-height: 42px;
+    padding: 0 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 7px;
+    outline: none;
+    background: var(--color-background);
+    color: var(--color-text-primary);
+    font-family: inherit;
+    font-size: 13px;
+    box-sizing: border-box;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
-.student-count {
-    flex-shrink: 0;
+.control-group select:focus,
+.control-group input:focus {
+    border-color: var(--color-primary);
+    box-shadow:
+        0 0 0 3px rgba(13, 206, 218, 0.12);
+}
 
-    padding: 8px 13px;
+.control-group select:disabled,
+.control-group input:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
 
-    background: var(--color-background-soft);
-    border: 1px solid var(--color-border);
-    border-radius: 999px;
+.control-group input[type="number"] {
+    text-align: center;
+}
 
-    color: var(--color-text-primary);
 
+/* =========================================================
+   BUTTON GROUP
+   ========================================================= */
+
+.button-group {
+    min-width: 110px;
+}
+
+
+/* =========================================================
+   ALL MARK ACTION BUTTONS
+   SAME STYLE AS SAVE MARK
+   ========================================================= */
+
+.save-mark-button,
+.calculate-place-button,
+.download-button,
+.publish-button {
+    min-height: 42px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 7px;
+    background: var(--color-sidebar);
+    color: #ffffff;
+    font-family: inherit;
     font-size: 13px;
     font-weight: 700;
-
+    cursor: pointer;
+    transition:
+        transform 0.15s ease,
+        opacity 0.2s ease,
+        box-shadow 0.2s ease;
     white-space: nowrap;
 }
 
-/* ==========================================================
-   TABLE WRAPPER
-========================================================== */
 
-.marks-table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+/* =========================================================
+   ALL BUTTON HOVER STATES
+   ========================================================= */
+
+.save-mark-button:hover:not(:disabled),
+.calculate-place-button:hover:not(:disabled),
+.download-button:hover:not(:disabled),
+.publish-button:hover:not(:disabled) {
+    box-shadow:
+        0 4px 12px rgba(12, 44, 85, 0.2);
+    transform: translateY(-1px);
 }
 
-/* ==========================================================
-   TABLE
-========================================================== */
+
+/* =========================================================
+   ALL BUTTON DISABLED STATES
+   ========================================================= */
+
+.save-mark-button:disabled,
+.calculate-place-button:disabled,
+.download-button:disabled,
+.publish-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+
+/* =========================================================
+   MARKS TABLE CARD
+   ========================================================= */
+
+.marks-table-card {
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-surface);
+    box-shadow:
+        0 2px 8px rgba(12, 44, 85, 0.05);
+}
+
+
+/* =========================================================
+   TABLE HEADER
+   ========================================================= */
+
+.table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px;
+    border-bottom: 1px solid var(--color-border);
+    box-sizing: border-box;
+}
+
+.table-header h2 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.table-header p {
+    margin: 5px 0 0;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   TABLE ACTIONS
+   ========================================================= */
+
+.table-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+
+/* =========================================================
+   PUBLISH STATUS
+   ========================================================= */
+
+.publish-status {
+    margin: 0 20px 15px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: #EBFFFA;
+    color: #0C2C55;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   ABSENT OPTION
+   ========================================================= */
+
+.absent-control-group {
+    min-width: 120px;
+}
+
+.absent-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+}
+
+.absent-option input[type="checkbox"] {
+    width: 17px;
+    height: 17px;
+    cursor: pointer;
+}
+
+.absent-option label {
+    margin: 0;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   TABLE WRAPPER
+   ========================================================= */
+
+.table-wrapper {
+    width: 100%;
+    max-height: 650px;
+    overflow-x: auto;
+    overflow-y: auto;
+    position: relative;
+}
+
+
+/* =========================================================
+   MARKS TABLE
+   ========================================================= */
 
 .marks-table {
-    width: 100%;
-    min-width: 760px;
-
-    border-collapse: collapse;
+    width: max-content;
+    min-width: 100%;
+    border-collapse: separate;
     border-spacing: 0;
+    table-layout: fixed;
 }
 
-/* ==========================================================
-   TABLE HEADER
-========================================================== */
+
+/* =========================================================
+   TABLE HEADER CELLS
+   ========================================================= */
 
 .marks-table th {
-    padding: 14px 20px;
-
-    background: var(--color-background-soft);
-
-    color: var(--color-text-secondary);
-
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    min-width: 125px;
+    padding: 14px 12px;
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-sidebar);
+    color: #ffffff;
     font-size: 11px;
     font-weight: 700;
-
-    text-align: left;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-
-    border-bottom: 1px solid var(--color-border);
-
+    text-align: center;
     white-space: nowrap;
+    box-sizing: border-box;
 }
 
-/* ==========================================================
-   TABLE CELLS
-========================================================== */
+
+/* =========================================================
+   TABLE BODY CELLS
+   ========================================================= */
 
 .marks-table td {
-    padding: 16px 20px;
-
-    background: var(--color-surface);
-
-    color: var(--color-text-primary);
-
-    font-size: 14px;
-
+    min-width: 125px;
+    padding: 13px 12px;
+    border-right: 1px solid var(--color-border);
     border-bottom: 1px solid var(--color-border);
-
-    vertical-align: middle;
-
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    text-align: center;
+    white-space: nowrap;
     box-sizing: border-box;
 }
 
@@ -303,426 +387,430 @@
     border-bottom: none;
 }
 
-.marks-table tbody tr {
-    transition: background 0.15s ease;
-}
-
 .marks-table tbody tr:hover td {
     background: var(--color-background-soft);
 }
 
-/* ==========================================================
-   COLUMN WIDTHS
-========================================================== */
 
-.marks-table th:nth-child(1),
-.marks-table td:nth-child(1) {
-    width: 60px;
-    color: var(--color-text-light);
+/* =========================================================
+   STUDENT COLUMN
+   ========================================================= */
+
+.student-column {
+    width: 210px !important;
+    min-width: 210px !important;
+    max-width: 210px !important;
+    text-align: left !important;
 }
 
-.marks-table th:nth-child(2),
-.marks-table td:nth-child(2) {
-    width: 180px;
-}
-
-.marks-table th:nth-child(3),
-.marks-table td:nth-child(3) {
-    min-width: 230px;
-}
-
-.marks-table th:nth-child(4),
-.marks-table td:nth-child(4) {
-    width: 180px;
-}
-
-.marks-table th:nth-child(5),
-.marks-table td:nth-child(5) {
-    width: 160px;
-}
-
-/* ==========================================================
-   STUDENT ID
-========================================================== */
-
-.student-id {
-    display: inline-flex;
-    align-items: center;
-
-    padding: 6px 9px;
-
-    background: var(--color-background-soft);
-    border: 1px solid var(--color-border);
-    border-radius: 7px;
-
+.student-name {
+    overflow: hidden;
     color: var(--color-text-primary);
-
-    font-size: 12px;
-    font-weight: 700;
-
+    font-weight: 600;
+    text-align: left;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-/* ==========================================================
-   STUDENT NAME
-========================================================== */
 
-.student-name {
-    color: var(--color-text-primary);
-    font-size: 14px;
-    font-weight: 600;
+/* =========================================================
+   STUDENT NUMBER COLUMN
+   ========================================================= */
+
+.number-column {
+    width: 110px !important;
+    min-width: 110px !important;
+    max-width: 110px !important;
 }
 
-/* ==========================================================
-   MARK INPUT
-========================================================== */
 
-.mark-input {
-    width: 120px;
-    height: 42px;
+/* =========================================================
+   NORMAL SUBJECT COLUMNS
+   ========================================================= */
 
-    padding: 9px 12px;
-
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-medium);
-
-    background: var(--color-background);
-    color: var(--color-text-primary);
-
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 600;
-
-    outline: none;
-
-    box-sizing: border-box;
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
+.subject-column {
+    width: 125px !important;
+    min-width: 125px !important;
+    max-width: 125px !important;
 }
 
-.mark-input:hover {
-    border-color: var(--color-primary);
-}
 
-.mark-input:focus {
-    border-color: var(--color-border-focus);
+/* =========================================================
+   MARK CELLS
+   ========================================================= */
 
-    box-shadow:
-        0 0 0 3px rgba(13, 206, 218, 0.10);
-}
-
-.mark-input::placeholder {
-    color: var(--color-text-light);
-    font-weight: 400;
-}
-
-/* Chrome / Edge / Safari number controls */
-
-.mark-input::-webkit-inner-spin-button,
-.mark-input::-webkit-outer-spin-button {
-    opacity: 1;
-}
-
-/* ==========================================================
-   SAVE BUTTON
-========================================================== */
-
-.save-mark-button {
-    min-width: 112px;
-    height: 40px;
-
-    padding: 9px 15px;
-
-    border: none;
-    border-radius: var(--radius-medium);
-
-    background: var(--color-secondary);
-    color: var(--color-sidebar);
-
-    font-family: inherit;
+.mark-cell {
     font-size: 13px;
-    font-weight: 700;
-
-    cursor: pointer;
-
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease;
-}
-
-.save-mark-button:hover {
-    transform: translateY(-1px);
-
-    box-shadow:
-        0 4px 12px rgba(12, 44, 85, 0.10);
-
-    background: var(--color-primary);
-}
-
-.save-mark-button:active {
-    transform: translateY(0);
-}
-
-.save-mark-button:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-
-/* ==========================================================
-   EMPTY STATE
-========================================================== */
-
-.teacher-marks-empty {
-    max-width: 1200px;
-    margin: 0 auto;
-
-    padding: 60px 24px;
-
-    text-align: center;
-
-    background: var(--color-surface);
-
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-large);
-
-    box-shadow: var(--shadow-small);
-
-    box-sizing: border-box;
-}
-
-.teacher-marks-section .teacher-marks-empty {
-    max-width: none;
-    margin: 0;
-
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-}
-
-.empty-icon {
-    margin-bottom: 13px;
-    font-size: 42px;
-    line-height: 1;
-}
-
-.teacher-marks-empty h2,
-.teacher-marks-empty h3 {
-    margin: 0 0 8px;
-
     color: var(--color-text-primary);
-
-    font-size: 19px;
-    font-weight: 700;
+    font-weight: 600;
 }
 
-.teacher-marks-empty p {
-    max-width: 450px;
-    margin: 0 auto;
-
-    color: var(--color-text-secondary);
-
-    font-size: 14px;
-    line-height: 1.6;
+.mark-cell:empty {
+    color: var(--color-text-light);
 }
 
-/* ==========================================================
-   LOADING
-========================================================== */
 
-.teacher-marks-loading {
-    min-height: 300px;
+/* =========================================================
+   BASKET COLUMNS
+   ========================================================= */
 
+.basket-column {
+    width: 145px !important;
+    min-width: 145px !important;
+    max-width: 145px !important;
+}
+
+.basket-mark-cell {
+    width: 145px !important;
+    min-width: 145px !important;
+    max-width: 145px !important;
+    padding: 10px 8px !important;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.basket-mark-content {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-
-    gap: 14px;
-
-    color: var(--color-text-secondary);
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
 }
 
-.teacher-marks-loading p {
+.basket-mark-content strong {
+    display: block;
+    color: var(--color-text-primary);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.basket-mark-content span {
+    display: block;
+    width: 100%;
+    max-width: 125px;
+    overflow: hidden;
+    color: var(--color-text-secondary);
+    font-size: 9px;
+    font-weight: 500;
+    line-height: 1.25;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   RESULT COLUMNS
+   ========================================================= */
+
+.result-column {
+    width: 90px !important;
+    min-width: 90px !important;
+    max-width: 90px !important;
+}
+
+.result-cell {
+    width: 90px !important;
+    min-width: 90px !important;
+    max-width: 90px !important;
+    background: var(--color-background-soft) !important;
+    color: var(--color-text-primary) !important;
+    font-weight: 700;
+}
+
+.place-column {
+    width: 75px !important;
+    min-width: 75px !important;
+    max-width: 75px !important;
+}
+
+.place-cell {
+    width: 75px !important;
+    min-width: 75px !important;
+    max-width: 75px !important;
+    background: var(--color-background-soft) !important;
+    color: var(--color-sidebar) !important;
+    font-size: 14px !important;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   LOADING STATE
+   ========================================================= */
+
+.loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+    padding: 30px;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    text-align: center;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+    padding: 30px;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    text-align: center;
+}
+
+
+/* =========================================================
+   SELECTED MARK SECTION
+   ========================================================= */
+
+.selected-mark-section {
+    margin-top: 22px;
+    padding: 20px;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-surface);
+    box-shadow:
+        0 2px 8px rgba(12, 44, 85, 0.05);
+}
+
+.selected-mark-section h3 {
+    margin: 0 0 16px;
+    color: var(--color-text-primary);
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.selected-mark-section p {
     margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+}
+
+.selected-mark-section p strong {
+    color: var(--color-text-primary);
+}
+
+
+/* =========================================================
+   SELECTED MARK INFORMATION
+   ========================================================= */
+
+.selected-mark-info {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.selected-mark-info > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.selected-mark-info span {
+    color: var(--color-text-light);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.selected-mark-info strong {
+    color: var(--color-text-primary);
     font-size: 14px;
 }
 
-.loading-spinner {
-    width: 36px;
-    height: 36px;
 
-    border: 4px solid var(--color-accent);
-    border-top-color: var(--color-primary);
+/* =========================================================
+   SUBMIT MARK BUTTON
+   ========================================================= */
 
-    border-radius: 50%;
-
-    animation: teacherMarksSpin 0.8s linear infinite;
+.submit-mark-button {
+    min-height: 38px;
+    padding: 0 17px;
+    border: none;
+    border-radius: 7px;
+    background: var(--color-primary);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        opacity 0.2s ease,
+        transform 0.15s ease;
 }
 
-@keyframes teacherMarksSpin {
-    to {
-        transform: rotate(360deg);
+.submit-mark-button:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.submit-mark-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+.table-wrapper::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+    background: var(--color-background-soft);
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: var(--color-sidebar);
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #174474;
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+    .teacher-marks-page {
+        padding: 22px;
+    }
+
+    .marks-controls {
+        grid-template-columns:
+            1fr 1fr 1fr;
+    }
+
+    .button-group {
+        min-width: 0;
+    }
+
+    .save-mark-button {
+        width: 100%;
     }
 }
 
-/* ==========================================================
-   FULL ERROR PAGE
-========================================================== */
 
-.teacher-marks-error {
-    max-width: 520px;
-    margin: 100px auto;
-
-    padding: 40px;
-
-    text-align: center;
-
-    background: var(--color-surface);
-
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-large);
-
-    box-shadow: var(--shadow-small);
-
-    box-sizing: border-box;
-}
-
-.teacher-marks-error .error-icon {
-    margin-bottom: 14px;
-    font-size: 42px;
-}
-
-.teacher-marks-error h2 {
-    margin: 0 0 10px;
-
-    color: var(--color-text-primary);
-
-    font-size: 21px;
-}
-
-.teacher-marks-error p {
-    margin: 0;
-
-    color: var(--color-text-secondary);
-
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-/* ==========================================================
-   RESPONSIVE — TABLET
-========================================================== */
+/* =========================================================
+   RESPONSIVE - SMALL TABLET
+   ========================================================= */
 
 @media (max-width: 900px) {
 
     .teacher-marks-page {
-        padding: 24px;
-    }
-
-    .marks-selection-card {
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-
-    .teacher-marks-section .section-heading {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .student-count {
-        align-self: flex-start;
-    }
-}
-
-/* ==========================================================
-   RESPONSIVE — MOBILE
-========================================================== */
-
-@media (max-width: 600px) {
-
-    .teacher-marks-page {
         padding: 18px;
-    }
-
-    .teacher-marks-header {
-        margin-bottom: 22px;
-    }
-
-    .teacher-marks-header h1 {
-        font-size: 27px;
-    }
-
-    .teacher-marks-subtitle {
-        font-size: 14px;
-    }
-
-    .marks-selection-card {
-        padding: 18px;
-        border-radius: var(--radius-medium);
-    }
-
-    .teacher-marks-message {
-        align-items: flex-start;
-    }
-
-    .teacher-marks-section {
-        border-radius: var(--radius-medium);
-    }
-
-    .teacher-marks-section .section-heading {
-        padding: 18px;
-    }
-
-    .teacher-marks-section .section-heading h2 {
-        font-size: 18px;
-    }
-
-    .teacher-marks-section .section-heading p {
-        font-size: 13px;
-    }
-
-    .marks-table th {
-        padding: 13px 16px;
-    }
-
-    .marks-table td {
-        padding: 14px 16px;
-    }
-
-    .mark-input {
-        width: 110px;
-    }
-
-    .teacher-marks-error {
-        margin: 60px auto;
-        padding: 30px 20px;
-    }
-}
-
-/* ==========================================================
-   VERY SMALL SCREENS
-========================================================== */
-
-@media (max-width: 420px) {
-
-    .teacher-marks-page {
-        padding: 14px;
     }
 
     .teacher-marks-header h1 {
         font-size: 24px;
     }
 
-    .marks-selection-card {
+    .marks-controls {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+    .table-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .table-actions {
+        width: 100%;
+    }
+
+    .download-button,
+    .calculate-place-button,
+    .publish-button {
+        flex: 1;
+    }
+
+    .selected-mark-info {
+        gap: 20px;
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE - MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .teacher-marks-page {
+        padding: 14px;
+    }
+
+    .teacher-marks-header {
+        margin-bottom: 18px;
+    }
+
+    .teacher-marks-header h1 {
+        font-size: 22px;
+    }
+
+    .teacher-marks-header p {
+        font-size: 13px;
+    }
+
+    .marks-controls {
+        grid-template-columns: 1fr;
+        gap: 14px;
         padding: 16px;
     }
 
-    .teacher-marks-section .section-heading {
+    .marks-table-card {
+        border-radius: 10px;
+    }
+
+    .table-header {
         padding: 16px;
+    }
+
+    .table-header h2 {
+        font-size: 16px;
+    }
+
+    .table-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .calculate-place-button,
+    .download-button,
+    .publish-button {
+        width: 100%;
+    }
+
+    .selected-mark-section {
+        padding: 16px;
+    }
+
+    .selected-mark-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    .submit-mark-button {
+        width: 100%;
     }
 }

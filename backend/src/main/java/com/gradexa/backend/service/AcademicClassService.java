@@ -5,6 +5,7 @@ import com.gradexa.backend.entity.SchoolSection;
 import com.gradexa.backend.repository.AcademicClassRepository;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,98 +19,77 @@ public class AcademicClassService {
             AcademicClassRepository academicClassRepository,
             DefaultSubjectService defaultSubjectService
     ) {
-        this.academicClassRepository =
-                academicClassRepository;
-
-        this.defaultSubjectService =
-                defaultSubjectService;
+        this.academicClassRepository = academicClassRepository;
+        this.defaultSubjectService = defaultSubjectService;
     }
 
     // ==========================================================
     // CREATE CLASS
     // ==========================================================
 
+    @Transactional
     public AcademicClass createClass(
             Integer academicYear,
             Integer grade,
             String sectionName
     ) {
 
-        // ======================================================
-        // VALIDATION
-        // ======================================================
-
         if (academicYear == null) {
+            throw new IllegalArgumentException(
+                    "Academic year is required."
+            );
+        }
 
-            throw new RuntimeException(
-                    "Academic year is required"
+        if (academicYear < 2000 || academicYear > 2100) {
+            throw new IllegalArgumentException(
+                    "Invalid academic year."
             );
         }
 
         if (grade == null) {
-
-            throw new RuntimeException(
-                    "Grade is required"
+            throw new IllegalArgumentException(
+                    "Grade is required."
             );
         }
 
         if (grade < 1 || grade > 13) {
-
-            throw new RuntimeException(
-                    "Grade must be between 1 and 13"
+            throw new IllegalArgumentException(
+                    "Grade must be between 1 and 13."
             );
         }
 
         if (sectionName == null ||
                 sectionName.trim().isEmpty()) {
 
-            throw new RuntimeException(
-                    "Section name is required"
+            throw new IllegalArgumentException(
+                    "Section name is required."
             );
         }
 
-        String cleanedSectionName =
+        String cleanSectionName =
                 sectionName.trim();
-
-        // ======================================================
-        // DETERMINE SCHOOL SECTION
-        // ======================================================
-
-        SchoolSection schoolSection;
-
-        if (grade <= 5) {
-
-            schoolSection =
-                    SchoolSection.PRIMARY;
-
-        } else {
-
-            schoolSection =
-                    SchoolSection.UPPER;
-        }
-
-        // ======================================================
-        // CHECK DUPLICATE CLASS
-        // ======================================================
 
         boolean exists =
                 academicClassRepository
                         .existsByAcademicYearAndGradeAndSectionName(
                                 academicYear,
                                 grade,
-                                cleanedSectionName
+                                cleanSectionName
                         );
 
         if (exists) {
-
-            throw new RuntimeException(
-                    "This academic class already exists"
+            throw new IllegalArgumentException(
+                    "A class with this academic year, grade and section already exists."
             );
         }
 
-        // ======================================================
-        // CREATE CLASS
-        // ======================================================
+        SchoolSection schoolSection;
+
+        if (grade <= 5) {
+            schoolSection = SchoolSection.PRIMARY;
+        } else {
+            schoolSection = SchoolSection.UPPER;
+        }
 
         AcademicClass academicClass =
                 new AcademicClass();
@@ -118,33 +98,26 @@ public class AcademicClassService {
                 academicYear
         );
 
-        academicClass.setSchoolSection(
-                schoolSection
-        );
-
         academicClass.setGrade(
                 grade
         );
 
         academicClass.setSectionName(
-                cleanedSectionName
+                cleanSectionName
+        );
+
+        academicClass.setSchoolSection(
+                schoolSection
         );
 
         academicClass.setActive(true);
-
-        // ======================================================
-        // SAVE CLASS FIRST
-        // ======================================================
 
         AcademicClass savedClass =
                 academicClassRepository.save(
                         academicClass
                 );
 
-        // ======================================================
-        // CREATE DEFAULT SUBJECTS
-        // ======================================================
-
+        // Create the default subjects for the new class.
         defaultSubjectService.createDefaultSubjects(
                 savedClass
         );
@@ -153,12 +126,18 @@ public class AcademicClassService {
     }
 
     // ==========================================================
-    // GET CLASSES BY YEAR
+    // GET ALL ACTIVE CLASSES FOR YEAR
     // ==========================================================
 
     public List<AcademicClass> getClassesByYear(
             Integer academicYear
     ) {
+
+        if (academicYear == null) {
+            throw new IllegalArgumentException(
+                    "Academic year is required."
+            );
+        }
 
         return academicClassRepository
                 .findByAcademicYearAndActiveTrue(
@@ -167,13 +146,28 @@ public class AcademicClassService {
     }
 
     // ==========================================================
-    // GET CLASSES BY GRADE
+    // GET ACTIVE CLASSES BY GRADE
     // ==========================================================
 
     public List<AcademicClass> getClassesByGrade(
             Integer academicYear,
             Integer grade
     ) {
+
+        if (academicYear == null) {
+            throw new IllegalArgumentException(
+                    "Academic year is required."
+            );
+        }
+
+        if (grade == null ||
+                grade < 1 ||
+                grade > 13) {
+
+            throw new IllegalArgumentException(
+                    "Grade must be between 1 and 13."
+            );
+        }
 
         return academicClassRepository
                 .findByAcademicYearAndGrade(
@@ -186,13 +180,25 @@ public class AcademicClassService {
     }
 
     // ==========================================================
-    // GET CLASSES BY SCHOOL SECTION
+    // GET ACTIVE CLASSES BY SCHOOL SECTION
     // ==========================================================
 
     public List<AcademicClass> getClassesBySchoolSection(
             Integer academicYear,
             SchoolSection schoolSection
     ) {
+
+        if (academicYear == null) {
+            throw new IllegalArgumentException(
+                    "Academic year is required."
+            );
+        }
+
+        if (schoolSection == null) {
+            throw new IllegalArgumentException(
+                    "School section is required."
+            );
+        }
 
         return academicClassRepository
                 .findByAcademicYearAndSchoolSection(
@@ -205,16 +211,6 @@ public class AcademicClassService {
     }
 
     // ==========================================================
-    // GET ALL ACTIVE CLASSES
-    // ==========================================================
-
-    public List<AcademicClass> getAllActiveClasses() {
-
-        return academicClassRepository
-                .findByActiveTrue();
-    }
-
-    // ==========================================================
     // GET CLASS BY ID
     // ==========================================================
 
@@ -222,43 +218,77 @@ public class AcademicClassService {
             Long id
     ) {
 
+        if (id == null) {
+            throw new IllegalArgumentException(
+                    "Class ID is required."
+            );
+        }
+
         return academicClassRepository
                 .findById(id)
                 .orElseThrow(() ->
                         new RuntimeException(
-                                "Academic class not found"
+                                "Academic class not found."
                         )
                 );
     }
 
     // ==========================================================
-    // UPDATE CLASS SECTION NAME
+    // UPDATE CLASS SECTION
     // ==========================================================
 
+    @Transactional
     public AcademicClass updateClassSection(
             Long id,
             String sectionName
     ) {
+
+        if (id == null) {
+            throw new IllegalArgumentException(
+                    "Class ID is required."
+            );
+        }
+
+        if (sectionName == null ||
+                sectionName.trim().isEmpty()) {
+
+            throw new IllegalArgumentException(
+                    "Section name is required."
+            );
+        }
 
         AcademicClass academicClass =
                 academicClassRepository
                         .findById(id)
                         .orElseThrow(() ->
                                 new RuntimeException(
-                                        "Academic class not found"
+                                        "Academic class not found."
                                 )
                         );
 
-        if (sectionName == null ||
-                sectionName.trim().isEmpty()) {
+        String cleanSectionName =
+                sectionName.trim();
 
-            throw new RuntimeException(
-                    "Section name is required"
+        boolean duplicate =
+                academicClassRepository
+                        .existsByAcademicYearAndGradeAndSectionName(
+                                academicClass.getAcademicYear(),
+                                academicClass.getGrade(),
+                                cleanSectionName
+                        );
+
+        if (duplicate &&
+                !cleanSectionName.equalsIgnoreCase(
+                        academicClass.getSectionName()
+                )) {
+
+            throw new IllegalArgumentException(
+                    "A class with this section already exists."
             );
         }
 
         academicClass.setSectionName(
-                sectionName.trim()
+                cleanSectionName
         );
 
         return academicClassRepository.save(
@@ -270,16 +300,23 @@ public class AcademicClassService {
     // DEACTIVATE CLASS
     // ==========================================================
 
+    @Transactional
     public AcademicClass deactivateClass(
             Long id
     ) {
+
+        if (id == null) {
+            throw new IllegalArgumentException(
+                    "Class ID is required."
+            );
+        }
 
         AcademicClass academicClass =
                 academicClassRepository
                         .findById(id)
                         .orElseThrow(() ->
                                 new RuntimeException(
-                                        "Academic class not found"
+                                        "Academic class not found."
                                 )
                         );
 

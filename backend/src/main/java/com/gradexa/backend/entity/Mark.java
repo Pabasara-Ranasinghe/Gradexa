@@ -65,6 +65,12 @@ public class Mark {
     )
     private Double marks;
 
+    @Column(
+            nullable = false,
+            columnDefinition = "boolean default false"
+    )
+    private boolean absent = false;
+
     @Enumerated(EnumType.STRING)
     @Column(
             nullable = false,

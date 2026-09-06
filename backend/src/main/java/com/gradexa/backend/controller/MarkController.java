@@ -37,14 +37,16 @@ public class MarkController {
             @RequestParam Long enrollmentId,
             @RequestParam Long subjectId,
             @RequestParam Term term,
-            @RequestParam Double marks
+            @RequestParam Double marks,
+            @RequestParam(defaultValue = "false") Boolean absent
     ) {
 
         Mark mark = markService.addMark(
                 enrollmentId,
                 subjectId,
                 term,
-                marks
+                marks,
+                absent
         );
 
         return ResponseEntity.ok(mark);
@@ -60,15 +62,18 @@ public class MarkController {
             @RequestParam Long enrollmentId,
             @RequestParam Long subjectId,
             @RequestParam Term term,
-            @RequestParam Double marks
+            @RequestParam Double marks,
+            @RequestParam(defaultValue = "false") Boolean absent
     ) {
 
-        Mark mark = markService.addTeacherDraftMark(
-                enrollmentId,
-                subjectId,
-                term,
-                marks
-        );
+        Mark mark =
+                markService.addTeacherDraftMark(
+                        enrollmentId,
+                        subjectId,
+                        term,
+                        marks,
+                        absent
+                );
 
         return ResponseEntity.ok(mark);
     }
@@ -200,7 +205,8 @@ public class MarkController {
             @PathVariable Long id
     ) {
 
-        Mark mark = markService.getMarkById(id);
+        Mark mark =
+                markService.getMarkById(id);
 
         checkStudentAccessIfNeeded(
                 mark.getStudentEnrollment()
@@ -217,13 +223,15 @@ public class MarkController {
     @PutMapping("/{id}")
     public ResponseEntity<Mark> updateMark(
             @PathVariable Long id,
-            @RequestParam Double marks
+            @RequestParam Double marks,
+            @RequestParam(defaultValue = "false") Boolean absent
     ) {
 
         return ResponseEntity.ok(
                 markService.updateMark(
                         id,
-                        marks
+                        marks,
+                        absent
                 )
         );
     }
@@ -236,19 +244,21 @@ public class MarkController {
     @PutMapping("/teacher/draft/{id}")
     public ResponseEntity<Mark> updateTeacherDraftMark(
             @PathVariable Long id,
-            @RequestParam Double marks
+            @RequestParam Double marks,
+            @RequestParam(defaultValue = "false") Boolean absent
     ) {
 
         return ResponseEntity.ok(
                 markService.updateTeacherDraftMark(
                         id,
-                        marks
+                        marks,
+                        absent
                 )
         );
     }
 
     // ============================================================
-    // SUBMIT TEACHER DRAFT MARK
+    // SUBMIT SINGLE TEACHER DRAFT MARK
     // ============================================================
 
     @PreAuthorize("hasRole('TEACHER')")
@@ -259,6 +269,27 @@ public class MarkController {
 
         return ResponseEntity.ok(
                 markService.submitTeacherDraftMark(id)
+        );
+    }
+
+    // ============================================================
+    // PUBLISH ALL CLASS MARKS
+    // ============================================================
+
+    @PreAuthorize("hasRole('TEACHER')")
+    @PutMapping("/publish/class/{classId}/term/{term}")
+    public ResponseEntity<String> publishClassMarks(
+            @PathVariable Long classId,
+            @PathVariable Term term
+    ) {
+
+        markService.publishClassMarks(
+                classId,
+                term
+        );
+
+        return ResponseEntity.ok(
+                "All marks have been published successfully."
         );
     }
 

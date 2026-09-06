@@ -22,11 +22,6 @@ public class AcademicClassController {
         this.academicClassService = academicClassService;
     }
 
-    // ===============================
-    // CREATE CLASS
-    // ADMIN / PRINCIPAL ONLY
-    // ===============================
-
     @PreAuthorize("hasAnyRole('ADMIN', 'PRINCIPAL')")
     @PostMapping
     public ResponseEntity<AcademicClass> createClass(
@@ -42,14 +37,8 @@ public class AcademicClassController {
                         sectionName
                 );
 
-        return ResponseEntity.ok(
-                academicClass
-        );
+        return ResponseEntity.ok(academicClass);
     }
-
-    // ===============================
-    // GET ALL ACTIVE CLASSES FOR YEAR
-    // ===============================
 
     @PreAuthorize("hasAnyRole('ADMIN', 'PRINCIPAL', 'TEACHER')")
     @GetMapping
@@ -58,14 +47,11 @@ public class AcademicClassController {
     ) {
 
         return ResponseEntity.ok(
-                academicClassService
-                        .getClassesByYear(academicYear)
+                academicClassService.getClassesByYear(
+                        academicYear
+                )
         );
     }
-
-    // ===============================
-    // GET CLASSES BY GRADE
-    // ===============================
 
     @PreAuthorize("hasAnyRole('ADMIN', 'PRINCIPAL', 'TEACHER')")
     @GetMapping("/grade/{grade}")
@@ -75,17 +61,12 @@ public class AcademicClassController {
     ) {
 
         return ResponseEntity.ok(
-                academicClassService
-                        .getClassesByGrade(
-                                academicYear,
-                                grade
-                        )
+                academicClassService.getClassesByGrade(
+                        academicYear,
+                        grade
+                )
         );
     }
-
-    // ===============================
-    // GET CLASSES BY SCHOOL SECTION
-    // ===============================
 
     @PreAuthorize("hasAnyRole('ADMIN', 'PRINCIPAL', 'TEACHER')")
     @GetMapping("/section/{schoolSection}")
@@ -95,17 +76,12 @@ public class AcademicClassController {
     ) {
 
         return ResponseEntity.ok(
-                academicClassService
-                        .getClassesBySchoolSection(
-                                academicYear,
-                                schoolSection
-                        )
+                academicClassService.getClassesBySchoolSection(
+                        academicYear,
+                        schoolSection
+                )
         );
     }
-
-    // ===============================
-    // GET CLASS BY ID
-    // ===============================
 
     @PreAuthorize("hasAnyRole('ADMIN', 'PRINCIPAL', 'TEACHER')")
     @GetMapping("/{id}")
@@ -117,11 +93,6 @@ public class AcademicClassController {
                 academicClassService.getClassById(id)
         );
     }
-
-    // ===============================
-    // UPDATE CLASS SECTION
-    // ADMIN / PRINCIPAL ONLY
-    // ===============================
 
     @PreAuthorize("hasAnyRole('ADMIN', 'PRINCIPAL')")
     @PutMapping("/{id}")
@@ -137,11 +108,6 @@ public class AcademicClassController {
                 )
         );
     }
-
-    // ===============================
-    // DEACTIVATE CLASS
-    // ADMIN / PRINCIPAL ONLY
-    // ===============================
 
     @PreAuthorize("hasAnyRole('ADMIN', 'PRINCIPAL')")
     @DeleteMapping("/{id}")

@@ -11,71 +11,72 @@ import java.util.Optional;
 public interface AcademicClassRepository
         extends JpaRepository<AcademicClass, Long> {
 
-    // ===============================
-    // FIND BY ACADEMIC YEAR
-    // ===============================
+    // ==========================================================
+    // FIND CLASSES BY ACADEMIC YEAR
+    // ==========================================================
 
     List<AcademicClass> findByAcademicYear(
             Integer academicYear
     );
 
-    // ===============================
-    // FIND BY YEAR AND SCHOOL SECTION
-    // ===============================
+    // ==========================================================
+    // FIND ACTIVE CLASSES BY ACADEMIC YEAR
+    // ==========================================================
+
+    List<AcademicClass> findByAcademicYearAndActiveTrue(
+            Integer academicYear
+    );
+
+    // ==========================================================
+    // FIND CLASSES BY YEAR + SCHOOL SECTION
+    // ==========================================================
 
     List<AcademicClass> findByAcademicYearAndSchoolSection(
             Integer academicYear,
             SchoolSection schoolSection
     );
 
-    // ===============================
-    // FIND BY YEAR AND GRADE
-    // ===============================
+    // ==========================================================
+    // FIND CLASSES BY YEAR + GRADE
+    // ==========================================================
 
     List<AcademicClass> findByAcademicYearAndGrade(
             Integer academicYear,
             Integer grade
     );
 
-    // ===============================
-    // FIND SPECIFIC CLASS
-    // ===============================
+    // ==========================================================
+    // FIND ACTIVE CLASSES BY GRADE
+    // ==========================================================
 
-    Optional<AcademicClass> findByAcademicYearAndGradeAndSectionName(
+    List<AcademicClass> findByGradeAndActiveTrue(
+            Integer grade
+    );
+
+    // ==========================================================
+    // FIND ACTIVE CLASSES
+    // ==========================================================
+
+    List<AcademicClass> findByActiveTrue();
+
+    // ==========================================================
+    // FIND SPECIFIC CLASS
+    // ==========================================================
+
+    Optional<AcademicClass>
+    findByAcademicYearAndGradeAndSectionName(
             Integer academicYear,
             Integer grade,
             String sectionName
     );
 
-    // ===============================
+    // ==========================================================
     // CHECK DUPLICATE CLASS
-    // ===============================
+    // ==========================================================
 
     boolean existsByAcademicYearAndGradeAndSectionName(
             Integer academicYear,
             Integer grade,
             String sectionName
-    );
-
-    // ===============================
-    // FIND ACTIVE CLASSES
-    // ===============================
-
-    List<AcademicClass> findByAcademicYearAndActiveTrue(
-            Integer academicYear
-    );
-
-    // ===============================
-    // FIND ALL ACTIVE CLASSES
-    // ===============================
-
-    List<AcademicClass> findByActiveTrue();
-
-    // ===============================
-    // FIND ACTIVE CLASSES BY GRADE
-    // ===============================
-
-    List<AcademicClass> findByGradeAndActiveTrue(
-            Integer grade
     );
 }
