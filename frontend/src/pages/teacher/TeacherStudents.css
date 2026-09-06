@@ -1,272 +1,693 @@
 .teacher-students-page {
+
     padding: 32px;
+
     min-height: 100vh;
+
     background: var(--color-background);
+
+    box-sizing: border-box;
+
 }
+
 
 /* ==========================================
    HEADER
 ========================================== */
 
 .teacher-students-header {
+
     display: flex;
+
     justify-content: space-between;
+
     align-items: flex-start;
+
+    gap: 20px;
+
     margin-bottom: 28px;
+
 }
 
 .teacher-students-eyebrow {
+
     display: inline-block;
+
     margin-bottom: 8px;
+
     color: var(--color-primary);
+
     font-size: 12px;
+
     font-weight: 700;
+
     letter-spacing: 1.2px;
+
     text-transform: uppercase;
+
 }
 
 .teacher-students-header h1 {
+
     margin: 0 0 8px;
+
     color: var(--color-text-primary);
+
     font-size: 30px;
+
     font-weight: 700;
+
 }
 
 .teacher-students-header p {
+
     margin: 0;
+
     color: var(--color-text-secondary);
+
     font-size: 15px;
+
     line-height: 1.6;
+
 }
+
 
 /* ==========================================
-   ERROR
+   ADD STUDENT BUTTON
 ========================================== */
 
-.teacher-students-error {
-    margin-bottom: 20px;
-    padding: 14px 18px;
-    border: 1px solid rgba(214, 69, 69, 0.2);
+.teacher-add-student-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 42px;
+
+    padding: 0 18px;
+
+    border: none;
+
     border-radius: var(--radius-medium);
-    background: rgba(214, 69, 69, 0.06);
-    color: var(--color-error);
-    font-size: 14px;
-    line-height: 1.5;
+
+    background: var(--color-sidebar);
+
+    color: var(--color-text-white);
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    box-shadow: var(--shadow-small);
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+
 }
+
+.teacher-add-student-button:hover:not(:disabled) {
+
+    background: var(--color-primary);
+
+    transform: translateY(-1px);
+
+    box-shadow: var(--shadow-medium);
+
+}
+
+.teacher-add-student-button:disabled {
+
+    cursor: not-allowed;
+
+    opacity: 0.55;
+
+}
+
+
+/* ==========================================
+   MESSAGES
+========================================== */
+
+.teacher-students-error,
+.teacher-students-success {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 20px;
+
+    padding: 13px 16px;
+
+    border-radius: var(--radius-medium);
+
+    font-size: 13px;
+
+    line-height: 1.5;
+
+    box-sizing: border-box;
+
+}
+
+.teacher-students-error {
+
+    border: 1px solid rgba(214, 69, 69, 0.20);
+
+    background: rgba(214, 69, 69, 0.06);
+
+    color: var(--color-error);
+
+}
+
+.teacher-students-success {
+
+    border: 1px solid rgba(34, 160, 107, 0.18);
+
+    background: rgba(34, 160, 107, 0.07);
+
+    color: var(--color-success);
+
+}
+
+.teacher-students-error button,
+.teacher-students-success button {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 26px;
+
+    height: 26px;
+
+    margin-left: auto;
+
+    padding: 0;
+
+    border: none;
+
+    border-radius: 6px;
+
+    background: transparent;
+
+    color: inherit;
+
+    font-size: 18px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+}
+
+.teacher-students-error button:hover,
+.teacher-students-success button:hover {
+
+    background: rgba(0, 0, 0, 0.05);
+
+}
+
 
 /* ==========================================
    MAIN CARD
 ========================================== */
 
 .teacher-students-card {
+
     margin-bottom: 24px;
+
     padding: 24px;
+
     border: 1px solid var(--color-border);
+
     border-radius: var(--radius-large);
+
     background: var(--color-surface);
+
     box-shadow: var(--shadow-small);
+
+    box-sizing: border-box;
+
 }
 
 .teacher-students-card-header {
+
     display: flex;
+
     justify-content: space-between;
+
     align-items: flex-start;
+
     gap: 20px;
+
     margin-bottom: 24px;
+
 }
 
 .teacher-students-card-eyebrow {
+
     display: block;
+
     margin-bottom: 6px;
+
     color: var(--color-primary);
+
     font-size: 11px;
+
     font-weight: 700;
+
     letter-spacing: 1px;
+
     text-transform: uppercase;
+
 }
 
 .teacher-students-card-header h2 {
+
     margin: 0 0 6px;
+
     color: var(--color-text-primary);
+
     font-size: 20px;
+
     font-weight: 700;
+
 }
 
 .teacher-students-card-header p {
+
     margin: 0;
+
     color: var(--color-text-secondary);
+
     font-size: 14px;
+
     line-height: 1.5;
+
 }
 
 .teacher-students-card-icon {
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
+
     width: 46px;
+
     height: 46px;
+
     flex-shrink: 0;
+
     border-radius: var(--radius-medium);
+
     background: var(--color-background-soft);
+
     font-size: 22px;
+
 }
+
 
 /* ==========================================
    CLASS SELECTOR
 ========================================== */
 
 .teacher-class-selector {
-    max-width: 520px;
+
+    width: min(520px, 100%);
+
 }
 
 .teacher-class-selector label {
+
     display: block;
+
     margin-bottom: 8px;
+
     color: var(--color-text-primary);
+
     font-size: 14px;
+
     font-weight: 600;
+
 }
 
 .teacher-class-selector select {
+
     width: 100%;
-    padding: 13px 15px;
+
+    min-height: 44px;
+
+    padding: 0 15px;
+
     border: 1px solid var(--color-border);
+
     border-radius: var(--radius-medium);
+
     outline: none;
+
     background: var(--color-background);
+
     color: var(--color-text-primary);
+
     font-family: inherit;
+
     font-size: 14px;
+
     cursor: pointer;
+
+    box-sizing: border-box;
+
     transition:
         border-color 0.2s ease,
-        box-shadow 0.2s ease;
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+
+}
+
+.teacher-class-selector select:hover {
+
+    background: var(--color-surface);
+
 }
 
 .teacher-class-selector select:focus {
+
     border-color: var(--color-border-focus);
-    box-shadow: 0 0 0 3px rgba(13, 206, 218, 0.12);
+
+    box-shadow:
+        0 0 0 3px rgba(13, 206, 218, 0.12);
+
 }
+
 
 /* ==========================================
    LOADING
 ========================================== */
 
 .teacher-students-loading {
+
     padding: 40px 20px;
+
     text-align: center;
+
     color: var(--color-text-secondary);
+
     font-size: 14px;
+
 }
+
 
 /* ==========================================
    EMPTY STATE
 ========================================== */
 
 .teacher-students-empty {
+
     padding: 40px 20px;
+
     text-align: center;
+
 }
 
 .teacher-students-empty > div {
+
     margin-bottom: 12px;
+
     font-size: 36px;
+
 }
 
 .teacher-students-empty h3 {
+
     margin: 0 0 8px;
+
     color: var(--color-text-primary);
+
     font-size: 17px;
+
 }
 
 .teacher-students-empty p {
+
     max-width: 480px;
-    margin: 0 auto;
+
+    margin: 0 auto 18px;
+
     color: var(--color-text-secondary);
+
     font-size: 14px;
+
     line-height: 1.6;
+
 }
+
+.teacher-empty-add-button {
+
+    min-height: 40px;
+
+    padding: 0 17px;
+
+    border: none;
+
+    border-radius: var(--radius-medium);
+
+    background: var(--color-sidebar);
+
+    color: var(--color-text-white);
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+
+}
+
+.teacher-empty-add-button:hover {
+
+    background: var(--color-primary);
+
+    transform: translateY(-1px);
+
+}
+
 
 /* ==========================================
-   STUDENT COUNT
+   STUDENT COUNTS
 ========================================== */
 
-.teacher-students-count {
-    display: inline-flex;
+.teacher-student-counts {
+
+    display: flex;
+
     align-items: center;
-    padding: 8px 14px;
-    border-radius: 20px;
-    background: var(--color-background-soft);
-    color: var(--color-text-primary);
-    font-size: 13px;
-    font-weight: 600;
-    white-space: nowrap;
+
+    gap: 8px;
+
+    flex-wrap: wrap;
+
 }
+
+.student-count {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 32px;
+
+    padding: 0 12px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+}
+
+.active-count {
+
+    background: rgba(34, 160, 107, 0.10);
+
+    color: var(--color-success);
+
+}
+
+.inactive-count {
+
+    background: rgba(214, 69, 69, 0.10);
+
+    color: var(--color-error);
+
+}
+
 
 /* ==========================================
    TABLE
 ========================================== */
 
 .teacher-students-table-wrapper {
+
     width: 100%;
+
     overflow-x: auto;
+
+    border: 1px solid var(--color-border);
+
+    border-radius: var(--radius-medium);
+
 }
 
 .teacher-students-table {
+
     width: 100%;
-    min-width: 650px;
+
+    min-width: 950px;
+
     border-collapse: collapse;
+
 }
 
 .teacher-students-table th {
+
     padding: 13px 16px;
+
     border-bottom: 1px solid var(--color-border);
+
     background: var(--color-background-soft);
+
     color: var(--color-text-primary);
+
     font-size: 12px;
+
     font-weight: 700;
+
     text-align: left;
+
     white-space: nowrap;
+
 }
 
 .teacher-students-table th:first-child {
-    border-top-left-radius: var(--radius-small);
+
+    width: 55px;
+
+}
+
+.teacher-students-table th:nth-child(2) {
+
+    width: 150px;
+
+}
+
+.teacher-students-table th:nth-child(4) {
+
+    width: 110px;
+
 }
 
 .teacher-students-table th:last-child {
-    border-top-right-radius: var(--radius-small);
+
+    width: 280px;
+
 }
 
 .teacher-students-table td {
+
     padding: 15px 16px;
+
     border-bottom: 1px solid var(--color-border);
+
     color: var(--color-text-secondary);
+
     font-size: 14px;
+
     vertical-align: middle;
+
 }
 
 .teacher-students-table tbody tr:last-child td {
+
     border-bottom: none;
+
 }
 
 .teacher-students-table tbody tr {
-    transition: background 0.2s ease;
+
+    background: var(--color-surface);
+
+    transition:
+        background 0.2s ease;
+
 }
 
 .teacher-students-table tbody tr:hover {
+
     background: var(--color-background-soft);
+
 }
 
 .teacher-students-table td:nth-child(1) {
-    width: 60px;
+
     color: var(--color-text-light);
+
+    font-size: 12px;
+
+    font-weight: 600;
+
 }
 
 .teacher-students-table td:nth-child(2),
 .teacher-students-table td:nth-child(3) {
+
     color: var(--color-text-primary);
+
     font-weight: 600;
+
 }
+
+.teacher-student-row-inactive {
+
+    opacity: 0.78;
+
+}
+
+.teacher-student-name {
+
+    color: var(--color-text-primary);
+
+    font-weight: 600;
+
+}
+
 
 /* ==========================================
    STATUS
@@ -274,81 +695,848 @@
 
 .teacher-student-active,
 .teacher-student-inactive {
+
     display: inline-flex;
+
     align-items: center;
-    padding: 5px 10px;
+
+    justify-content: center;
+
+    min-width: 64px;
+
+    min-height: 27px;
+
+    padding: 0 10px;
+
     border-radius: 20px;
+
     font-size: 12px;
+
     font-weight: 600;
+
+    box-sizing: border-box;
+
 }
 
 .teacher-student-active {
+
     background: rgba(34, 160, 107, 0.10);
+
     color: var(--color-success);
+
 }
 
 .teacher-student-inactive {
+
     background: rgba(214, 69, 69, 0.10);
+
     color: var(--color-error);
+
 }
 
+
 /* ==========================================
-   RESPONSIVE
+   ACTION BUTTONS
+========================================== */
+
+.teacher-student-actions {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    flex-wrap: wrap;
+
+}
+
+.student-action-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 32px;
+
+    padding: 0 11px;
+
+    border: 1px solid transparent;
+
+    border-radius: 7px;
+
+    font-family: inherit;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    box-sizing: border-box;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease,
+        opacity 0.2s ease;
+
+}
+
+.student-action-button:hover:not(:disabled) {
+
+    transform: translateY(-1px);
+
+}
+
+.student-action-button:disabled {
+
+    cursor: not-allowed;
+
+    opacity: 0.5;
+
+}
+
+.student-view-button {
+
+    border-color: var(--color-border);
+
+    background: var(--color-background);
+
+    color: var(--color-text-primary);
+
+}
+
+.student-view-button:hover:not(:disabled) {
+
+    border-color: var(--color-primary);
+
+    background: var(--color-surface);
+
+}
+
+.student-edit-button {
+
+    border-color: rgba(13, 206, 218, 0.28);
+
+    background: rgba(13, 206, 218, 0.10);
+
+    color: var(--color-primary);
+
+}
+
+.student-edit-button:hover:not(:disabled) {
+
+    border-color: rgba(13, 206, 218, 0.45);
+
+    background: rgba(13, 206, 218, 0.18);
+
+}
+
+.student-deactivate-button {
+
+    border-color: rgba(214, 69, 69, 0.18);
+
+    background: rgba(214, 69, 69, 0.08);
+
+    color: var(--color-error);
+
+}
+
+.student-deactivate-button:hover:not(:disabled) {
+
+    border-color: rgba(214, 69, 69, 0.30);
+
+    background: rgba(214, 69, 69, 0.15);
+
+}
+
+.student-reactivate-button {
+
+    border-color: rgba(34, 160, 107, 0.18);
+
+    background: rgba(34, 160, 107, 0.08);
+
+    color: var(--color-success);
+
+}
+
+.student-reactivate-button:hover:not(:disabled) {
+
+    border-color: rgba(34, 160, 107, 0.30);
+
+    background: rgba(34, 160, 107, 0.15);
+
+}
+
+
+/* ==========================================
+   MODAL OVERLAY
+========================================== */
+
+.teacher-student-modal-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(12, 44, 85, 0.38);
+
+    backdrop-filter: blur(3px);
+
+    box-sizing: border-box;
+
+}
+
+
+/* ==========================================
+   MODAL
+========================================== */
+
+.teacher-student-modal {
+
+    width: 100%;
+
+    max-width: 560px;
+
+    max-height: calc(100vh - 40px);
+
+    overflow-y: auto;
+
+    border: 1px solid var(--color-border);
+
+    border-radius: var(--radius-large);
+
+    background: var(--color-surface);
+
+    box-shadow:
+        0 20px 60px rgba(12, 44, 85, 0.18);
+
+    box-sizing: border-box;
+
+}
+
+.teacher-student-modal-header {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 16px;
+
+    padding: 22px 24px;
+
+    border-bottom: 1px solid var(--color-border);
+
+}
+
+.teacher-student-modal-eyebrow {
+
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: var(--color-primary);
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+
+    text-transform: uppercase;
+
+}
+
+.teacher-student-modal-header h2 {
+
+    margin: 0 0 5px;
+
+    color: var(--color-text-primary);
+
+    font-size: 20px;
+
+    font-weight: 700;
+
+}
+
+.teacher-student-modal-header p {
+
+    margin: 0;
+
+    color: var(--color-text-secondary);
+
+    font-size: 12px;
+
+    line-height: 1.5;
+
+}
+
+.teacher-modal-close {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 32px;
+
+    height: 32px;
+
+    flex-shrink: 0;
+
+    padding: 0;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: var(--color-background-soft);
+
+    color: var(--color-text-primary);
+
+    font-size: 20px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+
+}
+
+.teacher-modal-close:hover:not(:disabled) {
+
+    background: var(--color-border);
+
+    transform: rotate(2deg);
+
+}
+
+.teacher-modal-close:disabled {
+
+    cursor: not-allowed;
+
+    opacity: 0.5;
+
+}
+
+
+/* ==========================================
+   FORM
+========================================== */
+
+.teacher-student-form {
+
+    padding: 22px 24px 24px;
+
+}
+
+.teacher-form-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 14px;
+
+}
+
+.teacher-form-group {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 7px;
+
+    margin-bottom: 16px;
+
+}
+
+.teacher-form-group label {
+
+    color: var(--color-text-primary);
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+}
+
+.teacher-form-group input {
+
+    width: 100%;
+
+    min-height: 42px;
+
+    padding: 0 12px;
+
+    border: 1px solid var(--color-border);
+
+    border-radius: 8px;
+
+    outline: none;
+
+    background: var(--color-background);
+
+    color: var(--color-text-primary);
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    box-sizing: border-box;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+
+}
+
+.teacher-form-group input:hover {
+
+    background: var(--color-surface);
+
+}
+
+.teacher-form-group input:focus {
+
+    border-color: var(--color-primary);
+
+    box-shadow:
+        0 0 0 3px rgba(13, 206, 218, 0.12);
+
+    background: var(--color-surface);
+
+}
+
+.teacher-student-form-note {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 9px;
+
+    margin: 4px 0 20px;
+
+    padding: 11px 12px;
+
+    border: 1px solid rgba(13, 206, 218, 0.18);
+
+    border-radius: 8px;
+
+    background: rgba(13, 206, 218, 0.06);
+
+    box-sizing: border-box;
+
+}
+
+.teacher-student-form-note span {
+
+    flex-shrink: 0;
+
+    font-size: 14px;
+
+}
+
+.teacher-student-form-note p {
+
+    margin: 0;
+
+    color: var(--color-text-secondary);
+
+    font-size: 11px;
+
+    line-height: 1.5;
+
+}
+
+
+/* ==========================================
+   MODAL ACTIONS
+========================================== */
+
+.teacher-modal-actions {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    align-items: center;
+
+    gap: 9px;
+
+    padding-top: 4px;
+
+}
+
+.teacher-modal-cancel,
+.teacher-modal-submit {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 40px;
+
+    padding: 0 16px;
+
+    border-radius: var(--radius-medium);
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-sizing: border-box;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        opacity 0.2s ease;
+
+}
+
+.teacher-modal-cancel {
+
+    border: 1px solid var(--color-border);
+
+    background: var(--color-background);
+
+    color: var(--color-text-primary);
+
+}
+
+.teacher-modal-cancel:hover:not(:disabled) {
+
+    background: var(--color-background-soft);
+
+}
+
+.teacher-modal-submit {
+
+    border: 1px solid var(--color-sidebar);
+
+    background: var(--color-sidebar);
+
+    color: var(--color-text-white);
+
+}
+
+.teacher-modal-submit:hover:not(:disabled) {
+
+    border-color: var(--color-primary);
+
+    background: var(--color-primary);
+
+    transform: translateY(-1px);
+
+}
+
+.teacher-modal-cancel:disabled,
+.teacher-modal-submit:disabled {
+
+    cursor: not-allowed;
+
+    opacity: 0.55;
+
+}
+
+
+/* ==========================================
+   VIEW STUDENT DETAILS
+========================================== */
+
+.teacher-student-details {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 12px;
+
+    padding: 22px 24px;
+
+}
+
+.teacher-detail-item {
+
+    min-width: 0;
+
+    padding: 13px 14px;
+
+    border: 1px solid var(--color-border);
+
+    border-radius: 9px;
+
+    background: var(--color-background-soft);
+
+    box-sizing: border-box;
+
+}
+
+.teacher-detail-item span:first-child {
+
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--color-text-light);
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+}
+
+.teacher-detail-item strong {
+
+    display: block;
+
+    color: var(--color-text-primary);
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    word-break: break-word;
+
+}
+
+
+/* ==========================================
+   RESPONSIVE — 900px
+========================================== */
+
+@media (max-width: 900px) {
+
+    .teacher-students-header {
+
+        flex-direction: column;
+
+    }
+
+    .teacher-add-student-button {
+
+        width: 100%;
+
+    }
+
+}
+
+
+/* ==========================================
+   RESPONSIVE — 768px
 ========================================== */
 
 @media (max-width: 768px) {
 
     .teacher-students-page {
+
         padding: 20px;
+
     }
 
     .teacher-students-header {
+
         margin-bottom: 22px;
+
     }
 
     .teacher-students-header h1 {
+
         font-size: 26px;
+
     }
 
     .teacher-students-header p {
+
         font-size: 14px;
+
     }
 
     .teacher-students-card {
+
         padding: 18px;
+
     }
 
     .teacher-students-card-header {
+
         flex-direction: column;
+
         gap: 14px;
+
     }
 
     .teacher-students-card-icon {
+
         width: 42px;
+
         height: 42px;
+
     }
 
-    .teacher-students-count {
+    .teacher-student-counts {
+
         align-self: flex-start;
+
     }
 
     .teacher-students-table {
-        min-width: 650px;
+
+        min-width: 950px;
+
     }
+
+    .teacher-student-modal {
+
+        max-width: 100%;
+
+    }
+
+    .teacher-student-modal-header {
+
+        padding: 18px;
+
+    }
+
+    .teacher-student-form {
+
+        padding: 18px;
+
+    }
+
+    .teacher-student-details {
+
+        padding: 18px;
+
+    }
+
 }
+
+
+/* ==========================================
+   RESPONSIVE — 600px
+========================================== */
+
+@media (max-width: 600px) {
+
+    .teacher-form-grid {
+
+        grid-template-columns:
+            1fr;
+
+        gap: 0;
+
+    }
+
+    .teacher-student-details {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+    .teacher-student-counts {
+
+        width: 100%;
+
+    }
+
+    .student-count {
+
+        flex: 1;
+
+    }
+
+}
+
+
+/* ==========================================
+   RESPONSIVE — 480px
+========================================== */
 
 @media (max-width: 480px) {
 
     .teacher-students-page {
+
         padding: 16px;
+
     }
 
     .teacher-students-header h1 {
+
         font-size: 23px;
+
     }
 
     .teacher-students-card {
+
         padding: 16px;
+
         border-radius: var(--radius-medium);
+
     }
+
+    .teacher-student-actions {
+
+        align-items: stretch;
+
+        flex-direction: column;
+
+    }
+
+    .student-action-button {
+
+        width: 100%;
+
+    }
+
+    .teacher-modal-actions {
+
+        flex-direction: column-reverse;
+
+        align-items: stretch;
+
+    }
+
+    .teacher-modal-cancel,
+    .teacher-modal-submit {
+
+        width: 100%;
+
+    }
+
 }

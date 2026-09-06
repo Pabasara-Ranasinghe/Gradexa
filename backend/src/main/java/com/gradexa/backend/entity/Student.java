@@ -29,13 +29,29 @@ public class Student {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // ==========================================================
+    // USER ACCOUNT
+    // ==========================================================
+
+    /*
+     * A student can exist before creating a login account.
+     *
+     * Teacher creates the academic/student record first.
+     * Later, the student can request an account and the
+     * approved account can be linked to this Student.
+     *
+     * Therefore user_id must be allowed to be NULL.
+     */
     @OneToOne
     @JoinColumn(
             name = "user_id",
-            nullable = false,
             unique = true
     )
     private User user;
+
+    // ==========================================================
+    // STUDENT NUMBER
+    // ==========================================================
 
     @Column(
             name = "student_number",
@@ -45,12 +61,20 @@ public class Student {
     )
     private String studentNumber;
 
+    // ==========================================================
+    // FIRST NAME
+    // ==========================================================
+
     @Column(
             name = "first_name",
             nullable = false,
             length = 50
     )
     private String firstName;
+
+    // ==========================================================
+    // LAST NAME
+    // ==========================================================
 
     @Column(
             name = "last_name",
@@ -59,12 +83,19 @@ public class Student {
     )
     private String lastName;
 
+    // ==========================================================
+    // DATE OF BIRTH
+    // ==========================================================
+
     @Column(
             name = "date_of_birth"
     )
     private LocalDate dateOfBirth;
 
-    // Requested school section during registration
+    // ==========================================================
+    // REQUESTED SCHOOL SECTION
+    // ==========================================================
+
     @Enumerated(EnumType.STRING)
     @Column(
             name = "requested_section",
@@ -72,12 +103,27 @@ public class Student {
     )
     private SchoolSection requestedSection;
 
-    // Requested grade during registration
+    // ==========================================================
+    // REQUESTED GRADE
+    // ==========================================================
+
     @Column(
             name = "requested_grade"
     )
     private Integer requestedGrade;
 
-    @Column(nullable = false)
+    // ==========================================================
+    // STUDENT PROFILE ACTIVE
+    // ==========================================================
+
+    /*
+     * This refers to the overall student profile.
+     *
+     * Class-specific activation/deactivation will be handled
+     * through StudentEnrollment.active.
+     */
+    @Column(
+            nullable = false
+    )
     private boolean active = true;
 }
