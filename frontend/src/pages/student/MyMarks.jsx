@@ -1,7 +1,35 @@
-import { useEffect, useState } from 'react';
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useState
+} from 'react';
+
 import './MyMarks.css';
 
 const API_URL = 'http://localhost:8082';
+
+const CORE_SUBJECTS = [
+    'Sinhala',
+    'Buddhism',
+    'English',
+    'Science',
+    'Mathematics',
+    'History'
+];
+
+const BASKET_CATEGORIES = [
+    'BASKET_01',
+    'BASKET_02',
+    'BASKET_03'
+];
+
+const normalize = (value) =>
+    value == null
+        ? ''
+        : String(value)
+              .trim()
+              .toLowerCase();
 
 function MyMarks() {
 
@@ -20,18 +48,25 @@ function MyMarks() {
     const [error, setError] =
         useState('');
 
-
     // ==========================================================
     // GET TOKEN
     // ==========================================================
 
     const getToken = () => {
 
-        return localStorage.getItem(
-            'gradexa_token'
-        );
-    };
+        const token =
+            localStorage.getItem(
+                'gradexa_token'
+            );
 
+        if (!token) {
+            throw new Error(
+                'You are not logged in.'
+            );
+        }
+
+        return token;
+    };
 
     // ==========================================================
     // READ RESPONSE SAFELY
@@ -58,139 +93,138 @@ function MyMarks() {
         }
     };
 
-
     // ==========================================================
     // LOAD MARKS
     // ==========================================================
 
-    const loadMarks = async (
-        isRefresh = false
-    ) => {
+    const loadMarks = useCallback(
+        async (isRefresh = false) => {
 
-        try {
+            try {
 
-            if (isRefresh) {
+                if (isRefresh) {
 
-                setRefreshing(true);
+                    setRefreshing(true);
 
-            } else {
+                } else {
 
-                setLoading(true);
-            }
+                    setLoading(true);
+                }
 
-            setError('');
+                setError('');
 
-            const token =
-                getToken();
+                const token =
+                    getToken();
 
-            if (!token) {
+                // ==================================================
+                // GET CURRENT ENROLLMENT
+                // ==================================================
 
-                throw new Error(
-                    'You are not logged in.'
-                );
-            }
+                const enrollmentResponse =
+                    await fetch(
+                        `${API_URL}/api/students/me/enrollment`,
+                        {
+                            method: 'GET',
 
+                            headers: {
+                                Authorization:
+                                    `Bearer ${token}`,
 
-            // ==================================================
-            // GET CURRENT ENROLLMENT
-            // ==================================================
-
-            const enrollmentResponse =
-                await fetch(
-                    `${API_URL}/api/students/me/enrollment`,
-                    {
-                        method: 'GET',
-
-                        headers: {
-                            Authorization:
-                                `Bearer ${token}`,
-
-                            'Content-Type':
-                                'application/json'
+                                'Content-Type':
+                                    'application/json'
+                            }
                         }
-                    }
+                    );
+
+                const enrollmentData =
+                    await readResponse(
+                        enrollmentResponse
+                    );
+
+                if (!enrollmentResponse.ok) {
+
+                    throw new Error(
+                        typeof enrollmentData ===
+                        'string'
+                            ? enrollmentData
+                            : enrollmentData?.message ||
+                              'Failed to load enrollment information.'
+                    );
+                }
+
+                if (!enrollmentData?.id) {
+
+                    throw new Error(
+                        'Student enrollment information is not available.'
+                    );
+                }
+
+                setEnrollment(
+                    enrollmentData
                 );
 
-            const enrollmentData =
-                await readResponse(
-                    enrollmentResponse
-                );
+                // ==================================================
+                // GET ONLY SUBMITTED / PUBLISHED MARKS
+                // ==================================================
 
-            if (!enrollmentResponse.ok) {
+                const marksResponse =
+                    await fetch(
+                        `${API_URL}/api/marks/enrollment/${enrollmentData.id}/submitted`,
+                        {
+                            method: 'GET',
 
-                throw new Error(
-                    typeof enrollmentData === 'string'
-                        ? enrollmentData
-                        : enrollmentData?.message ||
-                          'Failed to load enrollment information.'
-                );
-            }
+                            headers: {
+                                Authorization:
+                                    `Bearer ${token}`,
 
-            setEnrollment(
-                enrollmentData
-            );
-
-
-            // ==================================================
-            // GET ONLY SUBMITTED / PUBLISHED MARKS
-            // ==================================================
-
-            const marksResponse =
-                await fetch(
-                    `${API_URL}/api/marks/enrollment/${enrollmentData.id}/submitted`,
-                    {
-                        method: 'GET',
-
-                        headers: {
-                            Authorization:
-                                `Bearer ${token}`,
-
-                            'Content-Type':
-                                'application/json'
+                                'Content-Type':
+                                    'application/json'
+                            }
                         }
-                    }
-                );
+                    );
 
-            const marksData =
-                await readResponse(
-                    marksResponse
-                );
+                const marksData =
+                    await readResponse(
+                        marksResponse
+                    );
 
-            if (!marksResponse.ok) {
+                if (!marksResponse.ok) {
 
-                throw new Error(
-                    typeof marksData === 'string'
+                    throw new Error(
+                        typeof marksData ===
+                        'string'
+                            ? marksData
+                            : marksData?.message ||
+                              'Failed to load published marks.'
+                    );
+                }
+
+                setMarks(
+                    Array.isArray(marksData)
                         ? marksData
-                        : marksData?.message ||
-                          'Failed to load published marks.'
+                        : []
                 );
+
+            } catch (err) {
+
+                console.error(
+                    'Failed to load student marks:',
+                    err
+                );
+
+                setError(
+                    err.message ||
+                    'Failed to load marks.'
+                );
+
+            } finally {
+
+                setLoading(false);
+                setRefreshing(false);
             }
-
-            setMarks(
-                Array.isArray(marksData)
-                    ? marksData
-                    : []
-            );
-
-        } catch (err) {
-
-            console.error(
-                'Failed to load student marks:',
-                err
-            );
-
-            setError(
-                err.message ||
-                'Failed to load marks.'
-            );
-
-        } finally {
-
-            setLoading(false);
-            setRefreshing(false);
-        }
-    };
-
+        },
+        []
+    );
 
     // ==========================================================
     // INITIAL LOAD
@@ -200,8 +234,7 @@ function MyMarks() {
 
         loadMarks();
 
-    }, []);
-
+    }, [loadMarks]);
 
     // ==========================================================
     // AUTO REFRESH
@@ -210,53 +243,190 @@ function MyMarks() {
     useEffect(() => {
 
         const interval =
-            setInterval(
-                () => {
+            setInterval(() => {
 
-                    loadMarks(true);
+                loadMarks(true);
 
-                },
-                5000
-            );
+            }, 5000);
 
         return () => {
 
-            clearInterval(
-                interval
-            );
+            clearInterval(interval);
         };
 
-    }, []);
-
+    }, [loadMarks]);
 
     // ==========================================================
-    // CREATE SUBJECT LIST
+    // SELECT EXACT 9 SUBJECTS
     // ==========================================================
 
-    const subjects = [
-        ...new Map(
-            marks.map(
-                (mark) => {
+    const subjects = useMemo(() => {
 
-                    const subject =
-                        mark?.subject;
+        const markList =
+            Array.isArray(marks)
+                ? marks
+                : [];
 
-                    if (!subject?.id) {
-                        return [
-                            `unknown-${mark.id}`,
-                            subject
-                        ];
-                    }
+        // ------------------------------------------------------
+        // CREATE UNIQUE SUBJECT LIST
+        // ------------------------------------------------------
 
-                    return [
-                        subject.id,
-                        subject
-                    ];
+        const uniqueSubjects = [
+            ...new Map(
+                markList
+                    .filter(
+                        (mark) =>
+                            mark?.subject?.id
+                    )
+                    .map(
+                        (mark) => [
+                            mark.subject.id,
+                            mark.subject
+                        ]
+                    )
+            ).values()
+        ];
+
+        const selected = [];
+
+        // ------------------------------------------------------
+        // SIX CORE SUBJECTS
+        // ------------------------------------------------------
+
+        CORE_SUBJECTS.forEach(
+            (coreName) => {
+
+                const subject =
+                    uniqueSubjects.find(
+                        (item) =>
+                            normalize(
+                                item.subjectName
+                            ) ===
+                                normalize(
+                                    coreName
+                                ) &&
+                            normalize(
+                                item.category
+                            ) === 'core'
+                    );
+
+                if (subject) {
+
+                    selected.push({
+                        ...subject,
+
+                        displayName:
+                            subject.subjectName,
+
+                        basketLabel: ''
+                    });
                 }
-            )
-        ).values()
-    ].filter(Boolean);
+            }
+        );
 
+        // ------------------------------------------------------
+        // ONE SUBJECT FROM EACH BASKET
+        // ------------------------------------------------------
+
+        BASKET_CATEGORIES.forEach(
+            (basketCategory, index) => {
+
+                const basketSubjects =
+                    uniqueSubjects
+                        .filter(
+                            (subject) =>
+                                normalize(
+                                    subject.category
+                                ) ===
+                                normalize(
+                                    basketCategory
+                                )
+                        )
+                        .sort(
+                            (a, b) =>
+                                (a.displayOrder ?? 999) -
+                                (b.displayOrder ?? 999)
+                        );
+
+                if (
+                    basketSubjects.length === 0
+                ) {
+                    return;
+                }
+
+                // Determine which basket subject
+                // actually has published marks
+                // for this student.
+
+                const subjectsWithUsage =
+                    basketSubjects.map(
+                        (subject) => {
+
+                            const usageCount =
+                                markList.filter(
+                                    (mark) =>
+                                        mark?.subject?.id ===
+                                            subject.id &&
+                                        mark?.status ===
+                                            'SUBMITTED'
+                                ).length;
+
+                            return {
+                                subject,
+                                usageCount
+                            };
+                        }
+                    );
+
+                subjectsWithUsage.sort(
+                    (a, b) => {
+
+                        if (
+                            b.usageCount !==
+                            a.usageCount
+                        ) {
+
+                            return (
+                                b.usageCount -
+                                a.usageCount
+                            );
+                        }
+
+                        return (
+                            (a.subject.displayOrder ??
+                                999) -
+                            (b.subject.displayOrder ??
+                                999)
+                        );
+                    }
+                );
+
+                const selectedBasketSubject =
+                    subjectsWithUsage[0]?.subject;
+
+                if (selectedBasketSubject) {
+
+                    selected.push({
+
+                        ...selectedBasketSubject,
+
+                        displayName:
+                            selectedBasketSubject.subjectName,
+
+                        basketLabel:
+                            `Basket 0${index + 1}`
+                    });
+                }
+            }
+        );
+
+        // ------------------------------------------------------
+        // MAXIMUM 9 SUBJECTS
+        // ------------------------------------------------------
+
+        return selected.slice(0, 9);
+
+    }, [marks]);
 
     // ==========================================================
     // GET MARK FOR SUBJECT + TERM
@@ -270,24 +440,25 @@ function MyMarks() {
         const mark =
             marks.find(
                 (item) =>
-                    item?.subject?.id === subjectId &&
-                    item?.term === term
+                    String(
+                        item?.subject?.id
+                    ) ===
+                        String(subjectId) &&
+                    item?.term === term &&
+                    item?.status ===
+                        'SUBMITTED'
             );
 
         if (!mark) {
             return '—';
         }
 
-        /*
-         * Absent marks are stored with absent=true
-         * and marks=0.
-         *
-         * Display AB to the student instead of 0.
-         */
+        // Absent must display as AB,
+        // never as 0.
+
         if (
             mark.absent === true
         ) {
-
             return 'AB';
         }
 
@@ -295,13 +466,28 @@ function MyMarks() {
             mark.marks === null ||
             mark.marks === undefined
         ) {
-
             return '—';
         }
 
-        return mark.marks;
-    };
+        const numericMark =
+            Number(mark.marks);
 
+        if (
+            Number.isNaN(
+                numericMark
+            )
+        ) {
+            return '—';
+        }
+
+        return numericMark
+            .toFixed(2)
+            .replace(/\.00$/, '')
+            .replace(
+                /(\.\d)0$/,
+                '$1'
+            );
+    };
 
     // ==========================================================
     // LOADING
@@ -315,7 +501,8 @@ function MyMarks() {
 
                 <div className="marks-loading">
 
-                    <div className="loading-spinner"></div>
+                    <div className="loading-spinner">
+                    </div>
 
                     <p>
                         Loading your published marks...
@@ -326,7 +513,6 @@ function MyMarks() {
             </div>
         );
     }
-
 
     // ==========================================================
     // ERROR
@@ -374,7 +560,6 @@ function MyMarks() {
         );
     }
 
-
     // ==========================================================
     // RENDER
     // ==========================================================
@@ -400,12 +585,11 @@ function MyMarks() {
                     </h1>
 
                     <p className="marks-subtitle">
-                        View your published marks for each
-                        subject and term.
+                        View your published marks for
+                        each subject and term.
                     </p>
 
                 </div>
-
 
                 <button
                     type="button"
@@ -426,7 +610,6 @@ function MyMarks() {
 
             </div>
 
-
             {/* ==================================================
                 STUDENT / CLASS INFORMATION
             ================================================== */}
@@ -446,7 +629,6 @@ function MyMarks() {
 
                 </div>
 
-
                 <div className="marks-info-item">
 
                     <span>
@@ -454,11 +636,11 @@ function MyMarks() {
                     </span>
 
                     <strong>
-                        {enrollment?.studentNumber}
+                        {enrollment?.studentNumber ||
+                            '—'}
                     </strong>
 
                 </div>
-
 
                 <div className="marks-info-item">
 
@@ -467,11 +649,11 @@ function MyMarks() {
                     </span>
 
                     <strong>
-                        {enrollment?.grade}
+                        {enrollment?.grade ||
+                            '—'}
                     </strong>
 
                 </div>
-
 
                 <div className="marks-info-item">
 
@@ -480,11 +662,11 @@ function MyMarks() {
                     </span>
 
                     <strong>
-                        {enrollment?.sectionName}
+                        {enrollment?.sectionName ||
+                            '—'}
                     </strong>
 
                 </div>
-
 
                 <div className="marks-info-item">
 
@@ -493,13 +675,13 @@ function MyMarks() {
                     </span>
 
                     <strong>
-                        {enrollment?.academicYear}
+                        {enrollment?.academicYear ||
+                            '—'}
                     </strong>
 
                 </div>
 
             </div>
-
 
             {/* ==================================================
                 PUBLISHED MARKS NOTICE
@@ -518,14 +700,13 @@ function MyMarks() {
                     </strong>
 
                     <p>
-                        Only marks published by your teacher
-                        are displayed here.
+                        Only marks published by your
+                        teacher are displayed here.
                     </p>
 
                 </div>
 
             </div>
-
 
             {/* ==================================================
                 MARKS TABLE
@@ -542,14 +723,14 @@ function MyMarks() {
                         </h2>
 
                         <p>
-                            Your published marks for all
-                            available subjects.
+                            Your published marks for
+                            the nine subjects in your
+                            academic program.
                         </p>
 
                     </div>
 
                 </div>
-
 
                 {subjects.length === 0 ? (
 
@@ -564,9 +745,10 @@ function MyMarks() {
                         </h3>
 
                         <p>
-                            Your teacher has not published
-                            any marks for you yet. Published
-                            marks will appear here automatically.
+                            Your teacher has not
+                            published any marks for you
+                            yet. Published marks will
+                            appear here automatically.
                         </p>
 
                     </div>
@@ -580,6 +762,10 @@ function MyMarks() {
                             <thead>
 
                                 <tr>
+
+                                    <th>
+                                        No.
+                                    </th>
 
                                     <th>
                                         Subject
@@ -601,84 +787,108 @@ function MyMarks() {
 
                             </thead>
 
-
                             <tbody>
 
                                 {subjects.map(
-                                    (subject) => (
+                                    (
+                                        subject,
+                                        index
+                                    ) => {
 
-                                        <tr
-                                            key={
-                                                subject.id
-                                            }
-                                        >
+                                        const term1Mark =
+                                            getMark(
+                                                subject.id,
+                                                'TERM_1'
+                                            );
 
-                                            <td className="subject-name">
-                                                {
-                                                    subject.subjectName
-                                                }
-                                            </td>
+                                        const term2Mark =
+                                            getMark(
+                                                subject.id,
+                                                'TERM_2'
+                                            );
 
+                                        const term3Mark =
+                                            getMark(
+                                                subject.id,
+                                                'TERM_3'
+                                            );
 
-                                            <td
-                                                className={
-                                                    getMark(
-                                                        subject.id,
-                                                        'TERM_1'
-                                                    ) === 'AB'
-                                                        ? 'mark-absent'
-                                                        : ''
-                                                }
-                                            >
-                                                {
-                                                    getMark(
-                                                        subject.id,
-                                                        'TERM_1'
-                                                    )
-                                                }
-                                            </td>
+                                        return (
 
-
-                                            <td
-                                                className={
-                                                    getMark(
-                                                        subject.id,
-                                                        'TERM_2'
-                                                    ) === 'AB'
-                                                        ? 'mark-absent'
-                                                        : ''
+                                            <tr
+                                                key={
+                                                    subject.id
                                                 }
                                             >
-                                                {
-                                                    getMark(
-                                                        subject.id,
-                                                        'TERM_2'
-                                                    )
-                                                }
-                                            </td>
 
+                                                <td>
+                                                    {
+                                                        index +
+                                                        1
+                                                    }
+                                                </td>
 
-                                            <td
-                                                className={
-                                                    getMark(
-                                                        subject.id,
-                                                        'TERM_3'
-                                                    ) === 'AB'
-                                                        ? 'mark-absent'
-                                                        : ''
-                                                }
-                                            >
-                                                {
-                                                    getMark(
-                                                        subject.id,
-                                                        'TERM_3'
-                                                    )
-                                                }
-                                            </td>
+                                                <td className="subject-name">
 
-                                        </tr>
+                                                    {subject.basketLabel ? (
+                                                        <span className="basket-subject-label">
+                                                            {
+                                                                subject.basketLabel
+                                                            }{' '}
+                                                            (
+                                                            {
+                                                                subject.displayName
+                                                            }
+                                                            )
+                                                        </span>
+                                                    ) : (
+                                                        subject.displayName
+                                                    )}
 
-                                    )
+                                                </td>
+
+                                                <td
+                                                    className={
+                                                        term1Mark ===
+                                                        'AB'
+                                                            ? 'mark-absent'
+                                                            : ''
+                                                    }
+                                                >
+                                                    {
+                                                        term1Mark
+                                                    }
+                                                </td>
+
+                                                <td
+                                                    className={
+                                                        term2Mark ===
+                                                        'AB'
+                                                            ? 'mark-absent'
+                                                            : ''
+                                                    }
+                                                >
+                                                    {
+                                                        term2Mark
+                                                    }
+                                                </td>
+
+                                                <td
+                                                    className={
+                                                        term3Mark ===
+                                                        'AB'
+                                                            ? 'mark-absent'
+                                                            : ''
+                                                    }
+                                                >
+                                                    {
+                                                        term3Mark
+                                                    }
+                                                </td>
+
+                                            </tr>
+                                        );
+                                    }
                                 )}
 
                             </tbody>

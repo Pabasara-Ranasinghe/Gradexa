@@ -500,3 +500,81 @@
     }
 
 }
+
+/* ==========================================================
+   MY MARKS - NINE SUBJECT TABLE
+   ========================================================== */
+
+.marks-table-container {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #dfe7ec;
+    border-radius: 12px;
+}
+
+.marks-table {
+    width: 100%;
+    min-width: 650px;
+    border-collapse: collapse;
+    background: #ffffff;
+}
+
+.marks-table th,
+.marks-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e4eaee;
+    text-align: center;
+    font-size: 14px;
+}
+
+.marks-table th {
+    background: #0c2c55;
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.marks-table th:nth-child(1) {
+    width: 70px;
+}
+
+.marks-table th:nth-child(2) {
+    width: 45%;
+    text-align: left;
+}
+
+.marks-table td:first-child {
+    font-weight: 600;
+}
+
+.marks-table td:nth-child(2) {
+    text-align: left;
+}
+
+.marks-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.marks-table tbody tr:hover {
+    background: #ebfffa;
+}
+
+.subject-name {
+    font-weight: 500;
+}
+
+.basket-subject-label {
+    font-weight: 400;
+}
+
+.mark-absent {
+    font-weight: 700;
+}
+
+@media (max-width: 700px) {
+
+    .marks-table th,
+    .marks-table td {
+        padding: 11px 10px;
+        font-size: 13px;
+    }
+}
