@@ -14,6 +14,50 @@ import {
 
 import './StudentDashboard.css';
 
+const API_URL = 'http://localhost:8082';
+
+/* ==========================================================
+   REQUIRED SUBJECTS
+========================================================== */
+
+const CORE_SUBJECTS = [
+    'Sinhala',
+    'Buddhism',
+    'English',
+    'Science',
+    'Mathematics',
+    'History'
+];
+
+const BASKET_CATEGORIES = [
+    {
+        category: 'BASKET_01',
+        label: 'Basket 01'
+    },
+    {
+        category: 'BASKET_02',
+        label: 'Basket 02'
+    },
+    {
+        category: 'BASKET_03',
+        label: 'Basket 03'
+    }
+];
+
+/* ==========================================================
+   HELPERS
+========================================================== */
+
+const normalize = (value) =>
+    String(value || '')
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, ' ');
+
+/* ==========================================================
+   COMPONENT
+========================================================== */
+
 function StudentDashboard() {
 
     const navigate = useNavigate();
@@ -25,6 +69,10 @@ function StudentDashboard() {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+
+    /* ==========================================================
+       LOAD DASHBOARD DATA
+    ========================================================== */
 
     useEffect(() => {
 
@@ -41,19 +89,18 @@ function StudentDashboard() {
                     );
                 }
 
-                // ==================================================
-                // LOAD STUDENT PROFILE
-                // ==================================================
+                const headers = {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                };
 
+                /* STUDENT */
                 const studentResponse =
                     await fetch(
-                        'http://localhost:8082/api/students/me',
+                        `${API_URL}/api/students/me`,
                         {
                             method: 'GET',
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
-                            }
+                            headers
                         }
                     );
 
@@ -63,26 +110,19 @@ function StudentDashboard() {
                 if (!studentResponse.ok) {
                     throw new Error(
                         studentData?.message ||
-                        studentData ||
                         'Failed to load student information.'
                     );
                 }
 
                 setStudent(studentData);
 
-                // ==================================================
-                // LOAD CURRENT ENROLLMENT
-                // ==================================================
-
+                /* ENROLLMENT */
                 const enrollmentResponse =
                     await fetch(
-                        'http://localhost:8082/api/students/me/enrollment',
+                        `${API_URL}/api/students/me/enrollment`,
                         {
                             method: 'GET',
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
-                            }
+                            headers
                         }
                     );
 
@@ -92,26 +132,19 @@ function StudentDashboard() {
                 if (!enrollmentResponse.ok) {
                     throw new Error(
                         enrollmentData?.message ||
-                        enrollmentData ||
                         'Failed to load enrollment information.'
                     );
                 }
 
                 setEnrollment(enrollmentData);
 
-                // ==================================================
-                // LOAD STUDENT MARKS
-                // ==================================================
-
+                /* SUBMITTED MARKS */
                 const marksResponse =
                     await fetch(
-                        `http://localhost:8082/api/marks/enrollment/${enrollmentData.id}`,
+                        `${API_URL}/api/marks/enrollment/${enrollmentData.id}/submitted`,
                         {
                             method: 'GET',
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
-                            }
+                            headers
                         }
                     );
 
@@ -121,26 +154,23 @@ function StudentDashboard() {
                 if (!marksResponse.ok) {
                     throw new Error(
                         marksData?.message ||
-                        marksData ||
                         'Failed to load marks.'
                     );
                 }
 
-                setMarks(marksData);
+                setMarks(
+                    Array.isArray(marksData)
+                        ? marksData
+                        : []
+                );
 
-                // ==================================================
-                // LOAD STUDENT PERFORMANCE
-                // ==================================================
-
+                /* PERFORMANCE */
                 const performanceResponse =
                     await fetch(
-                        'http://localhost:8082/api/reports/me/performance',
+                        `${API_URL}/api/reports/me/performance`,
                         {
                             method: 'GET',
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
-                            }
+                            headers
                         }
                     );
 
@@ -150,7 +180,6 @@ function StudentDashboard() {
                 if (!performanceResponse.ok) {
                     throw new Error(
                         performanceData?.message ||
-                        performanceData ||
                         'Failed to load performance information.'
                     );
                 }
@@ -179,12 +208,515 @@ function StudentDashboard() {
 
     }, []);
 
-    // ==========================================================
-    // LOADING
-    // ==========================================================
+    /* ==========================================================
+       CHART SUBJECT GROUPS
+    ========================================================== */
+
+    const coreSubjectGroups = [
+        { names: ['Sinhala'] },
+        { names: ['Buddhism'] },
+        { names: ['English', 'English Literature'] },
+        { names: ['Science'] },
+        { names: ['Mathematics', 'Maths'] },
+        { names: ['History'] }
+    ];
+
+    const basketGroups = [
+        {
+            category: 'BASKET_01',
+            label: 'Basket 01'
+        },
+        {
+            category: 'BASKET_02',
+            label: 'Basket 02'
+        },
+        {
+            category: 'BASKET_03',
+            label: 'Basket 03'
+        }
+    ];
+
+    /* ==========================================================
+       NORMALIZE TERM
+    ========================================================== */
+
+    const normalizeTerm = (term) => {
+
+        const value = String(term || '')
+            .trim()
+            .toUpperCase()
+            .replace(/[-\s]/g, '_');
+
+        if (
+            value === 'TERM_1' ||
+            value === 'TERM1' ||
+            value === '1' ||
+            value === 'FIRST' ||
+            value === 'TERM_ONE'
+        ) {
+            return 'TERM_1';
+        }
+
+        if (
+            value === 'TERM_2' ||
+            value === 'TERM2' ||
+            value === '2' ||
+            value === 'SECOND' ||
+            value === 'TERM_TWO'
+        ) {
+            return 'TERM_2';
+        }
+
+        if (
+            value === 'TERM_3' ||
+            value === 'TERM3' ||
+            value === '3' ||
+            value === 'THIRD' ||
+            value === 'TERM_THREE'
+        ) {
+            return 'TERM_3';
+        }
+
+        return value;
+    };
+
+    /* ==========================================================
+       UNIQUE SUBJECTS
+    ========================================================== */
+
+    const uniqueSubjects = [
+        ...new Map(
+            marks
+                .filter(
+                    mark =>
+                        mark?.subject?.id != null
+                )
+                .map(mark => [
+                    String(mark.subject.id),
+                    mark.subject
+                ])
+        ).values()
+    ];
+
+    /* ==========================================================
+       CORE SUBJECTS
+    ========================================================== */
+
+    const selectedCoreSubjects =
+        coreSubjectGroups
+            .map(group => {
+
+                return uniqueSubjects.find(subject => {
+
+                    const subjectName =
+                        normalize(
+                            subject.subjectName
+                        );
+
+                    return group.names.some(
+                        name =>
+                            subjectName ===
+                            normalize(name)
+                    );
+                });
+            })
+            .filter(Boolean)
+            .map(subject => ({
+                ...subject,
+                displayLabel:
+                    subject.subjectName,
+                isBasket: false
+            }));
+
+    /* ==========================================================
+       BASKET SUBJECTS
+    ========================================================== */
+
+    const termPriority = {
+        TERM_1: 1,
+        TERM_2: 2,
+        TERM_3: 3
+    };
+
+    const selectedBasketSubjects =
+        basketGroups
+            .map(({ category, label }) => {
+
+                const candidates =
+                    uniqueSubjects.filter(
+                        subject =>
+                            normalize(
+                                subject.category
+                            ) ===
+                            normalize(category)
+                    );
+
+                if (
+                    candidates.length === 0
+                ) {
+                    return null;
+                }
+
+                const rankedCandidates =
+                    candidates
+                        .map(subject => {
+
+                            const subjectMarks =
+                                marks.filter(mark =>
+                                    String(
+                                        mark?.subject?.id
+                                    ) ===
+                                    String(
+                                        subject.id
+                                    )
+                                );
+
+                            const terms =
+                                [
+                                    ...new Set(
+                                        subjectMarks.map(
+                                            mark =>
+                                                normalizeTerm(
+                                                    mark.term
+                                                )
+                                        )
+                                    )
+                                ];
+
+                            const validTerms =
+                                terms.filter(
+                                    term =>
+                                        termPriority[
+                                            term
+                                        ]
+                                );
+
+                            const earliestTerm =
+                                validTerms.length > 0
+                                    ? Math.min(
+                                        ...validTerms.map(
+                                            term =>
+                                                termPriority[
+                                                    term
+                                                ]
+                                        )
+                                    )
+                                    : 999;
+
+                            return {
+                                ...subject,
+
+                                publishedTermCount:
+                                    validTerms.length,
+
+                                earliestTerm
+                            };
+                        })
+                        .sort((a, b) => {
+
+                            if (
+                                a.earliestTerm !==
+                                b.earliestTerm
+                            ) {
+                                return (
+                                    a.earliestTerm -
+                                    b.earliestTerm
+                                );
+                            }
+
+                            if (
+                                b.publishedTermCount !==
+                                a.publishedTermCount
+                            ) {
+                                return (
+                                    b.publishedTermCount -
+                                    a.publishedTermCount
+                                );
+                            }
+
+                            return (
+                                Number(
+                                    a.displayOrder ?? 999
+                                ) -
+                                Number(
+                                    b.displayOrder ?? 999
+                                )
+                            );
+                        });
+
+                const selected =
+                    rankedCandidates[0];
+
+                return {
+                    ...selected,
+
+                    displayLabel:
+                        `${label} (${selected.subjectName})`,
+
+                    isBasket: true,
+
+                    basketLabel: label
+                };
+            })
+            .filter(Boolean);
+
+    /* ==========================================================
+       FINAL SUBJECT LIST
+    ========================================================== */
+
+    const chartSubjects = [
+        ...selectedCoreSubjects,
+        ...selectedBasketSubjects
+    ].slice(0, 9);
+
+    /* ==========================================================
+       TEMPORARY DIAGNOSTIC LOGS
+    ========================================================== */
+
+    console.log(
+        '========== GRADEXA CHART DEBUG =========='
+    );
+
+    console.log(
+        'All marks from API:',
+        marks
+    );
+
+    console.log(
+        'Selected core subjects:',
+        selectedCoreSubjects.map(subject => ({
+            id: subject.id,
+            name: subject.subjectName
+        }))
+    );
+
+    console.log(
+        'Selected basket subjects:',
+        selectedBasketSubjects.map(subject => ({
+            id: subject.id,
+            name: subject.subjectName,
+            category: subject.category,
+            basketLabel: subject.basketLabel
+        }))
+    );
+
+    console.log(
+        'FINAL chartSubjects:',
+        chartSubjects.map(subject => ({
+            id: subject.id,
+            name: subject.subjectName,
+            label: subject.displayLabel,
+            category: subject.category
+        }))
+    );
+
+    /* ==========================================================
+       CHART DATA
+    ========================================================== */
+
+    const chartData =
+        chartSubjects.map(subject => {
+
+            const findTermMark = term => {
+
+                return marks.find(mark => {
+
+                    return (
+                        String(
+                            mark?.subject?.id
+                        ) ===
+                        String(subject.id) &&
+
+                        normalizeTerm(
+                            mark.term
+                        ) === term
+                    );
+                });
+            };
+
+            const term1 =
+                findTermMark('TERM_1');
+
+            const term2 =
+                findTermMark('TERM_2');
+
+            const term3 =
+                findTermMark('TERM_3');
+
+            return {
+
+                subject:
+                    subject.displayLabel ||
+                    subject.subjectName,
+
+                subjectName:
+                    subject.subjectName,
+
+                basketLabel:
+                    subject.basketLabel ||
+                    null,
+
+                term1:
+                    term1?.absent
+                        ? null
+                        : term1?.marks ?? null,
+
+                term2:
+                    term2?.absent
+                        ? null
+                        : term2?.marks ?? null,
+
+                term3:
+                    term3?.absent
+                        ? null
+                        : term3?.marks ?? null,
+
+                term1Display:
+                    term1?.absent
+                        ? 'AB'
+                        : term1?.marks ?? '—',
+
+                term2Display:
+                    term2?.absent
+                        ? 'AB'
+                        : term2?.marks ?? '—',
+
+                term3Display:
+                    term3?.absent
+                        ? 'AB'
+                        : term3?.marks ?? '—'
+            };
+        });
+
+    /* ==========================================================
+       TEMPORARY CHART DATA LOG
+    ========================================================== */
+
+    console.log(
+        'FINAL chartData:',
+        chartData
+    );
+
+    console.log(
+        '========================================'
+    );
+
+    /* ==========================================================
+       CUSTOM X-AXIS TICK
+    ========================================================== */
+
+    const SubjectAxisTick = ({
+        x,
+        y,
+        payload
+    }) => {
+
+        const label =
+            String(payload?.value || '');
+
+        let line1 = label;
+        let line2 = '';
+
+        if (label.includes(' (')) {
+
+            const parts =
+                label.split(' (');
+
+            line1 =
+                parts[0];
+
+            line2 =
+                `(${parts.slice(1).join(' (')}`;
+        }
+
+        return (
+            <g transform={`translate(${x},${y})`}>
+
+                <text
+                    textAnchor="middle"
+                    fill="#4d5965"
+                    fontSize={11}
+                >
+
+                    <tspan
+                        x="0"
+                        dy="0"
+                    >
+                        {line1}
+                    </tspan>
+
+                    {line2 && (
+                        <tspan
+                            x="0"
+                            dy="15"
+                        >
+                            {line2}
+                        </tspan>
+                    )}
+
+                </text>
+
+            </g>
+        );
+    };
+
+    /* ==========================================================
+       CUSTOM TOOLTIP
+    ========================================================== */
+
+    const CustomTooltip = ({
+        active,
+        payload
+    }) => {
+
+        if (
+            !active ||
+            !payload ||
+            payload.length === 0
+        ) {
+            return null;
+        }
+
+        const data =
+            payload[0]?.payload;
+
+        return (
+            <div className="student-chart-tooltip">
+
+                <p className="tooltip-subject">
+                    {data?.subject}
+                </p>
+
+                <div className="tooltip-row">
+                    <span>Term 1</span>
+                    <strong>
+                        {data?.term1Display ?? '—'}
+                    </strong>
+                </div>
+
+                <div className="tooltip-row">
+                    <span>Term 2</span>
+                    <strong>
+                        {data?.term2Display ?? '—'}
+                    </strong>
+                </div>
+
+                <div className="tooltip-row">
+                    <span>Term 3</span>
+                    <strong>
+                        {data?.term3Display ?? '—'}
+                    </strong>
+                </div>
+
+            </div>
+        );
+    };
+
+    /* ==========================================================
+       LOADING
+    ========================================================== */
 
     if (loading) {
-
         return (
             <div className="student-dashboard">
 
@@ -202,12 +734,11 @@ function StudentDashboard() {
         );
     }
 
-    // ==========================================================
-    // ERROR
-    // ==========================================================
+    /* ==========================================================
+       ERROR
+    ========================================================== */
 
     if (error) {
-
         return (
             <div className="student-dashboard">
 
@@ -231,15 +762,15 @@ function StudentDashboard() {
         );
     }
 
-    // ==========================================================
-    // STUDENT INFORMATION
-    // ==========================================================
+    /* ==========================================================
+       STUDENT INFORMATION
+    ========================================================== */
 
     const fullName =
-        `${student.firstName} ${student.lastName}`;
+        `${student?.firstName || ''} ${student?.lastName || ''}`.trim();
 
     const initials =
-        `${student.firstName?.charAt(0) || ''}${student.lastName?.charAt(0) || ''}`;
+        `${student?.firstName?.charAt(0) || ''}${student?.lastName?.charAt(0) || ''}`;
 
     const academicYear =
         enrollment?.academicYear || '--';
@@ -250,13 +781,15 @@ function StudentDashboard() {
     const classSection =
         enrollment?.sectionName || '--';
 
-    // ==========================================================
-    // PERFORMANCE INFORMATION
-    // ==========================================================
+    /* ==========================================================
+       PERFORMANCE INFORMATION
+    ========================================================== */
 
     const average =
         performance?.overallAverage != null
-            ? performance.overallAverage.toFixed(2)
+            ? Number(
+                performance.overallAverage
+            ).toFixed(2)
             : '--';
 
     const classRank =
@@ -265,74 +798,17 @@ function StudentDashboard() {
             ? `${performance.place} / ${performance.totalStudents}`
             : '--';
 
-    // ==========================================================
-    // SUBJECT COUNT
-    // ==========================================================
-
     const subjectCount =
-        new Set(
-            marks.map(mark =>
-                mark.subject?.id
-            )
-        ).size;
+        chartSubjects.length;
 
-    // ==========================================================
-    // CREATE CHART DATA
-    // ==========================================================
-
-    const chartSubjects = [
-        ...new Map(
-            marks.map(mark => [
-                mark.subject?.id,
-                mark.subject
-            ])
-        ).values()
-    ];
-
-    const chartData =
-        chartSubjects.map(subject => {
-
-            const term1 =
-                marks.find(
-                    mark =>
-                        mark.subject?.id === subject.id &&
-                        mark.term === 'TERM_1'
-                );
-
-            const term2 =
-                marks.find(
-                    mark =>
-                        mark.subject?.id === subject.id &&
-                        mark.term === 'TERM_2'
-                );
-
-            const term3 =
-                marks.find(
-                    mark =>
-                        mark.subject?.id === subject.id &&
-                        mark.term === 'TERM_3'
-                );
-
-            return {
-                subject: subject.subjectName,
-
-                term1:
-                    term1?.marks ?? null,
-
-                term2:
-                    term2?.marks ?? null,
-
-                term3:
-                    term3?.marks ?? null
-            };
-        });
+    /* ==========================================================
+       RENDER
+    ========================================================== */
 
     return (
         <div className="student-dashboard">
 
-            {/* ==================================================
-                HEADER
-            ================================================== */}
+            {/* HEADER */}
 
             <div className="student-header">
 
@@ -355,9 +831,7 @@ function StudentDashboard() {
 
             </div>
 
-            {/* ==================================================
-                STUDENT INFORMATION
-            ================================================== */}
+            {/* STUDENT INFORMATION */}
 
             <div className="student-info-card">
 
@@ -372,7 +846,7 @@ function StudentDashboard() {
                     </h2>
 
                     <p>
-                        Student ID: {student.studentNumber}
+                        Student ID: {student?.studentNumber}
                     </p>
 
                     <p>
@@ -395,9 +869,7 @@ function StudentDashboard() {
 
             </div>
 
-            {/* ==================================================
-                SUMMARY CARDS
-            ================================================== */}
+            {/* SUMMARY */}
 
             <div className="student-summary">
 
@@ -483,9 +955,7 @@ function StudentDashboard() {
 
             </div>
 
-            {/* ==================================================
-                QUICK ACCESS
-            ================================================== */}
+            {/* QUICK ACCESS */}
 
             <div className="student-section">
 
@@ -502,10 +972,6 @@ function StudentDashboard() {
                 </div>
 
                 <div className="quick-access-grid">
-
-                    {/* ==================================================
-                        MY PROFILE
-                    ================================================== */}
 
                     <div
                         className="quick-card"
@@ -534,10 +1000,6 @@ function StudentDashboard() {
 
                     </div>
 
-                    {/* ==================================================
-                        MY CLASSES
-                    ================================================== */}
-
                     <div
                         className="quick-card"
                         onClick={() =>
@@ -565,10 +1027,6 @@ function StudentDashboard() {
 
                     </div>
 
-                    {/* ==================================================
-                        MY MARKS
-                    ================================================== */}
-
                     <div
                         className="quick-card"
                         onClick={() =>
@@ -595,10 +1053,6 @@ function StudentDashboard() {
                         </div>
 
                     </div>
-
-                    {/* ==================================================
-                        MARKSHEET
-                    ================================================== */}
 
                     <div
                         className="quick-card"
@@ -631,9 +1085,7 @@ function StudentDashboard() {
 
             </div>
 
-            {/* ==================================================
-                SUBJECT PERFORMANCE
-            ================================================== */}
+            {/* SUBJECT PERFORMANCE */}
 
             <div className="student-section">
 
@@ -664,7 +1116,7 @@ function StudentDashboard() {
                             </h3>
 
                             <p>
-                                Your teacher has not entered any
+                                Your teacher has not published any
                                 marks yet.
                             </p>
 
@@ -678,7 +1130,7 @@ function StudentDashboard() {
 
                                 <ResponsiveContainer
                                     width="100%"
-                                    height={420}
+                                    height={480}
                                 >
 
                                     <BarChart
@@ -687,10 +1139,10 @@ function StudentDashboard() {
                                             top: 20,
                                             right: 20,
                                             left: 10,
-                                            bottom: 30
+                                            bottom: 75
                                         }}
                                         barGap={4}
-                                        barCategoryGap="10%"
+                                        barCategoryGap="12%"
                                     >
 
                                         <CartesianGrid
@@ -701,10 +1153,11 @@ function StudentDashboard() {
                                         <XAxis
                                             dataKey="subject"
                                             interval={0}
-                                            height={50}
-                                            tick={{
-                                                fontSize: 12
-                                            }}
+                                            height={90}
+                                            tick={
+                                                <SubjectAxisTick />
+                                            }
+                                            tickMargin={10}
                                         />
 
                                         <YAxis
@@ -717,7 +1170,11 @@ function StudentDashboard() {
                                             }}
                                         />
 
-                                        <Tooltip />
+                                        <Tooltip
+                                            content={
+                                                <CustomTooltip />
+                                            }
+                                        />
 
                                         <Legend
                                             verticalAlign="top"
@@ -728,21 +1185,36 @@ function StudentDashboard() {
                                             dataKey="term1"
                                             name="Term 1"
                                             fill="#0DCEDA"
-                                            radius={[4, 4, 0, 0]}
+                                            radius={[
+                                                4,
+                                                4,
+                                                0,
+                                                0
+                                            ]}
                                         />
 
                                         <Bar
                                             dataKey="term2"
                                             name="Term 2"
                                             fill="#6EF3D6"
-                                            radius={[4, 4, 0, 0]}
+                                            radius={[
+                                                4,
+                                                4,
+                                                0,
+                                                0
+                                            ]}
                                         />
 
                                         <Bar
                                             dataKey="term3"
                                             name="Term 3"
                                             fill="#0C2C55"
-                                            radius={[4, 4, 0, 0]}
+                                            radius={[
+                                                4,
+                                                4,
+                                                0,
+                                                0
+                                            ]}
                                         />
 
                                     </BarChart>
