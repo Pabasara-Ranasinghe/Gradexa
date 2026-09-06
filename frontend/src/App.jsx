@@ -19,6 +19,7 @@ import TeacherStudents from './pages/teacher/TeacherStudents';
 import TeacherMarks from './pages/teacher/TeacherMarks';
 import TeacherDraftMarks from './pages/teacher/TeacherDraftMarks';
 import TeacherSubjects from './pages/teacher/TeacherSubjects';
+import TeacherReports from './pages/teacher/TeacherReports';
 
 import StudentDashboard from './pages/student/StudentDashboard';
 import MyMarks from './pages/student/MyMarks';
@@ -50,6 +51,7 @@ function App() {
                     path="/register"
                     element={<Register />}
                 />
+
 
                 {/* ==================================================
                     ADMIN
@@ -85,6 +87,7 @@ function App() {
                     element={<Users />}
                 />
 
+
                 {/* ==================================================
                     TEACHER
                 ================================================== */}
@@ -114,6 +117,12 @@ function App() {
                     element={<TeacherSubjects />}
                 />
 
+                <Route
+                    path="/teacher/reports"
+                    element={<TeacherReports />}
+                />
+
+
                 {/* ==================================================
                     STUDENT
                 ================================================== */}
@@ -142,6 +151,7 @@ function App() {
                     path="/student/marksheet"
                     element={<Marksheet />}
                 />
+
 
                 {/* ==================================================
                     DEFAULT
