@@ -8,11 +8,17 @@ function TeacherDashboard() {
     const navigate = useNavigate();
     const { token } = useAuth();
 
-    const [assignments, setAssignments] = useState([]);
+    const [classes, setClasses] = useState([]);
+    const [totalStudents, setTotalStudents] = useState(0);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    const loadAssignments = async () => {
+    // ==========================================================
+    // LOAD TEACHER CLASSES
+    // ==========================================================
+
+    const loadDashboard = async () => {
 
         try {
 
@@ -24,8 +30,14 @@ function TeacherDashboard() {
                 localStorage.getItem('gradexa_token');
 
             if (!storedToken) {
-                throw new Error('You are not logged in.');
+                throw new Error(
+                    'You are not logged in.'
+                );
             }
+
+            // --------------------------------------------------
+            // GET TEACHER CLASS INFORMATION
+            // --------------------------------------------------
 
             const response =
                 await fetch(
@@ -49,26 +61,121 @@ function TeacherDashboard() {
                 throw new Error(
                     data?.message ||
                     data ||
-                    'Failed to load teacher assignments.'
+                    'Failed to load teacher classes.'
                 );
             }
 
-            setAssignments(
-                Array.isArray(data)
-                    ? data
-                    : []
+            // --------------------------------------------------
+            // REMOVE DUPLICATE CLASSES
+            //
+            // The current backend response may contain multiple
+            // records for the same class. We only use the class
+            // information here and ignore subject assignment data.
+            // --------------------------------------------------
+
+            const uniqueClassMap =
+                new Map();
+
+            if (Array.isArray(data)) {
+
+                data.forEach(
+                    (item) => {
+
+                        const academicClass =
+                            item?.academicClass;
+
+                        if (
+                            academicClass &&
+                            academicClass.id !== undefined &&
+                            academicClass.id !== null
+                        ) {
+
+                            uniqueClassMap.set(
+                                academicClass.id,
+                                academicClass
+                            );
+                        }
+                    }
+                );
+            }
+
+            const classList =
+                Array.from(
+                    uniqueClassMap.values()
+                );
+
+            setClasses(classList);
+
+            // --------------------------------------------------
+            // LOAD TOTAL STUDENT COUNT
+            // --------------------------------------------------
+
+            let studentCount = 0;
+
+            await Promise.all(
+                classList.map(
+                    async (academicClass) => {
+
+                        try {
+
+                            const studentResponse =
+                                await fetch(
+                                    `http://localhost:8082/api/students/class/${academicClass.id}`,
+                                    {
+                                        method: 'GET',
+                                        headers: {
+                                            'Authorization':
+                                                `Bearer ${storedToken}`,
+                                            'Content-Type':
+                                                'application/json'
+                                        }
+                                    }
+                                );
+
+                            if (
+                                !studentResponse.ok
+                            ) {
+                                return;
+                            }
+
+                            const studentData =
+                                await studentResponse.json();
+
+                            if (
+                                Array.isArray(
+                                    studentData
+                                )
+                            ) {
+
+                                studentCount +=
+                                    studentData.length;
+                            }
+
+                        } catch (studentError) {
+
+                            console.error(
+                                `Failed to load students for class ${academicClass.id}:`,
+                                studentError
+                            );
+                        }
+                    }
+                )
+            );
+
+            setTotalStudents(
+                studentCount
             );
 
         } catch (err) {
 
             console.error(
-                'Failed to load teacher assignments:',
+                'Failed to load teacher dashboard:',
                 err
             );
 
             setError(
                 err.message ||
-                'Failed to load assignments.'
+                'Failed to load dashboard.'
             );
 
         } finally {
@@ -77,54 +184,69 @@ function TeacherDashboard() {
         }
     };
 
+    // ==========================================================
+    // LOAD ON START
+    // ==========================================================
+
     useEffect(() => {
 
-        loadAssignments();
+        loadDashboard();
 
     }, [token]);
 
     // ==========================================================
-    // CALCULATIONS
+    // CLASS NAME
     // ==========================================================
 
-    const uniqueClasses =
-        new Map();
+    const getClassTitle = (
+        academicClass
+    ) => {
 
-    const uniqueSubjects =
-        new Map();
-
-    assignments.forEach(
-        assignment => {
-
-            const academicClass =
-                assignment.academicClass;
-
-            const subject =
-                assignment.subject;
-
-            if (academicClass) {
-
-                uniqueClasses.set(
-                    academicClass.id,
-                    academicClass
-                );
-            }
-
-            if (subject) {
-
-                uniqueSubjects.set(
-                    subject.id,
-                    subject
-                );
-            }
+        if (!academicClass) {
+            return 'Class';
         }
-    );
 
-    const classCount =
-        uniqueClasses.size;
+        if (
+            academicClass.className
+        ) {
+            return academicClass.className;
+        }
 
-    const subjectCount =
-        uniqueSubjects.size;
+        if (
+            academicClass.displayName
+        ) {
+            return academicClass.displayName;
+        }
+
+        if (
+            academicClass.grade !== undefined &&
+            academicClass.sectionName
+        ) {
+
+            return `Grade ${academicClass.grade}`;
+        }
+
+        return 'Academic Class';
+    };
+
+    // ==========================================================
+    // CLASS SECTION
+    // ==========================================================
+
+    const getSectionName = (
+        academicClass
+    ) => {
+
+        if (!academicClass) {
+            return '--';
+        }
+
+        return (
+            academicClass.sectionName ||
+            academicClass.section ||
+            '--'
+        );
+    };
 
     // ==========================================================
     // LOADING
@@ -133,6 +255,7 @@ function TeacherDashboard() {
     if (loading) {
 
         return (
+
             <div className="teacher-dashboard">
 
                 <div className="teacher-loading">
@@ -156,6 +279,7 @@ function TeacherDashboard() {
     if (error) {
 
         return (
+
             <div className="teacher-dashboard">
 
                 <div className="teacher-error">
@@ -173,7 +297,9 @@ function TeacherDashboard() {
                     </p>
 
                     <button
-                        onClick={loadAssignments}
+                        onClick={
+                            loadDashboard
+                        }
                     >
                         Try Again
                     </button>
@@ -189,6 +315,7 @@ function TeacherDashboard() {
     // ==========================================================
 
     return (
+
         <div className="teacher-dashboard">
 
             {/* ==================================================
@@ -215,18 +342,23 @@ function TeacherDashboard() {
 
                 <button
                     className="refresh-button"
-                    onClick={loadAssignments}
+                    onClick={
+                        loadDashboard
+                    }
                 >
                     ↻ Refresh
                 </button>
 
             </div>
 
+
             {/* ==================================================
                 SUMMARY
             ================================================== */}
 
             <div className="teacher-summary">
+
+                {/* ASSIGNED CLASSES */}
 
                 <div className="teacher-summary-card">
 
@@ -237,36 +369,19 @@ function TeacherDashboard() {
                     <div>
 
                         <p>
-                            Assigned Classes
+                            My Classes
                         </p>
 
                         <h2>
-                            {classCount}
+                            {classes.length}
                         </h2>
 
                     </div>
 
                 </div>
 
-                <div className="teacher-summary-card">
 
-                    <div className="summary-icon">
-                        📚
-                    </div>
-
-                    <div>
-
-                        <p>
-                            Subjects
-                        </p>
-
-                        <h2>
-                            {subjectCount}
-                        </h2>
-
-                    </div>
-
-                </div>
+                {/* STUDENTS */}
 
                 <div className="teacher-summary-card">
 
@@ -277,16 +392,42 @@ function TeacherDashboard() {
                     <div>
 
                         <p>
-                            Students
+                            Total Students
                         </p>
 
                         <h2>
-                            0
+                            {totalStudents}
                         </h2>
 
                     </div>
 
                 </div>
+
+
+                {/* TERMS */}
+
+                <div className="teacher-summary-card">
+
+                    <div className="summary-icon">
+                        📅
+                    </div>
+
+                    <div>
+
+                        <p>
+                            Terms Per Year
+                        </p>
+
+                        <h2>
+                            3
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                {/* MARKS */}
 
                 <div className="teacher-summary-card">
 
@@ -297,11 +438,11 @@ function TeacherDashboard() {
                     <div>
 
                         <p>
-                            Marks Pending
+                            Marks Management
                         </p>
 
                         <h2>
-                            0
+                            Active
                         </h2>
 
                     </div>
@@ -309,6 +450,7 @@ function TeacherDashboard() {
                 </div>
 
             </div>
+
 
             {/* ==================================================
                 QUICK ACTIONS
@@ -328,6 +470,7 @@ function TeacherDashboard() {
 
                 </div>
 
+
                 <div className="teacher-actions">
 
                     {/* ==================================================
@@ -337,7 +480,9 @@ function TeacherDashboard() {
                     <button
                         className="teacher-action-card"
                         onClick={() =>
-                            navigate('/teacher/students')
+                            navigate(
+                                '/teacher/students'
+                            )
                         }
                     >
 
@@ -352,41 +497,13 @@ function TeacherDashboard() {
                             </h3>
 
                             <p>
-                                View students in your assigned classes.
+                                View and manage students in your classes.
                             </p>
 
                         </div>
 
                     </button>
 
-                    {/* ==================================================
-                        MANAGE SUBJECTS
-                    ================================================== */}
-
-                    <button
-                        className="teacher-action-card"
-                        onClick={() =>
-                            navigate('/teacher/subjects')
-                        }
-                    >
-
-                        <div className="action-icon">
-                            📚
-                        </div>
-
-                        <div>
-
-                            <h3>
-                                Manage Subjects
-                            </h3>
-
-                            <p>
-                                View and manage subjects for your classes.
-                            </p>
-
-                        </div>
-
-                    </button>
 
                     {/* ==================================================
                         ENTER MARKS
@@ -395,7 +512,9 @@ function TeacherDashboard() {
                     <button
                         className="teacher-action-card"
                         onClick={() =>
-                            navigate('/teacher/marks')
+                            navigate(
+                                '/teacher/marks'
+                            )
                         }
                     >
 
@@ -410,21 +529,24 @@ function TeacherDashboard() {
                             </h3>
 
                             <p>
-                                Enter and manage student marks.
+                                Enter and update marks for your students.
                             </p>
 
                         </div>
 
                     </button>
 
+
                     {/* ==================================================
-                        REVIEW DRAFT MARKS
+                        REVIEW MARKS
                     ================================================== */}
 
                     <button
                         className="teacher-action-card"
                         onClick={() =>
-                            navigate('/teacher/drafts')
+                            navigate(
+                                '/teacher/drafts'
+                            )
                         }
                     >
 
@@ -435,25 +557,28 @@ function TeacherDashboard() {
                         <div>
 
                             <h3>
-                                Review Draft Marks
+                                Review Marks
                             </h3>
 
                             <p>
-                                Review and submit marks before publishing.
+                                Review marks across all three terms.
                             </p>
 
                         </div>
 
                     </button>
 
+
                     {/* ==================================================
-                        VIEW REPORTS
+                        REPORTS
                     ================================================== */}
 
                     <button
                         className="teacher-action-card"
                         onClick={() =>
-                            navigate('/teacher/marks')
+                            navigate(
+                                '/teacher/reports'
+                            )
                         }
                     >
 
@@ -468,7 +593,7 @@ function TeacherDashboard() {
                             </h3>
 
                             <p>
-                                View student performance reports.
+                                Compare student performance across terms.
                             </p>
 
                         </div>
@@ -479,8 +604,9 @@ function TeacherDashboard() {
 
             </div>
 
+
             {/* ==================================================
-                ASSIGNED CLASSES
+                MY CLASSES
             ================================================== */}
 
             <div className="teacher-section">
@@ -488,29 +614,30 @@ function TeacherDashboard() {
                 <div className="section-heading">
 
                     <h2>
-                        My Assigned Classes
+                        My Classes
                     </h2>
 
                     <p>
-                        Classes and subjects assigned to you.
+                        Classes available for student and marks management.
                     </p>
 
                 </div>
 
-                {assignments.length === 0 ? (
+
+                {classes.length === 0 ? (
 
                     <div className="empty-state">
 
                         <div className="empty-icon">
-                            📚
+                            🏫
                         </div>
 
                         <h3>
-                            No assignments yet
+                            No classes yet
                         </h3>
 
                         <p>
-                            You have not been assigned any classes or subjects.
+                            No classes are currently available for your account.
                         </p>
 
                     </div>
@@ -519,108 +646,135 @@ function TeacherDashboard() {
 
                     <div className="assignments-grid">
 
-                        {assignments.map(
-                            assignment => {
+                        {classes.map(
+                            (academicClass) => (
 
-                                const academicClass =
-                                    assignment.academicClass;
+                                <div
+                                    className="assignment-card"
+                                    key={
+                                        academicClass.id
+                                    }
+                                >
 
-                                const subject =
-                                    assignment.subject;
+                                    {/* ==========================================
+                                        CLASS HEADER
+                                    ========================================== */}
 
-                                return (
-                                    <div
-                                        className="assignment-card"
-                                        key={assignment.id}
-                                    >
+                                    <div className="assignment-header">
 
-                                        <div className="assignment-header">
-
-                                            <div className="assignment-icon">
-                                                🏫
-                                            </div>
-
-                                            <div>
-
-                                                <h3>
-                                                    Grade {academicClass?.grade}
-                                                </h3>
-
-                                                <p>
-                                                    Section {academicClass?.sectionName}
-                                                </p>
-
-                                            </div>
-
+                                        <div className="assignment-icon">
+                                            🏫
                                         </div>
 
-                                        <div className="assignment-details">
+                                        <div>
 
-                                            <div>
-
-                                                <span>
-                                                    Academic Year
-                                                </span>
-
-                                                <strong>
-                                                    {academicClass?.academicYear || '--'}
-                                                </strong>
-
-                                            </div>
-
-                                            <div>
-
-                                                <span>
-                                                    School Section
-                                                </span>
-
-                                                <strong>
-                                                    {academicClass?.schoolSection || '--'}
-                                                </strong>
-
-                                            </div>
-
-                                            <div>
-
-                                                <span>
-                                                    Subject
-                                                </span>
-
-                                                <strong>
-                                                    {subject?.subjectName || '--'}
-                                                </strong>
-
-                                            </div>
-
-                                        </div>
-
-                                        <div className="assignment-actions">
-
-                                            <button
-                                                onClick={() =>
-                                                    navigate(
-                                                        '/teacher/students'
+                                            <h3>
+                                                {
+                                                    getClassTitle(
+                                                        academicClass
                                                     )
                                                 }
-                                            >
-                                                View Students
-                                            </button>
+                                            </h3>
 
-                                            <button
-                                                onClick={() =>
-                                                    navigate(
-                                                        '/teacher/marks'
+                                            <p>
+                                                Section {
+                                                    getSectionName(
+                                                        academicClass
                                                     )
                                                 }
-                                            >
-                                                Enter Marks
-                                            </button>
+                                            </p>
 
                                         </div>
 
                                     </div>
-                                );
-                            }
+
+
+                                    {/* ==========================================
+                                        CLASS DETAILS
+                                    ========================================== */}
+
+                                    <div className="assignment-details">
+
+                                        <div>
+
+                                            <span>
+                                                Academic Year
+                                            </span>
+
+                                            <strong>
+                                                {
+                                                    academicClass.academicYear ||
+                                                    '--'
+                                                }
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <span>
+                                                School Section
+                                            </span>
+
+                                            <strong>
+                                                {
+                                                    academicClass.schoolSection ||
+                                                    '--'
+                                                }
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <span>
+                                                Class ID
+                                            </span>
+
+                                            <strong>
+                                                {
+                                                    academicClass.id
+                                                }
+                                            </strong>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    {/* ==========================================
+                                        ACTIONS
+                                    ========================================== */}
+
+                                    <div className="assignment-actions">
+
+                                        <button
+                                            onClick={() =>
+                                                navigate(
+                                                    '/teacher/students'
+                                                )
+                                            }
+                                        >
+                                            View Students
+                                        </button>
+
+                                        <button
+                                            onClick={() =>
+                                                navigate(
+                                                    '/teacher/marks'
+                                                )
+                                            }
+                                        >
+                                            Enter Marks
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            )
                         )}
 
                     </div>
