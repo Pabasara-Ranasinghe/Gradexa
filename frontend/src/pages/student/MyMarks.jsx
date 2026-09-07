@@ -19,17 +19,89 @@ const CORE_SUBJECTS = [
 ];
 
 const BASKET_CATEGORIES = [
-    'BASKET_01',
-    'BASKET_02',
-    'BASKET_03'
+    {
+        category: 'BASKET_01',
+        label: 'Basket 01'
+    },
+    {
+        category: 'BASKET_02',
+        label: 'Basket 02'
+    },
+    {
+        category: 'BASKET_03',
+        label: 'Basket 03'
+    }
 ];
+
+/* ==========================================================
+   HELPERS
+========================================================== */
 
 const normalize = (value) =>
     value == null
         ? ''
         : String(value)
-              .trim()
-              .toLowerCase();
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, ' ');
+
+/* ==========================================================
+   NORMALIZE TERM
+========================================================== */
+
+const normalizeTerm = (term) => {
+
+    const value = String(term || '')
+        .trim()
+        .toUpperCase()
+        .replace(/[-\s]/g, '_');
+
+    if (
+        value === 'TERM_1' ||
+        value === 'TERM1' ||
+        value === '1' ||
+        value === 'FIRST' ||
+        value === 'TERM_ONE'
+    ) {
+        return 'TERM_1';
+    }
+
+    if (
+        value === 'TERM_2' ||
+        value === 'TERM2' ||
+        value === '2' ||
+        value === 'SECOND' ||
+        value === 'TERM_TWO'
+    ) {
+        return 'TERM_2';
+    }
+
+    if (
+        value === 'TERM_3' ||
+        value === 'TERM3' ||
+        value === '3' ||
+        value === 'THIRD' ||
+        value === 'TERM_THREE'
+    ) {
+        return 'TERM_3';
+    }
+
+    return value;
+};
+
+/* ==========================================================
+   TERM PRIORITY
+========================================================== */
+
+const termPriority = {
+    TERM_1: 1,
+    TERM_2: 2,
+    TERM_3: 3
+};
+
+/* ==========================================================
+   COMPONENT
+========================================================== */
 
 function MyMarks() {
 
@@ -48,9 +120,9 @@ function MyMarks() {
     const [error, setError] =
         useState('');
 
-    // ==========================================================
-    // GET TOKEN
-    // ==========================================================
+    /* ==========================================================
+       GET TOKEN
+    ========================================================== */
 
     const getToken = () => {
 
@@ -60,6 +132,7 @@ function MyMarks() {
             );
 
         if (!token) {
+
             throw new Error(
                 'You are not logged in.'
             );
@@ -68,9 +141,9 @@ function MyMarks() {
         return token;
     };
 
-    // ==========================================================
-    // READ RESPONSE SAFELY
-    // ==========================================================
+    /* ==========================================================
+       READ RESPONSE SAFELY
+    ========================================================== */
 
     const readResponse = async (
         response
@@ -93,9 +166,9 @@ function MyMarks() {
         }
     };
 
-    // ==========================================================
-    // LOAD MARKS
-    // ==========================================================
+    /* ==========================================================
+       LOAD MARKS
+    ========================================================== */
 
     const loadMarks = useCallback(
         async (isRefresh = false) => {
@@ -116,20 +189,18 @@ function MyMarks() {
                 const token =
                     getToken();
 
-                // ==================================================
-                // GET CURRENT ENROLLMENT
-                // ==================================================
+                /* ==================================================
+                   GET CURRENT ENROLLMENT
+                ================================================== */
 
                 const enrollmentResponse =
                     await fetch(
                         `${API_URL}/api/students/me/enrollment`,
                         {
                             method: 'GET',
-
                             headers: {
                                 Authorization:
                                     `Bearer ${token}`,
-
                                 'Content-Type':
                                     'application/json'
                             }
@@ -163,20 +234,18 @@ function MyMarks() {
                     enrollmentData
                 );
 
-                // ==================================================
-                // GET ONLY SUBMITTED / PUBLISHED MARKS
-                // ==================================================
+                /* ==================================================
+                   GET ONLY SUBMITTED / PUBLISHED MARKS
+                ================================================== */
 
                 const marksResponse =
                     await fetch(
                         `${API_URL}/api/marks/enrollment/${enrollmentData.id}/submitted`,
                         {
                             method: 'GET',
-
                             headers: {
                                 Authorization:
                                     `Bearer ${token}`,
-
                                 'Content-Type':
                                     'application/json'
                             }
@@ -226,9 +295,9 @@ function MyMarks() {
         []
     );
 
-    // ==========================================================
-    // INITIAL LOAD
-    // ==========================================================
+    /* ==========================================================
+       INITIAL LOAD
+    ========================================================== */
 
     useEffect(() => {
 
@@ -236,9 +305,9 @@ function MyMarks() {
 
     }, [loadMarks]);
 
-    // ==========================================================
-    // AUTO REFRESH
-    // ==========================================================
+    /* ==========================================================
+       AUTO REFRESH
+    ========================================================== */
 
     useEffect(() => {
 
@@ -256,9 +325,23 @@ function MyMarks() {
 
     }, [loadMarks]);
 
-    // ==========================================================
-    // SELECT EXACT 9 SUBJECTS
-    // ==========================================================
+    /* ==========================================================
+       BUILD SUBJECT LIST
+       
+       IMPORTANT:
+       
+       This follows the SAME subject-selection logic
+       used by StudentDashboard.jsx.
+
+       Subjects are NOT hardcoded.
+
+       The actual subject information comes from:
+
+           mark.subject
+
+       Basket selection is made dynamically from
+       the student's published marks.
+    ========================================================== */
 
     const subjects = useMemo(() => {
 
@@ -267,52 +350,72 @@ function MyMarks() {
                 ? marks
                 : [];
 
-        // ------------------------------------------------------
-        // CREATE UNIQUE SUBJECT LIST
-        // ------------------------------------------------------
+        /* ------------------------------------------------------
+           ONLY PUBLISHED MARKS
+        ------------------------------------------------------ */
+
+        const publishedMarks =
+            markList.filter(
+                (mark) =>
+                    mark?.status === 'SUBMITTED' &&
+                    mark?.subject?.id != null
+            );
+
+        /* ------------------------------------------------------
+           UNIQUE SUBJECTS
+
+           One subject can have multiple marks because
+           it can have Term 1, Term 2 and Term 3.
+
+           Therefore we keep one subject object per ID.
+        ------------------------------------------------------ */
 
         const uniqueSubjects = [
             ...new Map(
-                markList
-                    .filter(
-                        (mark) =>
-                            mark?.subject?.id
-                    )
-                    .map(
-                        (mark) => [
-                            mark.subject.id,
-                            mark.subject
-                        ]
-                    )
+                publishedMarks.map(
+                    (mark) => [
+                        String(mark.subject.id),
+                        mark.subject
+                    ]
+                )
             ).values()
         ];
 
-        const selected = [];
+        const selectedSubjects = [];
 
-        // ------------------------------------------------------
-        // SIX CORE SUBJECTS
-        // ------------------------------------------------------
+        /* ======================================================
+           CORE SUBJECTS
+        ====================================================== */
 
         CORE_SUBJECTS.forEach(
             (coreName) => {
 
                 const subject =
                     uniqueSubjects.find(
-                        (item) =>
-                            normalize(
-                                item.subjectName
-                            ) ===
+                        (item) => {
+
+                            const subjectName =
                                 normalize(
-                                    coreName
-                                ) &&
-                            normalize(
-                                item.category
-                            ) === 'core'
+                                    item.subjectName
+                                );
+
+                            const category =
+                                normalize(
+                                    item.category
+                                );
+
+                            return (
+                                subjectName ===
+                                    normalize(coreName) &&
+                                category === 'core'
+                            );
+                        }
                     );
 
                 if (subject) {
 
-                    selected.push({
+                    selectedSubjects.push({
+
                         ...subject,
 
                         displayName:
@@ -324,113 +427,245 @@ function MyMarks() {
             }
         );
 
-        // ------------------------------------------------------
-        // ONE SUBJECT FROM EACH BASKET
-        // ------------------------------------------------------
+        /* ======================================================
+           BASKET SUBJECTS
+
+           THIS IS THE SAME LOGIC AS THE DASHBOARD.
+
+           For each basket:
+
+           1. Find subjects from that basket that have
+              published marks for this student.
+
+           2. Determine the earliest published term.
+
+           3. Prefer the subject whose published marks
+              begin in the earliest term.
+
+           4. If tied, prefer the subject with marks in
+              more published terms.
+
+           5. If still tied, use displayOrder only as the
+              final tie-breaker.
+
+           IMPORTANT:
+           displayOrder is NOT used to determine the
+           student's subject unless everything else is tied.
+        ====================================================== */
 
         BASKET_CATEGORIES.forEach(
-            (basketCategory, index) => {
+            ({ category, label }) => {
 
-                const basketSubjects =
-                    uniqueSubjects
-                        .filter(
-                            (subject) =>
-                                normalize(
-                                    subject.category
-                                ) ===
-                                normalize(
-                                    basketCategory
-                                )
-                        )
-                        .sort(
-                            (a, b) =>
-                                (a.displayOrder ?? 999) -
-                                (b.displayOrder ?? 999)
-                        );
+                const candidates =
+                    uniqueSubjects.filter(
+                        (subject) =>
+                            normalize(
+                                subject.category
+                            ) ===
+                            normalize(category)
+                    );
 
                 if (
-                    basketSubjects.length === 0
+                    candidates.length === 0
                 ) {
                     return;
                 }
 
-                // Determine which basket subject
-                // actually has published marks
-                // for this student.
+                const rankedCandidates =
+                    candidates
+                        .map((subject) => {
 
-                const subjectsWithUsage =
-                    basketSubjects.map(
-                        (subject) => {
+                            /* ----------------------------------
+                               Get marks for THIS exact subject
+                            ---------------------------------- */
 
-                            const usageCount =
-                                markList.filter(
+                            const subjectMarks =
+                                publishedMarks.filter(
                                     (mark) =>
-                                        mark?.subject?.id ===
-                                            subject.id &&
-                                        mark?.status ===
-                                            'SUBMITTED'
-                                ).length;
+                                        String(
+                                            mark?.subject?.id
+                                        ) ===
+                                        String(
+                                            subject.id
+                                        )
+                                );
+
+                            /* ----------------------------------
+                               Get published terms
+                            ---------------------------------- */
+
+                            const terms = [
+                                ...new Set(
+                                    subjectMarks.map(
+                                        (mark) =>
+                                            normalizeTerm(
+                                                mark.term
+                                            )
+                                    )
+                                )
+                            ];
+
+                            const validTerms =
+                                terms.filter(
+                                    (term) =>
+                                        termPriority[
+                                            term
+                                        ]
+                                );
+
+                            /* ----------------------------------
+                               Earliest published term
+                            ---------------------------------- */
+
+                            const earliestTerm =
+                                validTerms.length > 0
+                                    ? Math.min(
+                                        ...validTerms.map(
+                                            (term) =>
+                                                termPriority[
+                                                    term
+                                                ]
+                                        )
+                                    )
+                                    : 999;
 
                             return {
-                                subject,
-                                usageCount
+
+                                ...subject,
+
+                                publishedTermCount:
+                                    validTerms.length,
+
+                                earliestTerm
                             };
-                        }
-                    );
+                        })
+                        .sort((a, b) => {
 
-                subjectsWithUsage.sort(
-                    (a, b) => {
+                            /* ----------------------------------
+                               1. EARLIEST TERM
+                            ---------------------------------- */
 
-                        if (
-                            b.usageCount !==
-                            a.usageCount
-                        ) {
+                            if (
+                                a.earliestTerm !==
+                                b.earliestTerm
+                            ) {
+
+                                return (
+                                    a.earliestTerm -
+                                    b.earliestTerm
+                                );
+                            }
+
+                            /* ----------------------------------
+                               2. MOST PUBLISHED TERMS
+                            ---------------------------------- */
+
+                            if (
+                                b.publishedTermCount !==
+                                a.publishedTermCount
+                            ) {
+
+                                return (
+                                    b.publishedTermCount -
+                                    a.publishedTermCount
+                                );
+                            }
+
+                            /* ----------------------------------
+                               3. FINAL TIE BREAKER
+                            ---------------------------------- */
 
                             return (
-                                b.usageCount -
-                                a.usageCount
+                                Number(
+                                    a.displayOrder ?? 999
+                                ) -
+                                Number(
+                                    b.displayOrder ?? 999
+                                )
                             );
-                        }
+                        });
 
-                        return (
-                            (a.subject.displayOrder ??
-                                999) -
-                            (b.subject.displayOrder ??
-                                999)
-                        );
-                    }
-                );
+                /* ----------------------------------------------
+                   SELECT ONE SUBJECT FOR THIS BASKET
+                ---------------------------------------------- */
 
-                const selectedBasketSubject =
-                    subjectsWithUsage[0]?.subject;
+                const selected =
+                    rankedCandidates[0];
 
-                if (selectedBasketSubject) {
-
-                    selected.push({
-
-                        ...selectedBasketSubject,
-
-                        displayName:
-                            selectedBasketSubject.subjectName,
-
-                        basketLabel:
-                            `Basket 0${index + 1}`
-                    });
+                if (!selected) {
+                    return;
                 }
+
+                selectedSubjects.push({
+
+                    ...selected,
+
+                    displayName:
+                        selected.subjectName,
+
+                    basketLabel:
+                        label
+                });
             }
         );
 
-        // ------------------------------------------------------
-        // MAXIMUM 9 SUBJECTS
-        // ------------------------------------------------------
-
-        return selected.slice(0, 9);
+        return selectedSubjects;
 
     }, [marks]);
 
-    // ==========================================================
-    // GET MARK FOR SUBJECT + TERM
-    // ==========================================================
+    /* ==========================================================
+       DEBUG LOG
+
+       This can be removed later.
+    ========================================================== */
+
+    console.log(
+        '========== MY MARKS SUBJECT DEBUG =========='
+    );
+
+    console.log(
+        'Published marks:',
+        marks.filter(
+            (mark) =>
+                mark?.status === 'SUBMITTED'
+        )
+    );
+
+    console.log(
+        'Selected subjects:',
+        subjects.map(
+            (subject) => ({
+                id: subject.id,
+                name: subject.subjectName,
+                category: subject.category,
+                basket: subject.basketLabel
+            })
+        )
+    );
+
+    console.log(
+        '============================================'
+    );
+
+    /* ==========================================================
+       GET MARK FOR EXACT SUBJECT + TERM
+       
+       IMPORTANT:
+
+       Once a basket subject has been selected,
+       we use THAT SUBJECT'S ID.
+
+       Therefore:
+
+       Drama selected for Basket 01
+           ↓
+       Term 1 searches Drama ID
+       Term 2 searches Drama ID
+       Term 3 searches Drama ID
+
+       It will NEVER switch to English Literature
+       just because English Literature has a Term 2 mark.
+    ========================================================== */
 
     const getMark = (
         subjectId,
@@ -444,30 +679,46 @@ function MyMarks() {
                         item?.subject?.id
                     ) ===
                         String(subjectId) &&
-                    item?.term === term &&
+
+                    normalizeTerm(
+                        item?.term
+                    ) === term &&
+
                     item?.status ===
                         'SUBMITTED'
             );
 
         if (!mark) {
+
             return '—';
         }
 
-        // Absent must display as AB,
-        // never as 0.
+        /* ======================================================
+           ABSENT
+        ====================================================== */
 
         if (
             mark.absent === true
         ) {
+
             return 'AB';
         }
+
+        /* ======================================================
+           NO MARK
+        ====================================================== */
 
         if (
             mark.marks === null ||
             mark.marks === undefined
         ) {
+
             return '—';
         }
+
+        /* ======================================================
+           NUMERIC MARK
+        ====================================================== */
 
         const numericMark =
             Number(mark.marks);
@@ -477,21 +728,19 @@ function MyMarks() {
                 numericMark
             )
         ) {
+
             return '—';
         }
 
         return numericMark
             .toFixed(2)
             .replace(/\.00$/, '')
-            .replace(
-                /(\.\d)0$/,
-                '$1'
-            );
+            .replace(/(\.\d)0$/, '$1');
     };
 
-    // ==========================================================
-    // LOADING
-    // ==========================================================
+    /* ==========================================================
+       LOADING
+    ========================================================== */
 
     if (loading) {
 
@@ -514,9 +763,9 @@ function MyMarks() {
         );
     }
 
-    // ==========================================================
-    // ERROR
-    // ==========================================================
+    /* ==========================================================
+       ERROR
+    ========================================================== */
 
     if (error) {
 
@@ -560,9 +809,9 @@ function MyMarks() {
         );
     }
 
-    // ==========================================================
-    // RENDER
-    // ==========================================================
+    /* ==========================================================
+       RENDER
+    ========================================================== */
 
     return (
 
@@ -724,8 +973,7 @@ function MyMarks() {
 
                         <p>
                             Your published marks for
-                            the nine subjects in your
-                            academic program.
+                            each subject and term.
                         </p>
 
                     </div>
@@ -831,18 +1079,25 @@ function MyMarks() {
                                                 <td className="subject-name">
 
                                                     {subject.basketLabel ? (
+
                                                         <span className="basket-subject-label">
+
                                                             {
                                                                 subject.basketLabel
                                                             }{' '}
+
                                                             (
                                                             {
                                                                 subject.displayName
                                                             }
                                                             )
+
                                                         </span>
+
                                                     ) : (
+
                                                         subject.displayName
+
                                                     )}
 
                                                 </td>
@@ -896,7 +1151,6 @@ function MyMarks() {
                         </table>
 
                     </div>
-
                 )}
 
             </div>
