@@ -191,48 +191,46 @@ public class AuthService {
             String cleanStudentId =
                     studentId.trim();
 
-            if (studentRepository
-                    .existsByStudentNumber(
-                            cleanStudentId
-                    )) {
+            // ==========================================
+            // FIND THE EXISTING STUDENT RECORD
+            // ==========================================
+
+            Student student =
+                    studentRepository
+                            .findByStudentNumber(
+                                    cleanStudentId
+                            )
+                            .orElseThrow(() ->
+                                    new RuntimeException(
+                                            "No student record found for this Student ID"
+                                    )
+                            );
+
+            // ==========================================
+            // CHECK WHETHER THE STUDENT ALREADY HAS
+            // A USER ACCOUNT
+            // ==========================================
+
+            if (student.getUser() != null) {
 
                 throw new RuntimeException(
-                        "Student ID already exists"
+                        "This Student ID is already linked to a user account"
                 );
             }
 
-            Student student =
-                    new Student();
+            // ==========================================
+            // LINK THE EXISTING STUDENT TO THE USER
+            // ==========================================
 
             student.setUser(user);
 
-            student.setStudentNumber(
-                    cleanStudentId
-            );
-
-            student.setFirstName(
-                    firstName.trim()
-            );
-
-            student.setLastName(
-                    lastName.trim()
-            );
-
-            student.setDateOfBirth(
-                    dateOfBirth
-            );
-
-            // Save the information requested
-            // during registration
-            student.setRequestedSection(
-                    section
-            );
-
-            student.setRequestedGrade(
-                    grade
-            );
-
-            student.setActive(true);
+            /*
+             * Keep the Teacher-created student information.
+             *
+             * The student's academic record already exists.
+             * We should not create a new Student record or
+             * overwrite the existing academic information.
+             */
 
             studentRepository.save(student);
         }
