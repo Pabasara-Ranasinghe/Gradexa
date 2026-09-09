@@ -1,11 +1,16 @@
 package com.gradexa.backend.service;
 
+import java.io.ByteArrayOutputStream;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.gradexa.backend.dto.StudentPerformanceResponse;
 import com.gradexa.backend.entity.Mark;
 import com.gradexa.backend.entity.StudentEnrollment;
 import com.gradexa.backend.entity.Term;
 import com.gradexa.backend.repository.MarkRepository;
 import com.gradexa.backend.repository.StudentEnrollmentRepository;
-
 import com.lowagie.text.Document;
 import com.lowagie.text.Element;
 import com.lowagie.text.Font;
@@ -17,27 +22,31 @@ import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 
-import org.springframework.stereotype.Service;
-
-import java.io.ByteArrayOutputStream;
-import java.util.List;
-
 @Service
 public class MarksheetService {
 
     private final StudentEnrollmentRepository enrollmentRepository;
     private final MarkRepository markRepository;
+    private final StudentPerformanceService performanceService;
 
     public MarksheetService(
             StudentEnrollmentRepository enrollmentRepository,
-            MarkRepository markRepository
+            MarkRepository markRepository,
+            StudentPerformanceService performanceService
     ) {
         this.enrollmentRepository =
                 enrollmentRepository;
 
         this.markRepository =
                 markRepository;
+
+        this.performanceService =
+                performanceService;
     }
+
+    // ==========================================================
+    // GENERATE MARKSHEET
+    // ==========================================================
 
     public byte[] generateMarksheet(
             Long enrollmentId
@@ -50,11 +59,6 @@ public class MarksheetService {
                                         "Student enrollment not found"
                                 )
                         );
-
-        List<Mark> allMarks =
-                markRepository.findByStudentEnrollment(
-                        enrollment
-                );
 
         ByteArrayOutputStream outputStream =
                 new ByteArrayOutputStream();
@@ -71,9 +75,9 @@ public class MarksheetService {
 
             document.open();
 
-            // ==============================
-            // Fonts
-            // ==============================
+            // ==================================================
+            // FONTS
+            // ==================================================
 
             Font titleFont =
                     FontFactory.getFont(
@@ -93,9 +97,9 @@ public class MarksheetService {
                             11
                     );
 
-            // ==============================
-            // Title
-            // ==============================
+            // ==================================================
+            // TITLE
+            // ==================================================
 
             Paragraph title =
                     new Paragraph(
@@ -113,9 +117,9 @@ public class MarksheetService {
                     new Paragraph(" ")
             );
 
-            // ==============================
-            // Student Information
-            // ==============================
+            // ==================================================
+            // STUDENT INFORMATION
+            // ==================================================
 
             Paragraph studentHeading =
                     new Paragraph(
@@ -172,8 +176,7 @@ public class MarksheetService {
             document.add(
                     new Paragraph(
                             "Academic Year: "
-                                    + enrollment
-                                    .getAcademicYear(),
+                                    + enrollment.getAcademicYear(),
                             normalFont
                     )
             );
@@ -182,9 +185,9 @@ public class MarksheetService {
                     new Paragraph(" ")
             );
 
-            // ==============================
-            // Term 1
-            // ==============================
+            // ==================================================
+            // TERM 1
+            // ==================================================
 
             addTermSection(
                     document,
@@ -192,9 +195,9 @@ public class MarksheetService {
                     Term.TERM_1
             );
 
-            // ==============================
-            // Term 2
-            // ==============================
+            // ==================================================
+            // TERM 2
+            // ==================================================
 
             addTermSection(
                     document,
@@ -202,9 +205,9 @@ public class MarksheetService {
                     Term.TERM_2
             );
 
-            // ==============================
-            // Term 3
-            // ==============================
+            // ==================================================
+            // TERM 3
+            // ==================================================
 
             addTermSection(
                     document,
@@ -212,50 +215,9 @@ public class MarksheetService {
                     Term.TERM_3
             );
 
-            // ==============================
-            // Yearly Result
-            // ==============================
-
-            MarksheetYearlyResult yearlyResult =
-                    calculateYearlyResult(
-                            allMarks
-                    );
-
-            Paragraph yearlyHeading =
-                    new Paragraph(
-                            "Yearly Result",
-                            headingFont
-                    );
-
-            document.add(yearlyHeading);
-
-            document.add(
-                    new Paragraph(
-                            "Overall Total: "
-                                    + formatNumber(
-                                    yearlyResult.overallTotal
-                            ),
-                            normalFont
-                    )
-            );
-
-            document.add(
-                    new Paragraph(
-                            "Overall Average: "
-                                    + formatNumber(
-                                    yearlyResult.overallAverage
-                            ),
-                            normalFont
-                    )
-            );
-
-            document.add(
-                    new Paragraph(" ")
-            );
-
-            // ==============================
-            // Footer
-            // ==============================
+            // ==================================================
+            // FOOTER
+            // ==================================================
 
             Font footerFont =
                     FontFactory.getFont(
@@ -275,7 +237,10 @@ public class MarksheetService {
 
             document.add(footer);
 
-            // Close PDF
+            // ==================================================
+            // CLOSE PDF
+            // ==================================================
+
             document.close();
 
             return outputStream.toByteArray();
@@ -294,7 +259,7 @@ public class MarksheetService {
     }
 
     // ==========================================================
-    // Add Term Section
+    // ADD TERM SECTION
     // ==========================================================
 
     private void addTermSection(
@@ -302,6 +267,31 @@ public class MarksheetService {
             StudentEnrollment enrollment,
             Term term
     ) {
+
+        List<Mark> marks =
+                markRepository
+                        .findByStudentEnrollmentAndTerm(
+                                enrollment,
+                                term
+                        );
+
+        /*
+         * If there are no marks for this term,
+         * completely skip the term.
+         *
+         * We do NOT display:
+         *
+         * "Term 3"
+         * "No marks entered for this term."
+         */
+
+        if (marks.isEmpty()) {
+            return;
+        }
+
+        // ==================================================
+        // TERM HEADING
+        // ==================================================
 
         Font headingFont =
                 FontFactory.getFont(
@@ -317,32 +307,9 @@ public class MarksheetService {
 
         document.add(termHeading);
 
-        List<Mark> marks =
-                markRepository
-                        .findByStudentEnrollmentAndTerm(
-                                enrollment,
-                                term
-                        );
-
-        // No marks for this term
-        if (marks.isEmpty()) {
-
-            document.add(
-                    new Paragraph(
-                            "No marks entered for this term."
-                    )
-            );
-
-            document.add(
-                    new Paragraph(" ")
-            );
-
-            return;
-        }
-
-        // ==============================
-        // Table
-        // ==============================
+        // ==================================================
+        // TABLE
+        // ==================================================
 
         PdfPTable table =
                 new PdfPTable(2);
@@ -356,7 +323,10 @@ public class MarksheetService {
                 }
         );
 
-        // Header cells
+        // ==================================================
+        // TABLE HEADERS
+        // ==================================================
+
         addHeaderCell(
                 table,
                 "Subject"
@@ -367,55 +337,96 @@ public class MarksheetService {
                 "Marks"
         );
 
+        // ==================================================
+        // MARKS
+        // ==================================================
+
         double total = 0;
 
-        // ==============================
-        // Add Marks
-        // ==============================
+        int participatedCount = 0;
 
         for (Mark mark : marks) {
 
+            // ----------------------------------------------
+            // SUBJECT
+            // ----------------------------------------------
+
+            String subjectName =
+                    mark.getSubject()
+                            .getSubjectName();
+
+            table.addCell(
+                    new PdfPCell(
+                            new Phrase(
+                                    subjectName
+                            )
+                    )
+            );
+
+            // ----------------------------------------------
+            // MARK
+            // ----------------------------------------------
+
+            String displayedMark;
+
             /*
-             * Subject entity uses:
+             * IMPORTANT:
              *
-             * private String subjectName;
+             * We check the absent field first.
              *
-             * Therefore Lombok generates:
+             * absent = true
+             *      -> AB
              *
-             * getSubjectName()
+             * absent = false + marks = 0
+             *      -> 0
+             *
+             * Therefore a genuine zero is NOT treated
+             * as an absence.
              */
-            table.addCell(
+
+            if (mark.isAbsent()) {
+
+                displayedMark = "AB";
+
+            } else {
+
+                displayedMark =
+                        formatNumber(
+                                mark.getMarks()
+                        );
+
+                /*
+                 * Only participated marks are included
+                 * in the term total and average.
+                 */
+                total += mark.getMarks();
+
+                participatedCount++;
+            }
+
+            PdfPCell marksCell =
                     new PdfPCell(
                             new Phrase(
-                                    mark.getSubject()
-                                            .getSubjectName()
+                                    displayedMark
                             )
-                    )
+                    );
+
+            marksCell.setHorizontalAlignment(
+                    Element.ALIGN_CENTER
             );
 
-            table.addCell(
-                    new PdfPCell(
-                            new Phrase(
-                                    formatNumber(
-                                            mark.getMarks()
-                                    )
-                            )
-                    )
-            );
-
-            total += mark.getMarks();
+            table.addCell(marksCell);
         }
 
-        // ==============================
-        // Average
-        // ==============================
-
-        double average =
-                marks.isEmpty()
-                        ? 0
-                        : total / marks.size();
+        // ==================================================
+        // ADD TABLE
+        // ==================================================
 
         document.add(table);
+
+        // ==================================================
+        // TERM TOTAL
+        // ==================================================
 
         document.add(
                 new Paragraph(
@@ -424,11 +435,30 @@ public class MarksheetService {
                 )
         );
 
+        // ==================================================
+        // TERM AVERAGE
+        // ==================================================
+
+        double average =
+                participatedCount == 0
+                        ? 0
+                        : total / participatedCount;
+
         document.add(
                 new Paragraph(
                         "Average: "
                                 + formatNumber(average)
                 )
+        );
+
+        // ==================================================
+        // POSITION / CLASS SIZE
+        // ==================================================
+
+        addPositionInformation(
+                document,
+                enrollment,
+                term
         );
 
         document.add(
@@ -437,71 +467,133 @@ public class MarksheetService {
     }
 
     // ==========================================================
-    // Calculate Yearly Result
+    // ADD POSITION INFORMATION
     // ==========================================================
 
-    private MarksheetYearlyResult calculateYearlyResult(
-            List<Mark> allMarks
+    private void addPositionInformation(
+            Document document,
+            StudentEnrollment enrollment,
+            Term term
     ) {
 
-        double term1Total = 0;
-        double term2Total = 0;
-        double term3Total = 0;
+        try {
 
-        int term1Count = 0;
-        int term2Count = 0;
-        int term3Count = 0;
+            /*
+             * Get the complete performance information
+             * for the student's class.
+             */
+            List<StudentPerformanceResponse> classPerformance =
+                    performanceService.getClassPerformance(
+                            enrollment
+                                    .getAcademicClass()
+                                    .getId()
+                    );
 
-        for (Mark mark : allMarks) {
+            /*
+             * Find the current student's result.
+             */
+            StudentPerformanceResponse studentResult =
+                    classPerformance
+                            .stream()
+                            .filter(result ->
+                                    result.getEnrollmentId()
+                                            .equals(
+                                                    enrollment.getId()
+                                            )
+                            )
+                            .findFirst()
+                            .orElse(null);
 
-            switch (mark.getTerm()) {
-
-                case TERM_1:
-
-                    term1Total += mark.getMarks();
-                    term1Count++;
-
-                    break;
-
-                case TERM_2:
-
-                    term2Total += mark.getMarks();
-                    term2Count++;
-
-                    break;
-
-                case TERM_3:
-
-                    term3Total += mark.getMarks();
-                    term3Count++;
-
-                    break;
+            if (studentResult == null) {
+                return;
             }
+
+            int position;
+            int classSize;
+
+            // ==================================================
+            // TERM 1
+            // ==================================================
+
+            if (term == Term.TERM_1) {
+
+                position =
+                        studentResult.getTerm1Place();
+
+                classSize =
+                        studentResult.getTerm1TotalStudents();
+
+            }
+
+            // ==================================================
+            // TERM 2
+            // ==================================================
+
+            else if (term == Term.TERM_2) {
+
+                position =
+                        studentResult.getTerm2Place();
+
+                classSize =
+                        studentResult.getTerm2TotalStudents();
+
+            }
+
+            // ==================================================
+            // TERM 3
+            // ==================================================
+
+            else {
+
+                position =
+                        studentResult.getTerm3Place();
+
+                classSize =
+                        studentResult.getTerm3TotalStudents();
+            }
+
+            /*
+             * Only display position information when
+             * the term has a valid class result.
+             */
+            if (position > 0 && classSize > 0) {
+
+                document.add(
+                        new Paragraph(
+                                "Position: "
+                                        + position
+                                        + " / "
+                                        + classSize
+                        )
+                );
+
+            } else if (classSize > 0) {
+
+                document.add(
+                        new Paragraph(
+                                "Class Size: "
+                                        + classSize
+                        )
+                );
+            }
+
+        } catch (Exception e) {
+
+            /*
+             * Position information should not prevent
+             * the marksheet itself from being generated.
+             *
+             * The marks table will still be included.
+             */
+            System.err.println(
+                    "Unable to load position information: "
+                            + e.getMessage()
+            );
         }
-
-        double overallTotal =
-                term1Total
-                        + term2Total
-                        + term3Total;
-
-        int totalCount =
-                term1Count
-                        + term2Count
-                        + term3Count;
-
-        double overallAverage =
-                totalCount == 0
-                        ? 0
-                        : overallTotal / totalCount;
-
-        return new MarksheetYearlyResult(
-                overallTotal,
-                overallAverage
-        );
     }
 
     // ==========================================================
-    // Add Table Header Cell
+    // ADD TABLE HEADER CELL
     // ==========================================================
 
     private void addHeaderCell(
@@ -531,10 +623,12 @@ public class MarksheetService {
     }
 
     // ==========================================================
-    // Convert Term Enum to Display Name
+    // CONVERT TERM ENUM TO DISPLAY NAME
     // ==========================================================
 
-    private String termName(Term term) {
+    private String termName(
+            Term term
+    ) {
 
         return switch (term) {
 
@@ -550,7 +644,7 @@ public class MarksheetService {
     }
 
     // ==========================================================
-    // Format Numbers
+    // FORMAT NUMBERS
     // ==========================================================
 
     private String formatNumber(
@@ -568,27 +662,5 @@ public class MarksheetService {
                 "%.2f",
                 number
         );
-    }
-
-    // ==========================================================
-    // Yearly Result Helper Class
-    // ==========================================================
-
-    private static class MarksheetYearlyResult {
-
-        private final double overallTotal;
-        private final double overallAverage;
-
-        public MarksheetYearlyResult(
-                double overallTotal,
-                double overallAverage
-        ) {
-
-            this.overallTotal =
-                    overallTotal;
-
-            this.overallAverage =
-                    overallAverage;
-        }
     }
 }
