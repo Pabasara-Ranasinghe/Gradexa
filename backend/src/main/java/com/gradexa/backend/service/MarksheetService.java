@@ -556,26 +556,25 @@ public class MarksheetService {
              * Only display position information when
              * the term has a valid class result.
              */
-            if (position > 0 && classSize > 0) {
+            if (position > 0) {
 
                 document.add(
                         new Paragraph(
                                 "Position: "
                                         + position
-                                        + " / "
-                                        + classSize
                         )
                 );
+        }
 
-            } else if (classSize > 0) {
+        if (classSize > 0) {
 
                 document.add(
                         new Paragraph(
-                                "Class Size: "
+                                "Total No. of Students: "
                                         + classSize
                         )
                 );
-            }
+        }
 
         } catch (Exception e) {
 
