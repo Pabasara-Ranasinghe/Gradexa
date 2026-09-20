@@ -7,8 +7,15 @@ import {
 import Login from './pages/Login';
 import Register from './pages/Register';
 
+// =================================
+// ADMIN
+// =================================
+
+import AdminLayout from './components/admin/AdminLayout';
+
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
+import TeacherAssignments from './pages/admin/TeacherAssignments';
 import RegistrationRequests from './pages/admin/RegistrationRequests';
 import Reports from './pages/admin/Reports';
 import Settings from './pages/admin/Settings';
@@ -27,9 +34,11 @@ import MyProfile from './pages/student/MyProfile';
 import MyClasses from './pages/student/MyClasses';
 import Marksheet from './pages/student/Marksheet';
 
+
 import { AuthProvider } from './context/AuthContext';
 
 import './App.css';
+
 
 function App() {
 
@@ -53,39 +62,51 @@ function App() {
                 />
 
 
-                {/* ==================================================
-                    ADMIN
-                ================================================== */}
+                {/* =================================
+                    ADMIN ROUTES
+                    ================================= */}
 
                 <Route
-                    path="/admin/dashboard"
+                    path="/admin"
+                    element={<AdminLayout />}
+                >
+
+                <Route
+                    path="dashboard"
                     element={<AdminDashboard />}
                 />
 
                 <Route
-                    path="/admin/users"
+                    path="users"
                     element={<AdminUsers />}
                 />
 
                 <Route
-                    path="/admin/registrations"
+                    path="teacher-assignments"
+                    element={<TeacherAssignments />}
+                />
+
+                <Route
+                    path="registrations"
                     element={<RegistrationRequests />}
                 />
 
                 <Route
-                    path="/admin/reports"
+                    path="reports"
                     element={<Reports />}
                 />
 
                 <Route
-                    path="/admin/settings"
+                    path="settings"
                     element={<Settings />}
                 />
 
                 <Route
-                    path="/admin/users-management"
+                    path="users-management"
                     element={<Users />}
                 />
+
+                </Route>
 
 
                 {/* ==================================================

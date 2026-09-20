@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 
 import './AdminLayout.css';
 
+
 function AdminLayout() {
 
     const navigate = useNavigate();
@@ -17,9 +18,6 @@ function AdminLayout() {
         logout
     } = useAuth();
 
-    // ===============================
-    // LOGOUT
-    // ===============================
 
     const handleLogout = () => {
 
@@ -28,21 +26,22 @@ function AdminLayout() {
         navigate('/login');
     };
 
-    // ===============================
-    // NAVIGATION CLASS
-    // ===============================
 
     const navClassName = ({ isActive }) =>
         `admin-nav-item ${isActive ? 'active' : ''}`;
 
+
     return (
+
         <div className="admin-layout">
+
 
             {/* =================================
                 SIDEBAR
                 ================================= */}
 
             <aside className="admin-sidebar">
+
 
                 {/* =================================
                     BRAND
@@ -53,6 +52,7 @@ function AdminLayout() {
                     <div className="admin-logo">
                         G
                     </div>
+
 
                     <div className="admin-brand-text">
 
@@ -75,7 +75,8 @@ function AdminLayout() {
 
                 <nav className="admin-navigation">
 
-                    {/* DASHBOARD */}
+
+                    {/* Dashboard */}
 
                     <NavLink
                         to="/admin/dashboard"
@@ -93,7 +94,7 @@ function AdminLayout() {
                     </NavLink>
 
 
-                    {/* USERS */}
+                    {/* Users */}
 
                     <NavLink
                         to="/admin/users"
@@ -111,7 +112,112 @@ function AdminLayout() {
                     </NavLink>
 
 
-                    {/* REGISTRATION REQUESTS */}
+                    {/* =================================
+                        TEACHER MANAGEMENT
+                        ================================= */}
+
+                    <div className="admin-nav-section">
+
+                        <div className="admin-nav-section-title">
+                            Teacher Management
+                        </div>
+
+
+                        <NavLink
+                            to="/admin/add-teacher"
+                            className={navClassName}
+                        >
+
+                            <span className="admin-nav-icon">
+                                +
+                            </span>
+
+                            <span>
+                                Add Teacher
+                            </span>
+
+                        </NavLink>
+
+
+                        <NavLink
+                            to="/admin/teacher-assignments"
+                            className={navClassName}
+                        >
+
+                            <span className="admin-nav-icon">
+                                ◈
+                            </span>
+
+                            <span>
+                                Teacher Assignments
+                            </span>
+
+                        </NavLink>
+
+                    </div>
+
+
+                    {/* =================================
+                        STUDENT MANAGEMENT
+                        ================================= */}
+
+                    <div className="admin-nav-section">
+
+                        <div className="admin-nav-section-title">
+                            Student Management
+                        </div>
+
+
+                        <NavLink
+                            to="/admin/add-student"
+                            className={navClassName}
+                        >
+
+                            <span className="admin-nav-icon">
+                                +
+                            </span>
+
+                            <span>
+                                Add Student
+                            </span>
+
+                        </NavLink>
+
+                    </div>
+
+
+                    {/* =================================
+                        CLASS MANAGEMENT
+                        ================================= */}
+
+                    <div className="admin-nav-section">
+
+                        <div className="admin-nav-section-title">
+                            Class Management
+                        </div>
+
+
+                        <NavLink
+                            to="/admin/add-class"
+                            className={navClassName}
+                        >
+
+                            <span className="admin-nav-icon">
+                                +
+                            </span>
+
+                            <span>
+                                Add Class
+                            </span>
+
+                        </NavLink>
+
+                    </div>
+
+
+                    {/* =================================
+                        REGISTRATION REQUESTS
+                        ================================= */}
 
                     <NavLink
                         to="/admin/registrations"
@@ -129,7 +235,7 @@ function AdminLayout() {
                     </NavLink>
 
 
-                    {/* REPORTS */}
+                    {/* Reports */}
 
                     <NavLink
                         to="/admin/reports"
@@ -155,7 +261,8 @@ function AdminLayout() {
 
                 <div className="admin-sidebar-bottom">
 
-                    {/* SETTINGS */}
+
+                    {/* Settings */}
 
                     <NavLink
                         to="/admin/settings"
@@ -173,9 +280,10 @@ function AdminLayout() {
                     </NavLink>
 
 
-                    {/* LOGOUT */}
+                    {/* Logout */}
 
                     <button
+                        type="button"
                         className="admin-logout-button"
                         onClick={handleLogout}
                     >
@@ -201,11 +309,13 @@ function AdminLayout() {
 
             <main className="admin-main">
 
+
                 {/* =================================
                     HEADER
                     ================================= */}
 
                 <header className="admin-header">
+
 
                     <div>
 
@@ -221,10 +331,11 @@ function AdminLayout() {
 
 
                     {/* =================================
-                        PROFILE
+                        ADMIN PROFILE
                         ================================= */}
 
                     <div className="admin-profile">
+
 
                         <div className="admin-profile-avatar">
 
@@ -233,6 +344,7 @@ function AdminLayout() {
                                 .toUpperCase() || 'A'}
 
                         </div>
+
 
                         <div className="admin-profile-info">
 
@@ -266,5 +378,6 @@ function AdminLayout() {
         </div>
     );
 }
+
 
 export default AdminLayout;

@@ -1,16 +1,21 @@
 const API_URL = 'http://localhost:8082/api';
 
-/*
- * Get all teachers.
- * Used by the Admin Teacher Assignment page.
- */
+
+// ==========================================================
+// GET ALL TEACHERS
+// Used by the Admin Teacher Assignment page.
+// ==========================================================
+
 export const getAllTeachers = async () => {
-    const token = localStorage.getItem('token');
+
+    const token =
+        localStorage.getItem('gradexa_token');
 
     const response = await fetch(
         `${API_URL}/teachers`,
         {
             method: 'GET',
+
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -19,9 +24,13 @@ export const getAllTeachers = async () => {
     );
 
     if (!response.ok) {
-        const message = await response.text();
+
+        const message =
+            await response.text();
+
         throw new Error(
-            message || 'Failed to load teachers.'
+            message ||
+            'Failed to load teachers.'
         );
     }
 
@@ -29,16 +38,22 @@ export const getAllTeachers = async () => {
 };
 
 
-/*
- * Get all active classes for an academic year.
- */
-export const getClassesByYear = async (academicYear) => {
-    const token = localStorage.getItem('token');
+// ==========================================================
+// GET ALL ACTIVE CLASSES FOR AN ACADEMIC YEAR
+// ==========================================================
+
+export const getClassesByYear = async (
+    academicYear
+) => {
+
+    const token =
+        localStorage.getItem('gradexa_token');
 
     const response = await fetch(
         `${API_URL}/classes?academicYear=${academicYear}`,
         {
             method: 'GET',
+
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -47,9 +62,13 @@ export const getClassesByYear = async (academicYear) => {
     );
 
     if (!response.ok) {
-        const message = await response.text();
+
+        const message =
+            await response.text();
+
         throw new Error(
-            message || 'Failed to load classes.'
+            message ||
+            'Failed to load classes.'
         );
     }
 
@@ -57,16 +76,22 @@ export const getClassesByYear = async (academicYear) => {
 };
 
 
-/*
- * Get subjects belonging to a specific class.
- */
-export const getSubjectsByClass = async (classId) => {
-    const token = localStorage.getItem('token');
+// ==========================================================
+// GET SUBJECTS BELONGING TO A SPECIFIC CLASS
+// ==========================================================
+
+export const getSubjectsByClass = async (
+    classId
+) => {
+
+    const token =
+        localStorage.getItem('gradexa_token');
 
     const response = await fetch(
         `${API_URL}/subjects/class/${classId}`,
         {
             method: 'GET',
+
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -75,9 +100,13 @@ export const getSubjectsByClass = async (classId) => {
     );
 
     if (!response.ok) {
-        const message = await response.text();
+
+        const message =
+            await response.text();
+
         throw new Error(
-            message || 'Failed to load subjects.'
+            message ||
+            'Failed to load subjects.'
         );
     }
 
@@ -85,16 +114,23 @@ export const getSubjectsByClass = async (classId) => {
 };
 
 
-/*
- * Get the active assignments of a specific teacher.
- */
-export const getTeacherAssignments = async (teacherId) => {
-    const token = localStorage.getItem('token');
+// ==========================================================
+// GET ACTIVE ASSIGNMENTS FOR A TEACHER
+// ADMIN ONLY
+// ==========================================================
+
+export const getTeacherAssignments = async (
+    teacherId
+) => {
+
+    const token =
+        localStorage.getItem('gradexa_token');
 
     const response = await fetch(
         `${API_URL}/teacher-assignments/teacher/${teacherId}`,
         {
             method: 'GET',
+
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -103,9 +139,13 @@ export const getTeacherAssignments = async (teacherId) => {
     );
 
     if (!response.ok) {
-        const message = await response.text();
+
+        const message =
+            await response.text();
+
         throw new Error(
-            message || 'Failed to load teacher assignments.'
+            message ||
+            'Failed to load teacher assignments.'
         );
     }
 
@@ -113,26 +153,32 @@ export const getTeacherAssignments = async (teacherId) => {
 };
 
 
-/*
- * Assign a teacher to a class and subject.
- */
+// ==========================================================
+// ASSIGN TEACHER TO CLASS + SUBJECT
+// ADMIN ONLY
+// ==========================================================
+
 export const assignTeacher = async (
     teacherId,
     academicClassId,
     subjectId
 ) => {
-    const token = localStorage.getItem('token');
 
-    const params = new URLSearchParams({
-        teacherId: teacherId,
-        academicClassId: academicClassId,
-        subjectId: subjectId
-    });
+    const token =
+        localStorage.getItem('gradexa_token');
+
+    const params =
+        new URLSearchParams({
+            teacherId: teacherId,
+            academicClassId: academicClassId,
+            subjectId: subjectId
+        });
 
     const response = await fetch(
         `${API_URL}/teacher-assignments?${params.toString()}`,
         {
             method: 'POST',
+
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -141,9 +187,13 @@ export const assignTeacher = async (
     );
 
     if (!response.ok) {
-        const message = await response.text();
+
+        const message =
+            await response.text();
+
         throw new Error(
-            message || 'Failed to assign teacher.'
+            message ||
+            'Failed to assign teacher.'
         );
     }
 
@@ -151,18 +201,23 @@ export const assignTeacher = async (
 };
 
 
-/*
- * Deactivate an existing teacher assignment.
- */
+// ==========================================================
+// DEACTIVATE TEACHER ASSIGNMENT
+// ADMIN ONLY
+// ==========================================================
+
 export const deactivateTeacherAssignment = async (
     assignmentId
 ) => {
-    const token = localStorage.getItem('token');
+
+    const token =
+        localStorage.getItem('gradexa_token');
 
     const response = await fetch(
         `${API_URL}/teacher-assignments/${assignmentId}/deactivate`,
         {
             method: 'PUT',
+
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -171,9 +226,13 @@ export const deactivateTeacherAssignment = async (
     );
 
     if (!response.ok) {
-        const message = await response.text();
+
+        const message =
+            await response.text();
+
         throw new Error(
-            message || 'Failed to remove teacher assignment.'
+            message ||
+            'Failed to remove teacher assignment.'
         );
     }
 
