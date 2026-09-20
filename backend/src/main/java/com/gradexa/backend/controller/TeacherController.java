@@ -1,6 +1,9 @@
 package com.gradexa.backend.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +21,10 @@ public class TeacherController {
 
     private final TeacherService teacherService;
 
+    /*
+     * TEACHER:
+     * Get the profile of the currently logged-in teacher.
+     */
     @GetMapping("/me")
     public ResponseEntity<Teacher> getMyProfile(
             Authentication authentication
@@ -32,5 +39,21 @@ public class TeacherController {
                 );
 
         return ResponseEntity.ok(teacher);
+    }
+
+    /*
+     * ADMIN:
+     * Get all teachers.
+     *
+     * This will be used by the Admin
+     * Teacher Assignment page.
+     */
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Teacher>> getAllTeachers() {
+
+        return ResponseEntity.ok(
+                teacherService.getAllTeachers()
+        );
     }
 }
